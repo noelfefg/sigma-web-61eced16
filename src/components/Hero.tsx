@@ -133,38 +133,38 @@ export function Hero() {
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
           >
-            <span className="text-white text-lg font-bold tracking-wider writing-vertical">SIGMA</span>
+            <span className="text-white text-lg font-bold tracking-wider">SIGMA</span>
           </motion.div>
 
-          {/* Vertical Navigation Menu */}
+          {/* Horizontal Navigation Menu */}
           <div className="flex flex-col items-center space-y-6 flex-1">
             <a 
               href="#portfolio" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
             >
               Work
             </a>
             <a 
               href="#about" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
             >
               Process
             </a>
             <a 
               href="#services" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
             >
               Capabilities
             </a>
             <a 
               href="#team" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
             >
               Team
             </a>
             <a 
               href="#contact" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
             >
               Contact
             </a>
@@ -190,7 +190,7 @@ export function Hero() {
                 const contactSection = document.getElementById('contact')
                 contactSection?.scrollIntoView({ behavior: 'smooth' })
               }}
-              className="bg-red-600 backdrop-blur-sm text-white font-semibold px-4 py-3 rounded-md hover:bg-red-700 gentle-animation cursor-pointer text-sm writing-vertical"
+              className="bg-red-600 backdrop-blur-sm text-white font-semibold px-4 py-3 rounded-md hover:bg-red-700 gentle-animation cursor-pointer text-sm"
             >
               Book a Call
             </motion.button>
