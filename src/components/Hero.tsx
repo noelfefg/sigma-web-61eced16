@@ -137,7 +137,7 @@ export function Hero() {
           </motion.div>
 
           {/* Horizontal Navigation Menu */}
-          <div className="flex flex-col items-center space-y-6 flex-1">
+          <div className="flex flex-col items-center space-y-10 flex-1 justify-center">
             <a 
               href="#portfolio" 
               className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
