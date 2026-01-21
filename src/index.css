@@ -123,6 +123,12 @@
     font-family: 'Bagel Fat One', cursive;
   }
   
+  /* Vertical text for sidebar nav */
+  .writing-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+  
   /* Simplified utility classes */
   .clean-border {
     border: 1px solid var(--border);
