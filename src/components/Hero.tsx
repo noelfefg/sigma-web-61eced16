@@ -133,7 +133,7 @@ export function Hero() {
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
           >
-            <span className="font-bagel text-white text-lg tracking-wider writing-vertical">MOJJU</span>
+            <span className="font-bagel text-white text-lg tracking-wider writing-vertical">SIGMA</span>
           </motion.div>
 
           {/* Vertical Navigation Menu */}
@@ -221,7 +221,7 @@ export function Hero() {
                 window.scrollTo({ top: 0, behavior: 'smooth' })
               }}
             >
-              <span className="font-bagel text-white text-xl tracking-wider">MOJJU</span>
+              <span className="font-bagel text-white text-xl tracking-wider">SIGMA</span>
             </motion.div>
 
             {/* Right Side - Video Controls + Mobile Menu */}
