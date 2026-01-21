@@ -111,15 +111,102 @@ export function Hero() {
         Your browser does not support the video tag.
       </video>
 
-      {/* Full-Width Navbar */}
+      {/* Left Side Vertical Navbar */}
+      <motion.nav
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="fixed top-0 left-0 h-full z-[110] hidden md:flex"
+      >
+        <div 
+          className={`h-full px-4 py-6 flex flex-col items-center transition-all duration-300 ease-out ${
+            isScrolled 
+              ? 'bg-black/80 backdrop-blur-xl border-r border-white/10' 
+              : 'bg-black/40 backdrop-blur-md'
+          }`}
+        >
+          {/* Logo */}
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="flex items-center cursor-pointer mb-8"
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+          >
+            <span className="font-bagel text-white text-lg tracking-wider writing-vertical">MOJJU</span>
+          </motion.div>
+
+          {/* Vertical Navigation Menu */}
+          <div className="flex flex-col items-center space-y-6 flex-1">
+            <a 
+              href="#portfolio" 
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+            >
+              Work
+            </a>
+            <a 
+              href="#about" 
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+            >
+              Process
+            </a>
+            <a 
+              href="#services" 
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+            >
+              Capabilities
+            </a>
+            <a 
+              href="#team" 
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+            >
+              Team
+            </a>
+            <a 
+              href="#contact" 
+              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 writing-vertical text-sm"
+            >
+              Contact
+            </a>
+          </div>
+
+          {/* Bottom Controls */}
+          <div className="flex flex-col items-center space-y-4 mt-auto">
+            {/* Video Controls */}
+            <div className="relative">
+              <button
+                onClick={() => setIsMuted(!isMuted)}
+                className="glass-effect p-3 rounded-full text-white hover:bg-white/20 gentle-animation cursor-pointer"
+              >
+                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </button>
+            </div>
+            
+            {/* CTA Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const contactSection = document.getElementById('contact')
+                contactSection?.scrollIntoView({ behavior: 'smooth' })
+              }}
+              className="bg-red-600 backdrop-blur-sm text-white font-semibold px-4 py-3 rounded-md hover:bg-red-700 gentle-animation cursor-pointer text-sm writing-vertical"
+            >
+              Book a Call
+            </motion.button>
+          </div>
+        </div>
+      </motion.nav>
+
+      {/* Mobile Top Navbar */}
       <motion.nav
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 }}
-        className="fixed top-0 left-0 right-0 w-full z-[110]"
+        className="fixed top-0 left-0 right-0 w-full z-[110] md:hidden"
       >
         <div 
-          className={`w-full px-6 sm:px-8 lg:px-12 py-4 transition-all duration-300 ease-out ${
+          className={`w-full px-6 py-4 transition-all duration-300 ease-out ${
             isScrolled 
               ? 'bg-black/80 backdrop-blur-xl border-b border-white/10' 
               : 'bg-transparent'
@@ -137,43 +224,9 @@ export function Hero() {
               <span className="font-bagel text-white text-xl tracking-wider">MOJJU</span>
             </motion.div>
 
-            {/* Navigation Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a 
-                href="#portfolio" 
-                className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105"
-              >
-                Work
-              </a>
-              <a 
-                href="#about" 
-                className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105"
-              >
-                Process
-              </a>
-              <a 
-                href="#services" 
-                className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105"
-              >
-                Capabilities
-              </a>
-              <a 
-                href="#team" 
-                className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105"
-              >
-                Team
-              </a>
-              <a 
-                href="#contact" 
-                className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105"
-              >
-                Contact
-              </a>
-            </div>
-
-            {/* Right Side - Video Controls + CTA + Mobile Menu */}
+            {/* Right Side - Video Controls + Mobile Menu */}
             <div className="flex items-center space-x-3 relative">
-              {/* Video Controls with Sound On indicator */}
+              {/* Video Controls */}
               <div className="relative">
                 <button
                   onClick={() => setIsMuted(!isMuted)}
@@ -182,7 +235,7 @@ export function Hero() {
                   {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </button>
                 
-                {/* Sound On indicator - only show when muted */}
+                {/* Sound On indicator */}
                 {isMuted && (
                   <div className="absolute -bottom-10 right-0 flex items-center text-white/80">
                     <span className="whitespace-nowrap font-medium text-sm mr-2">Sound On</span>
@@ -190,24 +243,11 @@ export function Hero() {
                   </div>
                 )}
               </div>
-              
-              {/* CTA Button - Hidden on mobile */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  const contactSection = document.getElementById('contact')
-                  contactSection?.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="hidden sm:block bg-red-600 backdrop-blur-sm text-white font-semibold px-6 py-3 rounded-md hover:bg-red-700 gentle-animation ml-4 cursor-pointer"
-              >
-                Book a Call
-              </motion.button>
 
               {/* Mobile Hamburger Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden glass-effect p-3 rounded-full text-white hover:bg-white/20 active:bg-white/30 gentle-animation cursor-pointer z-[120] relative"
+                className="glass-effect p-3 rounded-full text-white hover:bg-white/20 active:bg-white/30 gentle-animation cursor-pointer z-[120] relative"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
