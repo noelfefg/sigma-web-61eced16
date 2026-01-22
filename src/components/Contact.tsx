@@ -36,15 +36,15 @@ export function Contact() {
         }; 
       })(window, "https://app.cal.com/embed/embed.js", "init");
       
-      Cal("init", "mojju-discovery-call", {origin:"https://app.cal.com"});
+      Cal("init", "sigma-discovery-call", {origin:"https://app.cal.com"});
       
-      Cal.ns["mojju-discovery-call"]("inline", {
-        elementOrSelector:"#my-cal-inline-mojju-discovery-call",
+      Cal.ns["sigma-discovery-call"]("inline", {
+        elementOrSelector:"#my-cal-inline-sigma-discovery-call",
         config: {"layout":"month_view"},
         calLink: "mojli/30min",
       });
       
-      Cal.ns["mojju-discovery-call"]("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
+      Cal.ns["sigma-discovery-call"]("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
     `
     
     document.body.appendChild(script)
@@ -88,7 +88,7 @@ export function Contact() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-xl font-black text-foreground mb-1">
-                    MOJJU Discovery Call
+                    Discovery Call
                   </h3>
                   <p className="text-muted-foreground">
                     30 minutes • Video call • Free consultation
@@ -109,7 +109,7 @@ export function Contact() {
                   height: '600px',
                   overflow: 'scroll'
                 }} 
-                id="my-cal-inline-mojju-discovery-call"
+                id="my-cal-inline-sigma-discovery-call"
               />
             </div>
           </div>
