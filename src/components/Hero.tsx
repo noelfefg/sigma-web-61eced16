@@ -140,31 +140,31 @@ export function Hero() {
           <div className="flex flex-col items-center space-y-10 flex-1 justify-center">
             <a 
               href="#portfolio" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
+               className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm story-link"
             >
               Work
             </a>
             <a 
               href="#about" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
+               className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm story-link"
             >
               Process
             </a>
             <a 
               href="#services" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
+               className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm story-link"
             >
               Capabilities
             </a>
             <a 
               href="#team" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
+               className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm story-link"
             >
               Team
             </a>
             <a 
               href="#contact" 
-              className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm"
+               className="text-white hover:text-white/80 font-medium gentle-animation hover:scale-105 text-sm story-link"
             >
               Contact
             </a>
@@ -292,35 +292,35 @@ export function Hero() {
             <div className="flex flex-col space-y-4 text-white">
               <a 
                 href="#portfolio" 
-                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20"
+                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20 story-link"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Work
               </a>
               <a 
                 href="#about" 
-                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20"
+                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20 story-link"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Process
               </a>
               <a 
                 href="#services" 
-                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20"
+                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20 story-link"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Capabilities
               </a>
               <a 
                 href="#team" 
-                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20"
+                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20 story-link"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Team
               </a>
               <a 
                 href="#contact" 
-                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20"
+                className="mobile-menu-link px-4 py-3 hover:text-white/80 hover:bg-white/10 rounded-lg gentle-animation font-medium text-lg active:bg-white/20 story-link"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Contact
