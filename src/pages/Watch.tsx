@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Heart, 
   Share2, 
@@ -12,37 +12,43 @@ import {
   Play,
   Pause,
   MessageSquare,
-  Gift
+  Gift,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { GiftOverlay, GiftNotification } from '@/components/stream/GiftOverlay';
 
-// Mock stream data
-const mockStreamData = {
-  id: '1',
-  title: 'Late Night Gaming Session 🎮',
-  username: 'xqcow',
-  displayName: 'xQcOW',
-  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop',
-  category: 'Just Chatting',
-  viewers: 45234,
-  followers: 1234567,
-  isLive: true,
-  description: 'Welcome to my stream! Lets have some fun tonight. !socials for links.',
-};
+interface StreamData {
+  id: string;
+  title: string;
+  description: string | null;
+  viewer_count: number;
+  is_live: boolean;
+  profiles: {
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url: string | null;
+  };
+  categories: {
+    name: string;
+  } | null;
+}
 
-// Mock chat messages
-const mockChatMessages = [
-  { id: '1', username: 'viewer1', message: 'Hey everyone!', color: '#22c55e' },
-  { id: '2', username: 'chatter42', message: 'POG', color: '#3b82f6' },
-  { id: '3', username: 'sigma_fan', message: 'Lets goooo!', color: '#a855f7' },
-  { id: '4', username: 'newbie123', message: 'First time here, love the content!', color: '#f59e0b' },
-  { id: '5', username: 'mod_user', message: 'Welcome everyone!', color: '#ef4444' },
-];
+interface ChatMessage {
+  id: string;
+  message: string;
+  created_at: string;
+  profiles: {
+    username: string;
+    display_name: string;
+  };
+}
 
 function formatViewerCount(count: number): string {
   if (count >= 1000000) {
@@ -54,28 +60,107 @@ function formatViewerCount(count: number): string {
   return count.toString();
 }
 
-// Mock gift data for demo
 const mockGifts = [
   { name: 'Heart', icon: 'heart', price: 50 },
   { name: 'Star', icon: 'star', price: 100 },
-  { name: 'Sparkle', icon: 'sparkle', price: 200 },
-  { name: 'Flame', icon: 'flame', price: 500 },
   { name: 'Diamond', icon: 'diamond', price: 1000 },
-  { name: 'Crown', icon: 'crown', price: 2500 },
-  { name: 'Trophy', icon: 'trophy', price: 5000 },
 ];
 
 export default function WatchPage() {
   const { username } = useParams<{ username: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const [streamData, setStreamData] = useState<StreamData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
-  const [messages, setMessages] = useState(mockChatMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [chatCollapsed, setChatCollapsed] = useState(false);
   const [giftNotifications, setGiftNotifications] = useState<GiftNotification[]>([]);
+  const [followerCount, setFollowerCount] = useState(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    async function fetchStreamData() {
+      if (!username) return;
+      
+      setLoading(true);
+
+      // Find profile by username
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, username, display_name, avatar_url')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (!profile) {
+        setLoading(false);
+        return;
+      }
+
+      // Get follower count
+      const { data: followerData } = await supabase.rpc('get_follower_count', {
+        profile_id: profile.id,
+      });
+      setFollowerCount(followerData || 0);
+
+      // Check if current user is following
+      if (user) {
+        const { data: followData } = await supabase.rpc('is_following', {
+          follower: user.id,
+          following: profile.id,
+        });
+        setIsFollowing(!!followData);
+      }
+
+      // Get active stream
+      const { data: stream } = await supabase
+        .from('streams')
+        .select(`
+          id,
+          title,
+          description,
+          viewer_count,
+          is_live,
+          profiles!inner(id, username, display_name, avatar_url),
+          categories(name)
+        `)
+        .eq('user_id', profile.id)
+        .eq('is_live', true)
+        .maybeSingle();
+
+      if (stream) {
+        setStreamData(stream as unknown as StreamData);
+
+        // Fetch chat messages
+        const { data: chatData } = await supabase
+          .from('chat_messages')
+          .select(`
+            id,
+            message,
+            created_at,
+            profiles!inner(username, display_name)
+          `)
+          .eq('stream_id', stream.id)
+          .order('created_at', { ascending: true })
+          .limit(100);
+
+        if (chatData) {
+          setMessages(chatData as unknown as ChatMessage[]);
+        }
+      } else {
+        // No live stream, redirect to channel
+        navigate(`/channel/${username}`);
+        return;
+      }
+
+      setLoading(false);
+    }
+
+    fetchStreamData();
+  }, [username, user, navigate]);
 
   // Scroll chat to bottom
   useEffect(() => {
@@ -88,7 +173,7 @@ export default function WatchPage() {
 
   const simulateGift = () => {
     const randomGift = mockGifts[Math.floor(Math.random() * mockGifts.length)];
-    const senders = ['CoolViewer', 'StreamFan99', 'GiftKing', 'NightOwl', 'SuperSupporter'];
+    const senders = ['CoolViewer', 'StreamFan99', 'GiftKing'];
     const randomSender = senders[Math.floor(Math.random() * senders.length)];
     
     const newNotification: GiftNotification = {
@@ -104,33 +189,90 @@ export default function WatchPage() {
 
   const simulateDonation = () => {
     const amounts = [5, 10, 25, 50, 100];
-    const senders = ['GenerousOne', 'BigTipper', 'Philanthropist', 'AnonymousFan', 'LoyalSub'];
-    const messages = ['Keep up the great work!', 'Love the stream!', 'You\'re amazing!', '', 'For the community!'];
+    const senders = ['GenerousOne', 'BigTipper', 'LoyalSub'];
+    const donationMessages = ['Keep up the great work!', 'Love the stream!', ''];
     
     const newNotification: GiftNotification = {
       id: Date.now().toString(),
       type: 'donation',
       senderName: senders[Math.floor(Math.random() * senders.length)],
       amount: amounts[Math.floor(Math.random() * amounts.length)],
-      message: messages[Math.floor(Math.random() * messages.length)],
+      message: donationMessages[Math.floor(Math.random() * donationMessages.length)],
     };
     
     setGiftNotifications((prev) => [...prev.slice(-4), newNotification]);
   };
 
-  const handleSendMessage = () => {
-    if (!chatMessage.trim() || !user) return;
+  const handleSendMessage = async () => {
+    if (!chatMessage.trim() || !user || !streamData) return;
     
-    const newMessage = {
-      id: Date.now().toString(),
-      username: user.email?.split('@')[0] || 'user',
-      message: chatMessage,
-      color: '#22c55e',
-    };
-    
-    setMessages([...messages, newMessage]);
-    setChatMessage('');
+    const { error } = await supabase.from('chat_messages').insert({
+      stream_id: streamData.id,
+      user_id: user.id,
+      message: chatMessage.trim(),
+    });
+
+    if (!error) {
+      // Optimistically add message
+      const newMessage: ChatMessage = {
+        id: Date.now().toString(),
+        message: chatMessage.trim(),
+        created_at: new Date().toISOString(),
+        profiles: {
+          username: user.email?.split('@')[0] || 'user',
+          display_name: user.email?.split('@')[0] || 'user',
+        },
+      };
+      setMessages((prev) => [...prev, newMessage]);
+      setChatMessage('');
+    }
   };
+
+  const handleFollow = async () => {
+    if (!user || !streamData) return;
+
+    if (isFollowing) {
+      await supabase
+        .from('followers')
+        .delete()
+        .eq('follower_id', user.id)
+        .eq('following_id', streamData.profiles.id);
+      setIsFollowing(false);
+      setFollowerCount((prev) => prev - 1);
+    } else {
+      await supabase.from('followers').insert({
+        follower_id: user.id,
+        following_id: streamData.profiles.id,
+      });
+      setIsFollowing(true);
+      setFollowerCount((prev) => prev + 1);
+    }
+  };
+
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!streamData) {
+    return (
+      <AppLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <Play className="w-16 h-16 text-muted-foreground mb-4" />
+          <h1 className="text-xl font-bold text-foreground mb-2">Stream not found</h1>
+          <p className="text-muted-foreground mb-4">This user is not currently live</p>
+          <Link to={`/channel/${username}`}>
+            <Button variant="secondary">View Channel</Button>
+          </Link>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -139,7 +281,6 @@ export default function WatchPage() {
         <div className={`flex-1 flex flex-col ${chatCollapsed ? '' : 'lg:mr-80'}`}>
           {/* Video Player */}
           <div className="relative bg-black aspect-video lg:aspect-auto lg:flex-1">
-            {/* Placeholder Video */}
             <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
               <div className="text-center">
                 <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -149,22 +290,19 @@ export default function WatchPage() {
               </div>
             </div>
 
-            {/* Gift Overlay */}
             <GiftOverlay 
               notifications={giftNotifications} 
               onRemove={handleRemoveNotification} 
             />
 
-            {/* Live Badge */}
             <div className="absolute top-4 left-4 flex items-center gap-2">
               <div className="bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1 rounded">
                 LIVE
               </div>
               <div className="bg-black/80 text-white text-sm px-3 py-1 rounded flex items-center gap-1">
                 <Users className="w-4 h-4" />
-                {formatViewerCount(mockStreamData.viewers)}
+                {formatViewerCount(streamData.viewer_count)}
               </div>
-              {/* Demo buttons */}
               <Button
                 size="sm"
                 variant="secondary"
@@ -184,7 +322,6 @@ export default function WatchPage() {
               </Button>
             </div>
 
-            {/* Video Controls */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -206,18 +343,10 @@ export default function WatchPage() {
                   </Button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/20"
-                  >
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
                     <Settings className="w-5 h-5" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/20"
-                  >
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
                     <Maximize2 className="w-5 h-5" />
                   </Button>
                 </div>
@@ -229,28 +358,39 @@ export default function WatchPage() {
           <div className="p-4 bg-card border-t border-border">
             <div className="flex items-start justify-between gap-4">
               <div className="flex gap-4">
-                <Link to={`/channel/${mockStreamData.username}`}>
-                  <img
-                    src={mockStreamData.avatar}
-                    alt={mockStreamData.displayName}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
+                <Link to={`/channel/${streamData.profiles.username}`}>
+                  {streamData.profiles.avatar_url ? (
+                    <img
+                      src={streamData.profiles.avatar_url}
+                      alt={streamData.profiles.display_name}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                      <span className="text-2xl font-bold text-primary">
+                        {streamData.profiles.display_name[0]?.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                 </Link>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">{mockStreamData.title}</h1>
+                  <h1 className="text-xl font-bold text-foreground">{streamData.title}</h1>
                   <Link 
-                    to={`/channel/${mockStreamData.username}`}
+                    to={`/channel/${streamData.profiles.username}`}
                     className="text-primary hover:underline font-medium"
                   >
-                    {mockStreamData.displayName}
+                    {streamData.profiles.display_name}
                   </Link>
-                  <p className="text-sm text-muted-foreground">{mockStreamData.category}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {streamData.categories?.name || 'Uncategorized'} • {formatViewerCount(followerCount)} followers
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant={isFollowing ? 'secondary' : 'default'}
-                  onClick={() => setIsFollowing(!isFollowing)}
+                  onClick={handleFollow}
+                  disabled={!user}
                   className={isFollowing ? '' : 'bg-primary hover:bg-primary/90'}
                 >
                   <Heart className={`w-4 h-4 mr-2 ${isFollowing ? 'fill-current text-destructive' : ''}`} />
@@ -271,7 +411,6 @@ export default function WatchPage() {
             chatCollapsed ? 'translate-x-full' : 'translate-x-0'
           }`}
         >
-          {/* Chat Header */}
           <div className="h-14 px-4 flex items-center justify-between border-b border-border">
             <h2 className="font-semibold text-foreground">Stream Chat</h2>
             <Button
@@ -284,16 +423,12 @@ export default function WatchPage() {
             </Button>
           </div>
 
-          {/* Chat Messages */}
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-3">
               {messages.map((msg) => (
                 <div key={msg.id} className="text-sm">
-                  <span 
-                    className="font-semibold mr-2"
-                    style={{ color: msg.color }}
-                  >
-                    {msg.username}:
+                  <span className="font-semibold mr-2 text-primary">
+                    {msg.profiles.display_name}:
                   </span>
                   <span className="text-foreground">{msg.message}</span>
                 </div>
@@ -302,7 +437,6 @@ export default function WatchPage() {
             </div>
           </ScrollArea>
 
-          {/* Chat Input */}
           <div className="p-4 border-t border-border">
             {user ? (
               <div className="flex gap-2">
@@ -331,7 +465,6 @@ export default function WatchPage() {
           </div>
         </div>
 
-        {/* Chat Toggle Button (when collapsed) */}
         {chatCollapsed && (
           <Button
             variant="secondary"
