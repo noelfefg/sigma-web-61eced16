@@ -7,6 +7,7 @@ import FollowingPage from "./pages/Following";
 import WatchPage from "./pages/Watch";
 import ChannelPage from "./pages/Channel";
 import AuthPage from "./pages/Auth";
+import GiftsPage from "./pages/Gifts";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/watch/:username" element={<WatchPage />} />
         <Route path="/channel/:username" element={<ChannelPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/gifts" element={<GiftsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
