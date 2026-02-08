@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Heart, 
@@ -11,13 +11,15 @@ import {
   VolumeX,
   Play,
   Pause,
-  MessageSquare
+  MessageSquare,
+  Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { GiftOverlay, GiftNotification } from '@/components/stream/GiftOverlay';
 
 // Mock stream data
 const mockStreamData = {
@@ -52,6 +54,17 @@ function formatViewerCount(count: number): string {
   return count.toString();
 }
 
+// Mock gift data for demo
+const mockGifts = [
+  { name: 'Heart', icon: 'heart', price: 50 },
+  { name: 'Star', icon: 'star', price: 100 },
+  { name: 'Sparkle', icon: 'sparkle', price: 200 },
+  { name: 'Flame', icon: 'flame', price: 500 },
+  { name: 'Diamond', icon: 'diamond', price: 1000 },
+  { name: 'Crown', icon: 'crown', price: 2500 },
+  { name: 'Trophy', icon: 'trophy', price: 5000 },
+];
+
 export default function WatchPage() {
   const { username } = useParams<{ username: string }>();
   const { user } = useAuth();
@@ -61,12 +74,49 @@ export default function WatchPage() {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [chatCollapsed, setChatCollapsed] = useState(false);
+  const [giftNotifications, setGiftNotifications] = useState<GiftNotification[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll chat to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const handleRemoveNotification = useCallback((id: string) => {
+    setGiftNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
+
+  const simulateGift = () => {
+    const randomGift = mockGifts[Math.floor(Math.random() * mockGifts.length)];
+    const senders = ['CoolViewer', 'StreamFan99', 'GiftKing', 'NightOwl', 'SuperSupporter'];
+    const randomSender = senders[Math.floor(Math.random() * senders.length)];
+    
+    const newNotification: GiftNotification = {
+      id: Date.now().toString(),
+      type: 'gift',
+      senderName: randomSender,
+      giftName: randomGift.name,
+      giftIcon: randomGift.icon,
+    };
+    
+    setGiftNotifications((prev) => [...prev.slice(-4), newNotification]);
+  };
+
+  const simulateDonation = () => {
+    const amounts = [5, 10, 25, 50, 100];
+    const senders = ['GenerousOne', 'BigTipper', 'Philanthropist', 'AnonymousFan', 'LoyalSub'];
+    const messages = ['Keep up the great work!', 'Love the stream!', 'You\'re amazing!', '', 'For the community!'];
+    
+    const newNotification: GiftNotification = {
+      id: Date.now().toString(),
+      type: 'donation',
+      senderName: senders[Math.floor(Math.random() * senders.length)],
+      amount: amounts[Math.floor(Math.random() * amounts.length)],
+      message: messages[Math.floor(Math.random() * messages.length)],
+    };
+    
+    setGiftNotifications((prev) => [...prev.slice(-4), newNotification]);
+  };
 
   const handleSendMessage = () => {
     if (!chatMessage.trim() || !user) return;
@@ -99,6 +149,12 @@ export default function WatchPage() {
               </div>
             </div>
 
+            {/* Gift Overlay */}
+            <GiftOverlay 
+              notifications={giftNotifications} 
+              onRemove={handleRemoveNotification} 
+            />
+
             {/* Live Badge */}
             <div className="absolute top-4 left-4 flex items-center gap-2">
               <div className="bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1 rounded">
@@ -108,6 +164,24 @@ export default function WatchPage() {
                 <Users className="w-4 h-4" />
                 {formatViewerCount(mockStreamData.viewers)}
               </div>
+              {/* Demo buttons */}
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={simulateGift}
+                className="bg-purple-500/80 hover:bg-purple-500 text-white text-xs"
+              >
+                <Gift className="w-3 h-3 mr-1" />
+                Demo Gift
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={simulateDonation}
+                className="bg-emerald-500/80 hover:bg-emerald-500 text-white text-xs"
+              >
+                $ Demo Donate
+              </Button>
             </div>
 
             {/* Video Controls */}
