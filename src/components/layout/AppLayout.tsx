@@ -4,13 +4,13 @@ import {
   Home, 
   Compass, 
   Users, 
-  Settings, 
   Menu, 
   X, 
   LogIn,
   User,
   Bell,
-  Search
+  Search,
+  Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ const navItems = [
   { icon: Home, label: 'Home', path: '/' },
   { icon: Compass, label: 'Browse', path: '/browse' },
   { icon: Users, label: 'Following', path: '/following' },
+  { icon: Gift, label: 'Gifts', path: '/gifts' },
 ];
 
 export function AppLayout({ children }: AppLayoutProps) {
