@@ -10,7 +10,8 @@ import {
   User,
   Bell,
   Search,
-  Gift
+  Gift,
+  Video
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,7 @@ const navItems = [
   { icon: Compass, label: 'Browse', path: '/browse' },
   { icon: Users, label: 'Following', path: '/following' },
   { icon: Gift, label: 'Gifts', path: '/gifts' },
+  { icon: Video, label: 'Go Live', path: '/go-live' },
 ];
 
 export function AppLayout({ children }: AppLayoutProps) {

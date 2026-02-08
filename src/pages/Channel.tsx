@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Heart, 
@@ -7,76 +7,44 @@ import {
   Calendar,
   Play,
   Eye,
-  Clock
+  Clock,
+  Video,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
-// Mock channel data
-const mockChannelData = {
-  username: 'xqcow',
-  displayName: 'xQcOW',
-  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop',
-  banner: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1920&h=400&fit=crop',
-  bio: 'Professional gamer and full-time streamer. Variety content creator. Business: [email protected]',
-  followers: 1234567,
-  following: 342,
-  isLive: true,
-  currentCategory: 'Just Chatting',
-  streamTitle: 'Late Night Gaming Session 🎮',
-  viewers: 45234,
-  joinedDate: 'January 2020',
-};
+interface ProfileData {
+  id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  banner_url: string | null;
+  bio: string | null;
+  created_at: string;
+}
 
-// Mock videos
-const mockVideos = [
-  {
-    id: '1',
-    title: 'Best moments from last stream',
-    thumbnail: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=225&fit=crop',
-    duration: '2:34:12',
-    views: 234567,
-    date: '2 days ago',
-  },
-  {
-    id: '2',
-    title: 'Competitive ranked gameplay',
-    thumbnail: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=400&h=225&fit=crop',
-    duration: '4:12:45',
-    views: 189432,
-    date: '4 days ago',
-  },
-  {
-    id: '3',
-    title: 'React Andy content',
-    thumbnail: 'https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=225&fit=crop',
-    duration: '3:45:23',
-    views: 156789,
-    date: '1 week ago',
-  },
-];
+interface StreamData {
+  id: string;
+  title: string;
+  viewer_count: number;
+  thumbnail_url: string | null;
+  is_live: boolean;
+  categories: {
+    name: string;
+  } | null;
+}
 
-// Mock clips
-const mockClips = [
-  {
-    id: '1',
-    title: 'Insane clutch moment',
-    thumbnail: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=225&fit=crop',
-    duration: '0:32',
-    views: 45678,
-    clipper: 'clipper123',
-  },
-  {
-    id: '2',
-    title: 'Funniest reaction ever',
-    thumbnail: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=400&h=225&fit=crop',
-    duration: '0:45',
-    views: 34567,
-    clipper: 'bestclips',
-  },
-];
+interface ClipData {
+  id: string;
+  title: string;
+  thumbnail_url: string | null;
+  duration: number;
+  view_count: number;
+}
 
 function formatCount(count: number): string {
   if (count >= 1000000) {
@@ -88,21 +56,175 @@ function formatCount(count: number): string {
   return count.toString();
 }
 
+function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
 export default function ChannelPage() {
   const { username } = useParams<{ username: string }>();
   const { user } = useAuth();
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [liveStream, setLiveStream] = useState<StreamData | null>(null);
+  const [pastStreams, setPastStreams] = useState<StreamData[]>([]);
+  const [clips, setClips] = useState<ClipData[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchChannelData() {
+      if (!username) return;
+
+      setLoading(true);
+
+      // Get profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (!profileData) {
+        setLoading(false);
+        return;
+      }
+
+      setProfile(profileData);
+
+      // Get follower/following counts
+      const [{ data: followers }, { data: following }] = await Promise.all([
+        supabase.rpc('get_follower_count', { profile_id: profileData.id }),
+        supabase.rpc('get_following_count', { profile_id: profileData.id }),
+      ]);
+
+      setFollowerCount(followers || 0);
+      setFollowingCount(following || 0);
+
+      // Check if current user is following
+      if (user) {
+        const { data: isFollowingData } = await supabase.rpc('is_following', {
+          follower: user.id,
+          following: profileData.id,
+        });
+        setIsFollowing(!!isFollowingData);
+      }
+
+      // Get live stream
+      const { data: liveData } = await supabase
+        .from('streams')
+        .select(`
+          id,
+          title,
+          viewer_count,
+          thumbnail_url,
+          is_live,
+          categories(name)
+        `)
+        .eq('user_id', profileData.id)
+        .eq('is_live', true)
+        .maybeSingle();
+
+      setLiveStream(liveData as StreamData | null);
+
+      // Get past streams
+      const { data: pastData } = await supabase
+        .from('streams')
+        .select(`
+          id,
+          title,
+          viewer_count,
+          thumbnail_url,
+          is_live,
+          categories(name)
+        `)
+        .eq('user_id', profileData.id)
+        .eq('is_live', false)
+        .order('ended_at', { ascending: false })
+        .limit(6);
+
+      setPastStreams((pastData as StreamData[]) || []);
+
+      // Get clips
+      const { data: clipsData } = await supabase
+        .from('clips')
+        .select('id, title, thumbnail_url, duration, view_count')
+        .eq('user_id', profileData.id)
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      setClips(clipsData || []);
+
+      setLoading(false);
+    }
+
+    fetchChannelData();
+  }, [username, user]);
+
+  const handleFollow = async () => {
+    if (!user || !profile) return;
+
+    if (isFollowing) {
+      await supabase
+        .from('followers')
+        .delete()
+        .eq('follower_id', user.id)
+        .eq('following_id', profile.id);
+      setIsFollowing(false);
+      setFollowerCount((prev) => prev - 1);
+    } else {
+      await supabase.from('followers').insert({
+        follower_id: user.id,
+        following_id: profile.id,
+      });
+      setIsFollowing(true);
+      setFollowerCount((prev) => prev + 1);
+    }
+  };
+
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <AppLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <Users className="w-16 h-16 text-muted-foreground mb-4" />
+          <h1 className="text-xl font-bold text-foreground mb-2">Channel not found</h1>
+          <p className="text-muted-foreground">This user doesn't exist</p>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  const joinedDate = new Date(profile.created_at).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  });
 
   return (
     <AppLayout>
       <div className="min-h-full">
         {/* Banner */}
         <div className="relative h-48 md:h-64">
-          <img
-            src={mockChannelData.banner}
-            alt="Channel banner"
-            className="w-full h-full object-cover"
-          />
+          {profile.banner_url ? (
+            <img
+              src={profile.banner_url}
+              alt="Channel banner"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
         </div>
 
@@ -111,12 +233,20 @@ export default function ChannelPage() {
           <div className="flex flex-col md:flex-row md:items-end gap-4">
             {/* Avatar */}
             <div className="relative">
-              <img
-                src={mockChannelData.avatar}
-                alt={mockChannelData.displayName}
-                className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-background object-cover"
-              />
-              {mockChannelData.isLive && (
+              {profile.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt={profile.display_name}
+                  className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-background object-cover"
+                />
+              ) : (
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-background bg-primary/20 flex items-center justify-center">
+                  <span className="text-4xl font-bold text-primary">
+                    {profile.display_name[0]?.toUpperCase()}
+                  </span>
+                </div>
+              )}
+              {liveStream && (
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded">
                   LIVE
                 </div>
@@ -127,22 +257,23 @@ export default function ChannelPage() {
             <div className="flex-1">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">{mockChannelData.displayName}</h1>
+                  <h1 className="text-2xl font-bold text-foreground">{profile.display_name}</h1>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
-                      {formatCount(mockChannelData.followers)} followers
+                      {formatCount(followerCount)} followers
                     </span>
                     <span className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      Joined {mockChannelData.joinedDate}
+                      Joined {joinedDate}
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
                     variant={isFollowing ? 'secondary' : 'default'}
-                    onClick={() => setIsFollowing(!isFollowing)}
+                    onClick={handleFollow}
+                    disabled={!user || user.id === profile.id}
                     className={isFollowing ? '' : 'bg-primary hover:bg-primary/90'}
                   >
                     <Heart className={`w-4 h-4 mr-2 ${isFollowing ? 'fill-current text-destructive' : ''}`} />
@@ -153,23 +284,33 @@ export default function ChannelPage() {
                   </Button>
                 </div>
               </div>
-              <p className="text-muted-foreground mt-3 max-w-2xl">{mockChannelData.bio}</p>
+              {profile.bio && (
+                <p className="text-muted-foreground mt-3 max-w-2xl">{profile.bio}</p>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Live Stream Preview (if live) */}
-        {mockChannelData.isLive && (
+        {/* Live Stream Preview */}
+        {liveStream && (
           <div className="px-4 md:px-6 mt-6">
-            <Link to={`/watch/${mockChannelData.username}`}>
+            <Link to={`/watch/${profile.username}`}>
               <div className="relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors group">
                 <div className="aspect-video bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto group-hover:bg-primary/30 transition-colors">
-                      <Play className="w-6 h-6 text-primary" />
+                  {liveStream.thumbnail_url ? (
+                    <img
+                      src={liveStream.thumbnail_url}
+                      alt={liveStream.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto group-hover:bg-primary/30 transition-colors">
+                        <Play className="w-6 h-6 text-primary" />
+                      </div>
+                      <p className="text-muted-foreground mt-2">Click to watch live</p>
                     </div>
-                    <p className="text-muted-foreground mt-2">Click to watch live</p>
-                  </div>
+                  )}
                 </div>
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                   <div className="bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1 rounded">
@@ -177,12 +318,14 @@ export default function ChannelPage() {
                   </div>
                   <div className="bg-black/80 text-white text-sm px-3 py-1 rounded flex items-center gap-1">
                     <Eye className="w-4 h-4" />
-                    {formatCount(mockChannelData.viewers)}
+                    {formatCount(liveStream.viewer_count)}
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-foreground">{mockChannelData.streamTitle}</h3>
-                  <p className="text-sm text-muted-foreground">{mockChannelData.currentCategory}</p>
+                  <h3 className="font-semibold text-foreground">{liveStream.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {liveStream.categories?.name || 'Uncategorized'}
+                  </p>
                 </div>
               </div>
             </Link>
@@ -199,93 +342,111 @@ export default function ChannelPage() {
             </TabsList>
 
             <TabsContent value="videos" className="mt-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mockVideos.map((video) => (
-                  <div
-                    key={video.id}
-                    className="bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors group cursor-pointer"
-                  >
-                    <div className="relative aspect-video">
-                      <img
-                        src={video.thumbnail}
-                        alt={video.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-0.5 rounded">
-                        {video.duration}
+              {pastStreams.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {pastStreams.map((stream) => (
+                    <div
+                      key={stream.id}
+                      className="bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors group cursor-pointer"
+                    >
+                      <div className="relative aspect-video">
+                        {stream.thumbnail_url ? (
+                          <img
+                            src={stream.thumbnail_url}
+                            alt={stream.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary flex items-center justify-center">
+                            <Video className="w-8 h-8 text-primary/30" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Play className="w-12 h-12 text-white" />
+                        </div>
                       </div>
-                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Play className="w-12 h-12 text-white" />
+                      <div className="p-3">
+                        <h3 className="font-medium text-foreground truncate">{stream.title}</h3>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-3 h-3" />
+                            {formatCount(stream.viewer_count)} views
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="p-3">
-                      <h3 className="font-medium text-foreground truncate">{video.title}</h3>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                        <span className="flex items-center gap-1">
-                          <Eye className="w-3 h-3" />
-                          {formatCount(video.views)}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {video.date}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Video className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No videos yet</h3>
+                  <p className="text-muted-foreground">Past streams will appear here</p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="clips" className="mt-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mockClips.map((clip) => (
-                  <div
-                    key={clip.id}
-                    className="bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors group cursor-pointer"
-                  >
-                    <div className="relative aspect-video">
-                      <img
-                        src={clip.thumbnail}
-                        alt={clip.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-0.5 rounded">
-                        {clip.duration}
+              {clips.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {clips.map((clip) => (
+                    <div
+                      key={clip.id}
+                      className="bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors group cursor-pointer"
+                    >
+                      <div className="relative aspect-video">
+                        {clip.thumbnail_url ? (
+                          <img
+                            src={clip.thumbnail_url}
+                            alt={clip.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary flex items-center justify-center">
+                            <Video className="w-8 h-8 text-primary/30" />
+                          </div>
+                        )}
+                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-0.5 rounded">
+                          {formatDuration(clip.duration)}
+                        </div>
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Play className="w-12 h-12 text-white" />
+                        </div>
                       </div>
-                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Play className="w-12 h-12 text-white" />
+                      <div className="p-3">
+                        <h3 className="font-medium text-foreground truncate">{clip.title}</h3>
+                        <div className="flex items-center text-xs text-muted-foreground mt-1">
+                          <Eye className="w-3 h-3 mr-1" />
+                          {formatCount(clip.view_count)} views
+                        </div>
                       </div>
                     </div>
-                    <div className="p-3">
-                      <h3 className="font-medium text-foreground truncate">{clip.title}</h3>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
-                        <span className="flex items-center gap-1">
-                          <Eye className="w-3 h-3" />
-                          {formatCount(clip.views)}
-                        </span>
-                        <span>Clipped by {clip.clipper}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No clips yet</h3>
+                  <p className="text-muted-foreground">Clips from this channel will appear here</p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="about" className="mt-6">
               <div className="max-w-2xl">
                 <div className="bg-card rounded-lg border border-border p-6 space-y-4">
                   <div>
-                    <h3 className="font-semibold text-foreground mb-2">About {mockChannelData.displayName}</h3>
-                    <p className="text-muted-foreground">{mockChannelData.bio}</p>
+                    <h3 className="font-semibold text-foreground mb-2">About {profile.display_name}</h3>
+                    <p className="text-muted-foreground">{profile.bio || 'No bio yet.'}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                     <div>
                       <p className="text-sm text-muted-foreground">Followers</p>
-                      <p className="text-xl font-bold text-foreground">{formatCount(mockChannelData.followers)}</p>
+                      <p className="text-xl font-bold text-foreground">{formatCount(followerCount)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Following</p>
-                      <p className="text-xl font-bold text-foreground">{formatCount(mockChannelData.following)}</p>
+                      <p className="text-xl font-bold text-foreground">{formatCount(followingCount)}</p>
                     </div>
                   </div>
                 </div>
