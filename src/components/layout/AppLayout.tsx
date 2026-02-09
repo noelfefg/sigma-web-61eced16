@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -146,6 +147,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             {user ? (
               <>
                 <Button variant="ghost" size="icon" className="text-muted-foreground">

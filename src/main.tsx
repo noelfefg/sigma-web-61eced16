@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import HomePage from "./pages/Home";
 import BrowsePage from "./pages/Browse";
@@ -33,6 +34,8 @@ function App() {
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-    <App />
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <App />
+    </ThemeProvider>
   </BrowserRouter>,
 );
