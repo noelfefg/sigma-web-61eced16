@@ -9,37 +9,37 @@
 :root {
   --font-size: 16px;
   
-  /* Dark theme by default for streaming platform */
-  --background: hsl(0 0% 7%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(0 0% 10%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(0 0% 12%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 45%);
+  /* Light theme */
+  --background: hsl(0 0% 97%);
+  --foreground: hsl(0 0% 9%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 9%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(0 0% 9%);
+  --primary: hsl(0 0% 30%);
   --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(0 0% 14%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(0 0% 14%);
-  --muted-foreground: hsl(0 0% 64%);
-  --accent: hsl(0 0% 22%);
-  --accent-foreground: hsl(0 0% 98%);
+  --secondary: hsl(0 0% 92%);
+  --secondary-foreground: hsl(0 0% 9%);
+  --muted: hsl(0 0% 92%);
+  --muted-foreground: hsl(0 0% 40%);
+  --accent: hsl(0 0% 88%);
+  --accent-foreground: hsl(0 0% 9%);
   --destructive: hsl(0 84% 60%);
   --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(0 0% 18%);
-  --input: hsl(0 0% 14%);
-  --input-background: hsl(0 0% 10%);
-  --switch-background: hsl(0 0% 25%);
+  --border: hsl(0 0% 85%);
+  --input: hsl(0 0% 90%);
+  --input-background: hsl(0 0% 97%);
+  --switch-background: hsl(0 0% 78%);
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --ring: hsl(0 0% 50%);
   
   /* SIGMA brand colors - Grey theme */
-  --sigma-primary: hsl(0 0% 45%);
-  --sigma-primary-hover: hsl(0 0% 40%);
-  --sigma-dark: hsl(0 0% 7%);
-  --sigma-card: hsl(0 0% 10%);
-  --sigma-border: hsl(0 0% 20%);
+  --sigma-primary: hsl(0 0% 30%);
+  --sigma-primary-hover: hsl(0 0% 25%);
+  --sigma-dark: hsl(0 0% 97%);
+  --sigma-card: hsl(0 0% 100%);
+  --sigma-border: hsl(0 0% 85%);
   --sigma-live: hsl(0 84% 60%);
   --sigma-gift: hsl(280 70% 55%);
   --sigma-donation: hsl(45 90% 50%);
