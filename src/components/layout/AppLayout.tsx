@@ -136,11 +136,12 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           {/* Search */}
           <div className="flex-1 max-w-md mx-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground transition-colors duration-300 group-focus-within:text-primary" />
+              <div className="absolute inset-0 rounded-full bg-primary/5 opacity-0 group-focus-within:opacity-100 blur-xl transition-opacity duration-500" />
               <Input
-                placeholder="Search..."
-                className="pl-10 bg-secondary border-border"
+                placeholder="Search streams, channels..."
+                className="pl-11 pr-4 bg-secondary/60 border-border/50 rounded-full h-10 backdrop-blur-sm shadow-sm transition-all duration-300 focus:shadow-md focus:shadow-primary/10 focus:border-primary/30 focus:bg-secondary/80 hover:bg-secondary/80 hover:border-border"
               />
             </div>
           </div>
