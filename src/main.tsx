@@ -10,6 +10,7 @@ import ChannelPage from "./pages/Channel";
 import AuthPage from "./pages/Auth";
 import GiftsPage from "./pages/Gifts";
 import GoLivePage from "./pages/GoLive";
+import FeedPage from "./pages/Feed";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
@@ -25,6 +26,7 @@ function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/gifts" element={<GiftsPage />} />
         <Route path="/go-live" element={<GoLivePage />} />
+        <Route path="/feed" element={<FeedPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
