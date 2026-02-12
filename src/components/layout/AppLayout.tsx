@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { PopularStreamers } from '@/components/layout/PopularStreamers';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -86,6 +87,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             );
           })}
         </nav>
+
+        {/* Popular Streamers */}
+        <div className="px-2 py-3 border-t border-border/50">
+          <PopularStreamers collapsed={!sidebarOpen} />
+        </div>
 
         {/* User Section */}
         <div className="p-4 border-t border-border/50">
