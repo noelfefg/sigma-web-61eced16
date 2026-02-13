@@ -12,13 +12,16 @@ import {
   Search,
   Gift,
   Video,
-  ImageIcon
+  ImageIcon,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PopularStreamers } from '@/components/layout/PopularStreamers';
+import { RecommendedCategories } from '@/components/layout/RecommendedCategories';
+import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -87,6 +90,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             );
           })}
         </nav>
+
+        {/* Recommended Categories */}
+        <div className="px-2 py-3 border-t border-border/50">
+          <RecommendedCategories collapsed={!sidebarOpen} />
+        </div>
 
         {/* Popular Streamers */}
         <div className="px-2 py-3 border-t border-border/50">
@@ -160,14 +168,13 @@ export function AppLayout({ children }: AppLayoutProps) {
             {user ? (
               <>
                 <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground relative">
+                  <MessageSquare className="w-5 h-5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground relative">
                   <Bell className="w-5 h-5" />
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full animate-pulse" />
                 </Button>
-                <Link to={`/channel/${user.email?.split('@')[0]}`}>
-                  <div className="w-9 h-9 bg-gradient-to-br from-primary/30 to-accent rounded-full flex items-center justify-center ring-2 ring-primary/20 hover:ring-primary/40 transition-all duration-300">
-                    <User className="w-4 h-4 text-primary" />
-                  </div>
-                </Link>
+                <UserDropdownMenu user={user} signOut={signOut} />
               </>
             ) : (
               <Link to="/auth">

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Zap, Users, Video, Sparkles } from 'lucide-react';
+import { Eye, Zap, Users, Video, Sparkles, TrendingUp, Star } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 interface Stream {
@@ -251,6 +252,74 @@ export default function HomePage() {
             </div>
           </section>
         )}
+
+        {/* Suggested for You */}
+        <section>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="p-1.5 bg-gradient-to-br from-primary/20 to-accent/30 rounded-lg">
+              <Star className="w-5 h-5 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground">Live channels we think you'll like</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { name: 'ProGamer99', category: 'Fortnite', viewers: '4.2K', color: 'from-red-500 to-pink-500' },
+              { name: 'ArtMaster', category: 'Art', viewers: '1.8K', color: 'from-purple-500 to-indigo-500' },
+              { name: 'CodeStream', category: 'Software Dev', viewers: '956', color: 'from-cyan-400 to-blue-500' },
+            ].map((ch, i) => (
+              <motion.div key={ch.name} custom={i} variants={cardVariants} initial="hidden" animate="visible">
+                <Link to={`/channel/${ch.name.toLowerCase()}`} className="group block">
+                  <div className="relative rounded-xl overflow-hidden bg-card border border-border/50 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
+                    <div className="relative aspect-video">
+                      <div className={`w-full h-full bg-gradient-to-br ${ch.color} opacity-30 flex items-center justify-center`}>
+                        <Video className="w-8 h-8 text-foreground/30" />
+                      </div>
+                      <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                        LIVE
+                      </div>
+                      <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        {ch.viewers}
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <div className="flex gap-3">
+                        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${ch.color} flex items-center justify-center shrink-0`}>
+                          <span className="text-sm font-bold text-white">{ch.name[0]}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">{ch.name}'s Stream</h3>
+                          <p className="text-sm text-muted-foreground truncate">{ch.name}</p>
+                          <p className="text-xs text-muted-foreground">{ch.category}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Promotional Banner */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary/80 to-accent p-4 flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <TrendingUp className="w-6 h-6 text-primary-foreground" />
+            <p className="text-primary-foreground font-semibold text-sm md:text-base">
+              Watch live streams on SIGMA and earn exclusive rewards!
+            </p>
+          </div>
+          <Link to="/gifts">
+            <Button size="sm" variant="secondary" className="rounded-full text-xs font-bold shrink-0">
+              Learn More
+            </Button>
+          </Link>
+        </motion.div>
 
         {/* Empty state */}
         {!loading && liveStreams.length === 0 && recommendedChannels.length === 0 && (
