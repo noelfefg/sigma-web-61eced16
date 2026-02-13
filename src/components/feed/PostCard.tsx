@@ -71,8 +71,6 @@ export function PostCard({ post, likeCount, commentCount, isLiked: initialLiked,
       animate={{ opacity: 1, y: 0 }}
       className="relative bg-gradient-to-br from-card via-card to-card/80 rounded-3xl border border-border/40 overflow-hidden shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 group"
     >
-      {/* Gradient accent line */}
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary via-destructive to-accent opacity-60" />
 
       {/* Header */}
       <div className="flex items-center justify-between p-4">
