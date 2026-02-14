@@ -24,7 +24,7 @@ export function RecommendedCategories({ collapsed }: RecommendedCategoriesProps)
       {categories.map((cat) => (
         <button
           key={cat.name}
-          className="flex items-center gap-2.5 w-full rounded-xl px-3 py-2 text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-all duration-200 group"
+          className="flex items-center gap-2.5 w-full rounded-xl px-3 py-2 text-muted-foreground hover:bg-accent/50 hover:text-foreground group"
         >
           <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${cat.color} flex items-center justify-center shrink-0`}>
             <cat.icon className="w-4 h-4 text-white" />
