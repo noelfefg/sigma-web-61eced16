@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 
 interface ProfileData {
   id: string;
@@ -62,6 +63,28 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
+  }),
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const cardItem = {
+  hidden: { opacity: 0, y: 16, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: 'easeOut' as const } },
+};
+
 export default function ChannelPage() {
   const { username } = useParams<{ username: string }>();
   const { user } = useAuth();
@@ -80,7 +103,6 @@ export default function ChannelPage() {
 
       setLoading(true);
 
-      // Get profile
       const { data: profileData } = await supabase
         .from('profiles')
         .select('*')
@@ -94,7 +116,6 @@ export default function ChannelPage() {
 
       setProfile(profileData);
 
-      // Get follower/following counts
       const [{ data: followers }, { data: following }] = await Promise.all([
         supabase.rpc('get_follower_count', { profile_id: profileData.id }),
         supabase.rpc('get_following_count', { profile_id: profileData.id }),
@@ -103,7 +124,6 @@ export default function ChannelPage() {
       setFollowerCount(followers || 0);
       setFollowingCount(following || 0);
 
-      // Check if current user is following
       if (user) {
         const { data: isFollowingData } = await supabase.rpc('is_following', {
           follower: user.id,
@@ -112,7 +132,6 @@ export default function ChannelPage() {
         setIsFollowing(!!isFollowingData);
       }
 
-      // Get live stream
       const { data: liveData } = await supabase
         .from('streams')
         .select(`
@@ -129,7 +148,6 @@ export default function ChannelPage() {
 
       setLiveStream(liveData as StreamData | null);
 
-      // Get past streams
       const { data: pastData } = await supabase
         .from('streams')
         .select(`
@@ -147,7 +165,6 @@ export default function ChannelPage() {
 
       setPastStreams((pastData as StreamData[]) || []);
 
-      // Get clips
       const { data: clipsData } = await supabase
         .from('clips')
         .select('id, title, thumbnail_url, duration, view_count')
@@ -215,7 +232,12 @@ export default function ChannelPage() {
     <AppLayout>
       <div className="min-h-full">
         {/* Banner */}
-        <div className="relative h-48 md:h-64">
+        <motion.div 
+          className="relative h-48 md:h-64 overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
           {profile.banner_url ? (
             <img
               src={profile.banner_url}
@@ -226,35 +248,40 @@ export default function ChannelPage() {
             <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
-        </div>
+        </motion.div>
 
         {/* Profile Section */}
-        <div className="relative px-4 md:px-6 -mt-16">
+        <motion.div 
+          className="relative px-4 md:px-6 -mt-16"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
           <div className="flex flex-col md:flex-row md:items-end gap-4">
             {/* Avatar */}
-            <div className="relative">
+            <motion.div className="relative" variants={cardItem}>
               {profile.avatar_url ? (
                 <img
                   src={profile.avatar_url}
                   alt={profile.display_name}
-                  className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-background object-cover"
+                  className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-background object-cover shadow-xl shadow-primary/10"
                 />
               ) : (
-                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-background bg-primary/20 flex items-center justify-center">
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-background bg-primary/20 flex items-center justify-center shadow-xl shadow-primary/10">
                   <span className="text-4xl font-bold text-primary">
                     {profile.display_name[0]?.toUpperCase()}
                   </span>
                 </div>
               )}
               {liveStream && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded">
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-full shadow-lg shadow-destructive/30">
                   LIVE
                 </div>
               )}
-            </div>
+            </motion.div>
 
             {/* Info */}
-            <div className="flex-1">
+            <motion.div className="flex-1" variants={cardItem}>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <h1 className="text-2xl font-bold text-foreground">{profile.display_name}</h1>
@@ -274,12 +301,12 @@ export default function ChannelPage() {
                     variant={isFollowing ? 'secondary' : 'default'}
                     onClick={handleFollow}
                     disabled={!user || user.id === profile.id}
-                    className={isFollowing ? '' : 'bg-primary hover:bg-primary/90'}
+                    className={`rounded-full px-6 ${isFollowing ? '' : 'bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20'}`}
                   >
                     <Heart className={`w-4 h-4 mr-2 ${isFollowing ? 'fill-current text-destructive' : ''}`} />
                     {isFollowing ? 'Following' : 'Follow'}
                   </Button>
-                  <Button variant="secondary">
+                  <Button variant="secondary" className="rounded-full">
                     <Share2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -287,15 +314,20 @@ export default function ChannelPage() {
               {profile.bio && (
                 <p className="text-muted-foreground mt-3 max-w-2xl">{profile.bio}</p>
               )}
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Live Stream Preview */}
         {liveStream && (
-          <div className="px-4 md:px-6 mt-6">
+          <motion.div 
+            className="px-4 md:px-6 mt-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
             <Link to={`/watch/${profile.username}`}>
-              <div className="relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors group">
+              <div className="relative bg-card/80 backdrop-blur-xl rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group">
                 <div className="aspect-video bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
                   {liveStream.thumbnail_url ? (
                     <img
@@ -313,10 +345,10 @@ export default function ChannelPage() {
                   )}
                 </div>
                 <div className="absolute top-4 left-4 flex items-center gap-2">
-                  <div className="bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1 rounded">
+                  <div className="bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1 rounded-full shadow-lg shadow-destructive/30">
                     LIVE
                   </div>
-                  <div className="bg-black/80 text-white text-sm px-3 py-1 rounded flex items-center gap-1">
+                  <div className="bg-black/60 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-full flex items-center gap-1">
                     <Eye className="w-4 h-4" />
                     {formatCount(liveStream.viewer_count)}
                   </div>
@@ -329,25 +361,36 @@ export default function ChannelPage() {
                 </div>
               </div>
             </Link>
-          </div>
+          </motion.div>
         )}
 
         {/* Content Tabs */}
-        <div className="px-4 md:px-6 mt-6 pb-8">
+        <motion.div 
+          className="px-4 md:px-6 mt-6 pb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
           <Tabs defaultValue="videos" className="w-full">
-            <TabsList className="bg-secondary">
-              <TabsTrigger value="videos">Videos</TabsTrigger>
-              <TabsTrigger value="clips">Clips</TabsTrigger>
-              <TabsTrigger value="about">About</TabsTrigger>
+            <TabsList className="bg-secondary/60 backdrop-blur-sm rounded-full p-1">
+              <TabsTrigger value="videos" className="rounded-full">Videos</TabsTrigger>
+              <TabsTrigger value="clips" className="rounded-full">Clips</TabsTrigger>
+              <TabsTrigger value="about" className="rounded-full">About</TabsTrigger>
             </TabsList>
 
             <TabsContent value="videos" className="mt-6">
               {pastStreams.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <motion.div 
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  initial="hidden"
+                  animate="visible"
+                  variants={staggerContainer}
+                >
                   {pastStreams.map((stream) => (
-                    <div
+                    <motion.div
                       key={stream.id}
-                      className="bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors group cursor-pointer"
+                      variants={cardItem}
+                      className="bg-card/80 backdrop-blur-xl rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group cursor-pointer"
                     >
                       <div className="relative aspect-video">
                         {stream.thumbnail_url ? (
@@ -362,7 +405,7 @@ export default function ChannelPage() {
                           </div>
                         )}
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Play className="w-12 h-12 text-white" />
+                          <Play className="w-12 h-12 text-white drop-shadow-lg" />
                         </div>
                       </div>
                       <div className="p-3">
@@ -374,9 +417,9 @@ export default function ChannelPage() {
                           </span>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               ) : (
                 <div className="text-center py-12">
                   <Video className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -388,11 +431,17 @@ export default function ChannelPage() {
 
             <TabsContent value="clips" className="mt-6">
               {clips.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <motion.div 
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  initial="hidden"
+                  animate="visible"
+                  variants={staggerContainer}
+                >
                   {clips.map((clip) => (
-                    <div
+                    <motion.div
                       key={clip.id}
-                      className="bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors group cursor-pointer"
+                      variants={cardItem}
+                      className="bg-card/80 backdrop-blur-xl rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group cursor-pointer"
                     >
                       <div className="relative aspect-video">
                         {clip.thumbnail_url ? (
@@ -406,11 +455,11 @@ export default function ChannelPage() {
                             <Video className="w-8 h-8 text-primary/30" />
                           </div>
                         )}
-                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-0.5 rounded">
+                        <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-full">
                           {formatDuration(clip.duration)}
                         </div>
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Play className="w-12 h-12 text-white" />
+                          <Play className="w-12 h-12 text-white drop-shadow-lg" />
                         </div>
                       </div>
                       <div className="p-3">
@@ -420,9 +469,9 @@ export default function ChannelPage() {
                           {formatCount(clip.view_count)} views
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               ) : (
                 <div className="text-center py-12">
                   <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -433,13 +482,18 @@ export default function ChannelPage() {
             </TabsContent>
 
             <TabsContent value="about" className="mt-6">
-              <div className="max-w-2xl">
-                <div className="bg-card rounded-lg border border-border p-6 space-y-4">
+              <motion.div 
+                className="max-w-2xl"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-6 space-y-4">
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">About {profile.display_name}</h3>
                     <p className="text-muted-foreground">{profile.bio || 'No bio yet.'}</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+                  <div className="grid grid-cols-2 gap-4 pt-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Followers</p>
                       <p className="text-xl font-bold text-foreground">{formatCount(followerCount)}</p>
@@ -450,10 +504,10 @@ export default function ChannelPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </TabsContent>
           </Tabs>
-        </div>
+        </motion.div>
       </div>
     </AppLayout>
   );
