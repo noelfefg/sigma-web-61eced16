@@ -12,37 +12,39 @@
 :root {
   --font-size: 16px;
 
-  /* Light theme */
-   --background: hsl(220 20% 97%);
-   --foreground: hsl(220 20% 9%);
+  /* Light theme - Grey primary with navy accents */
+   --background: hsl(220 10% 96%);
+   --foreground: hsl(220 15% 12%);
    --card: hsl(0 0% 100%);
-   --card-foreground: hsl(220 20% 9%);
+   --card-foreground: hsl(220 15% 12%);
    --popover: hsl(0 0% 100%);
-   --popover-foreground: hsl(220 20% 9%);
-   --primary: hsl(218 90% 30%);
+   --popover-foreground: hsl(220 15% 12%);
+   --primary: hsl(220 8% 40%);
    --primary-foreground: hsl(0 0% 100%);
-   --secondary: hsl(220 15% 93%);
-   --secondary-foreground: hsl(220 20% 9%);
-   --muted: hsl(220 15% 93%);
-   --muted-foreground: hsl(220 10% 45%);
-   --accent: hsl(218 90% 92%);
-   --accent-foreground: hsl(218 90% 25%);
+   --secondary: hsl(220 8% 92%);
+   --secondary-foreground: hsl(220 15% 12%);
+   --muted: hsl(220 8% 92%);
+   --muted-foreground: hsl(220 6% 50%);
+   --accent: hsl(218 80% 92%);
+   --accent-foreground: hsl(218 80% 28%);
    --destructive: hsl(0 84% 60%);
    --destructive-foreground: hsl(0 0% 98%);
-   --border: hsl(220 15% 88%);
-   --input: hsl(220 15% 91%);
-   --input-background: hsl(220 20% 97%);
-   --switch-background: hsl(220 10% 78%);
+   --border: hsl(220 8% 87%);
+   --input: hsl(220 8% 90%);
+   --input-background: hsl(220 10% 96%);
+   --switch-background: hsl(220 6% 74%);
    --font-weight-medium: 500;
    --font-weight-normal: 400;
-   --ring: hsl(218 90% 30%);
+   --ring: hsl(218 80% 45%);
 
-   /* SIGMA brand colors */
-   --sigma-primary: hsl(218 90% 30%);
-   --sigma-primary-hover: hsl(218 90% 25%);
-  --sigma-dark: hsl(220 20% 97%);
+   /* SIGMA brand colors - grey primary, navy accent */
+   --sigma-primary: hsl(220 8% 40%);
+   --sigma-primary-hover: hsl(220 8% 32%);
+   --sigma-accent: hsl(218 80% 45%);
+   --sigma-accent-hover: hsl(218 80% 38%);
+  --sigma-dark: hsl(220 10% 96%);
   --sigma-card: hsl(0 0% 100%);
-  --sigma-border: hsl(220 15% 88%);
+  --sigma-border: hsl(220 8% 87%);
   --sigma-live: hsl(0 84% 60%);
   --sigma-gift: hsl(280 70% 55%);
   --sigma-donation: hsl(45 90% 50%);
@@ -52,25 +54,25 @@
 }
 
 .dark {
-   --background: hsl(230 15% 8%);
-   --foreground: hsl(0 0% 96%);
-   --card: hsl(230 15% 11%);
-   --card-foreground: hsl(0 0% 96%);
-   --popover: hsl(230 15% 13%);
-   --popover-foreground: hsl(0 0% 96%);
-   --primary: hsl(218 90% 40%);
+   --background: hsl(220 10% 7%);
+   --foreground: hsl(0 0% 95%);
+   --card: hsl(220 10% 10%);
+   --card-foreground: hsl(0 0% 95%);
+   --popover: hsl(220 10% 12%);
+   --popover-foreground: hsl(0 0% 95%);
+   --primary: hsl(220 6% 50%);
    --primary-foreground: hsl(0 0% 100%);
-   --secondary: hsl(230 15% 16%);
-   --secondary-foreground: hsl(0 0% 96%);
-   --muted: hsl(230 15% 16%);
-   --muted-foreground: hsl(230 10% 55%);
-   --accent: hsl(218 90% 22%);
-   --accent-foreground: hsl(218 90% 85%);
+   --secondary: hsl(220 8% 15%);
+   --secondary-foreground: hsl(0 0% 95%);
+   --muted: hsl(220 8% 15%);
+   --muted-foreground: hsl(220 6% 55%);
+   --accent: hsl(218 70% 22%);
+   --accent-foreground: hsl(218 80% 80%);
    --destructive: hsl(0 84% 60%);
    --destructive-foreground: hsl(0 0% 98%);
-   --border: hsl(230 15% 18%);
-   --input: hsl(230 15% 15%);
-   --ring: hsl(218 90% 40%);
+   --border: hsl(220 8% 17%);
+   --input: hsl(220 8% 14%);
+   --ring: hsl(218 80% 45%);
 }
 
 @theme inline {
