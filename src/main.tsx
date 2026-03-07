@@ -28,6 +28,7 @@ function App() {
         <Route path="/gifts" element={<GiftsPage />} />
         <Route path="/go-live" element={<GoLivePage />} />
         <Route path="/feed" element={<FeedPage />} />
+        <Route path="/you" element={<YouPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
