@@ -11,6 +11,7 @@ import AuthPage from "./pages/Auth";
 import GiftsPage from "./pages/Gifts";
 import GoLivePage from "./pages/GoLive";
 import FeedPage from "./pages/Feed";
+import YouPage from "./pages/You";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
