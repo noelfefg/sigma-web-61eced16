@@ -114,7 +114,7 @@ export default function FeedPage() {
             {loading ? (
               <div className="space-y-6">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="space-y-3 bg-card rounded-3xl border border-border/40 p-4">
+                  <div key={i} className="space-y-3 bg-card rounded-3xl p-4">
                     <div className="flex items-center gap-3">
                       <Skeleton className="w-11 h-11 rounded-full" />
                       <div className="space-y-1">
