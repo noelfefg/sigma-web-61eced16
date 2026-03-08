@@ -14,6 +14,7 @@ import FeedPage from "./pages/Feed";
 import YouPage from "./pages/You";
 import ShortsPage from "./pages/Shorts";
 import CommunityPage from "./pages/Community";
+import MessagesPage from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
