@@ -37,10 +37,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         {/* Logo */}
         <div className="h-14 flex items-center justify-between px-3">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/60 rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">Σ</span>
-            </div>
-            {sidebarOpen && <span className="text-lg font-bold text-foreground">SIGMA</span>}
+            <img src={sigmaLogo} alt="Sigma" className="w-8 h-8 rounded-lg object-cover" />
           </Link>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="text-muted-foreground hover:text-foreground h-8 w-8">
             <Menu className="w-4 h-4" />
