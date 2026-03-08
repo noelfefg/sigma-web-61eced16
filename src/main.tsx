@@ -36,6 +36,7 @@ function App() {
         <Route path="/shorts" element={<ShortsPage />} />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/camera" element={<SnapCameraPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
