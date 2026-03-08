@@ -31,6 +31,8 @@ function App() {
         <Route path="/go-live" element={<GoLivePage />} />
         <Route path="/feed" element={<FeedPage />} />
         <Route path="/you" element={<YouPage />} />
+        <Route path="/shorts" element={<ShortsPage />} />
+        <Route path="/community" element={<CommunityPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
