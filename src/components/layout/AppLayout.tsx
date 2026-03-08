@@ -36,6 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { bg, setBg, backgrounds } = useLiveBackground();
 
   return (
     <div className="min-h-screen bg-background flex">
