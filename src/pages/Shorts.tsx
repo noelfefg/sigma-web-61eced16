@@ -101,7 +101,7 @@ export default function ShortsPage() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Post a Short</DialogTitle>
+                <DialogTitle>Post a Lil Vid</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <Input placeholder="Title (optional)" value={title} onChange={e => setTitle(e.target.value)} />
