@@ -34,6 +34,7 @@ function App() {
         <Route path="/you" element={<YouPage />} />
         <Route path="/shorts" element={<ShortsPage />} />
         <Route path="/community" element={<CommunityPage />} />
+        <Route path="/messages" element={<MessagesPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />

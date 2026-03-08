@@ -21,6 +21,7 @@ const navItems = [
   { icon: ImageIcon, label: 'Feed', path: '/feed' },
   { icon: Play, label: 'Shorts', path: '/shorts' },
   { icon: UsersRound, label: 'Community', path: '/community' },
+  { icon: Mail, label: 'Messages', path: '/messages' },
   { icon: Gift, label: 'Gifts', path: '/gifts' },
   { icon: Video, label: 'Go Live', path: '/go-live' },
   { icon: UserCircle, label: 'You', path: '/you' },
