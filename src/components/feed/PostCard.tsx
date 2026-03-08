@@ -32,13 +32,79 @@ interface PostCardProps {
 
 export function PostCard({ post, likeCount, commentCount, isLiked: initialLiked, onCommentClick }: PostCardProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(initialLiked);
   const [likes, setLikes] = useState(likeCount);
   const [saved, setSaved] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
   const [showHeart, setShowHeart] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [messageSending, setMessageSending] = useState(false);
   const lastTapRef = useRef(0);
+
+  const handleMessageCreator = async () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    if (user.id === post.user_id) return; // Can't message yourself
+    setMessageSending(true);
+
+    try {
+      // Check if conversation already exists between these two users
+      const { data: myConvs } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', user.id);
+
+      let existingConvId: string | null = null;
+
+      if (myConvs) {
+        for (const mc of myConvs) {
+          const { data: otherPart } = await supabase
+            .from('conversation_participants')
+            .select('user_id')
+            .eq('conversation_id', mc.conversation_id)
+            .eq('user_id', post.user_id);
+
+          if (otherPart?.length) {
+            existingConvId = mc.conversation_id;
+            break;
+          }
+        }
+      }
+
+      if (existingConvId) {
+        navigate('/messages');
+        toast({ title: `Chat with ${post.profiles?.display_name || 'user'} opened` });
+      } else {
+        // Create new conversation
+        const { data: conv, error } = await supabase
+          .from('conversations')
+          .insert({})
+          .select()
+          .single();
+
+        if (error || !conv) {
+          toast({ title: 'Error', description: 'Failed to start conversation', variant: 'destructive' });
+          setMessageSending(false);
+          return;
+        }
+
+        await supabase.from('conversation_participants').insert([
+          { conversation_id: conv.id, user_id: user.id },
+          { conversation_id: conv.id, user_id: post.user_id },
+        ]);
+
+        navigate('/messages');
+        toast({ title: `Conversation started with ${post.profiles?.display_name || 'user'}` });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
+    }
+    setMessageSending(false);
+  };
 
   const handleLike = async () => {
     if (!user) return;
