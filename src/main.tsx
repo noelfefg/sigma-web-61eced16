@@ -12,6 +12,8 @@ import GiftsPage from "./pages/Gifts";
 import GoLivePage from "./pages/GoLive";
 import FeedPage from "./pages/Feed";
 import YouPage from "./pages/You";
+import ShortsPage from "./pages/Shorts";
+import CommunityPage from "./pages/Community";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
