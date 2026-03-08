@@ -237,7 +237,7 @@ export function PostCard({ post, likeCount, commentCount, isLiked: initialLiked,
             <button onClick={onCommentClick} className="p-2 rounded-full hover:bg-primary/10 transition-colors">
               <MessageCircle className="w-6 h-6 text-foreground" />
             </button>
-            <button className="p-2 rounded-full hover:bg-accent/30 transition-colors">
+            <button onClick={handleMessageCreator} disabled={messageSending || user?.id === post.user_id} className="p-2 rounded-full hover:bg-accent/30 transition-colors disabled:opacity-40">
               <Send className="w-6 h-6 text-foreground -rotate-12" />
             </button>
           </div>
