@@ -50,6 +50,7 @@ export default function YouPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -182,7 +183,6 @@ export default function YouPage() {
     setUploading(false);
   }
 
-  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <AppLayout>
