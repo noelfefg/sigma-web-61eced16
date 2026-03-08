@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Video, Heart, Clock, Settings, Eye, LogIn, ImagePlus, Trash2, Upload, X } from 'lucide-react';
+import { User, Video, Heart, Clock, Settings, Eye, LogIn, ImagePlus, Trash2, Upload, X, Pencil, Camera } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -51,6 +52,14 @@ export default function YouPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+
+  // Edit profile state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editUsername, setEditUsername] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -119,7 +128,6 @@ export default function YouPage() {
       setCaption('');
       setSelectedFile(null);
       setPreviewUrl(null);
-      // Refresh gallery
       const { data: gallery } = await supabase.from('user_gallery').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
       if (gallery) setGalleryImages(gallery);
     }
@@ -130,6 +138,79 @@ export default function YouPage() {
     await supabase.from('user_gallery').delete().eq('id', id);
     setGalleryImages(prev => prev.filter(img => img.id !== id));
     toast({ title: 'Image deleted' });
+  }
+
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/avatar.${ext}`;
+    const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+    if (upErr) {
+      toast({ title: 'Upload failed', description: upErr.message, variant: 'destructive' });
+      setUploading(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+    const newUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+    await supabase.from('profiles').update({ avatar_url: newUrl }).eq('id', user.id);
+    setProfile(prev => prev ? { ...prev, avatar_url: newUrl } : prev);
+    toast({ title: 'Profile picture updated!' });
+    setUploading(false);
+  }
+
+  async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/banner.${ext}`;
+    const { error: upErr } = await supabase.storage.from('banners').upload(path, file, { upsert: true });
+    if (upErr) {
+      toast({ title: 'Upload failed', description: upErr.message, variant: 'destructive' });
+      setUploading(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from('banners').getPublicUrl(path);
+    const newUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+    await supabase.from('profiles').update({ banner_url: newUrl }).eq('id', user.id);
+    setProfile(prev => prev ? { ...prev, banner_url: newUrl } : prev);
+    toast({ title: 'Banner updated!' });
+    setUploading(false);
+  }
+
+  function openEditDialog() {
+    if (profile) {
+      setEditName(profile.display_name);
+      setEditUsername(profile.username);
+      setEditBio(profile.bio || '');
+    }
+    setEditOpen(true);
+  }
+
+  async function handleSaveProfile() {
+    if (!user || !editName.trim() || !editUsername.trim()) return;
+    setSaving(true);
+    const { error } = await supabase.from('profiles').update({
+      display_name: editName.trim(),
+      username: editUsername.trim().toLowerCase().replace(/[^a-z0-9_]/g, ''),
+      bio: editBio.trim() || null,
+    }).eq('id', user.id);
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      setProfile(prev => prev ? {
+        ...prev,
+        display_name: editName.trim(),
+        username: editUsername.trim().toLowerCase().replace(/[^a-z0-9_]/g, ''),
+        bio: editBio.trim() || null,
+      } : prev);
+      toast({ title: 'Profile updated!' });
+      setEditOpen(false);
+    }
+    setSaving(false);
   }
 
   if (authLoading || loading) {
@@ -158,35 +239,14 @@ export default function YouPage() {
   }
 
   const sections = [
-    { icon: Video, label: 'Your videos', count: streams.length },
-    { icon: Heart, label: 'Liked videos', count: 0 },
-    { icon: Clock, label: 'Watch history', count: 0 },
+    { icon: Video, label: 'Your videos', count: streams.length, link: `/channel/${profile?.username}` },
+    { icon: Heart, label: 'Liked videos', count: 0, link: '/feed' },
+    { icon: Clock, label: 'Watch history', count: 0, link: '/browse' },
   ];
-
-  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-    setUploading(true);
-    const ext = file.name.split('.').pop();
-    const path = `${user.id}/avatar.${ext}`;
-    const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
-    if (upErr) {
-      toast({ title: 'Upload failed', description: upErr.message, variant: 'destructive' });
-      setUploading(false);
-      return;
-    }
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
-    const newUrl = `${urlData.publicUrl}?t=${Date.now()}`;
-    await supabase.from('profiles').update({ avatar_url: newUrl }).eq('id', user.id);
-    setProfile(prev => prev ? { ...prev, avatar_url: newUrl } : prev);
-    toast({ title: 'Profile picture updated!' });
-    setUploading(false);
-  }
-
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto p-6 md:p-8 space-y-8 relative">
+      <div className="max-w-4xl mx-auto p-0 md:p-0 space-y-0">
         {/* Floating Profile Picture - Top Right */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -216,157 +276,243 @@ export default function YouPage() {
           <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
         </motion.div>
 
-        {/* Profile Header */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-5">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src={profile?.avatar_url || ''} />
-            <AvatarFallback className="bg-secondary text-xl font-bold">
-              {profile?.display_name?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-foreground">{profile?.display_name || 'User'}</h1>
-            <p className="text-sm text-muted-foreground">@{profile?.username || user.email?.split('@')[0]}</p>
-            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-              <span><span className="font-semibold text-foreground">{followerCount}</span> followers</span>
-              <span><span className="font-semibold text-foreground">{followingCount}</span> following</span>
-            </div>
-          </div>
-          <Link to={`/channel/${profile?.username}`}>
-            <Button variant="secondary" size="sm" className="rounded-full">
-              <Settings className="w-4 h-4 mr-2" />Manage
-            </Button>
-          </Link>
-        </motion.div>
-
-        {profile?.bio && <p className="text-sm text-muted-foreground max-w-xl">{profile.bio}</p>}
-
-        {/* Quick Sections */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {sections.map((s, i) => (
-            <motion.div key={s.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-              className="bg-card rounded-xl p-4 hover:bg-accent/30 transition-colors cursor-pointer group">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                  <s.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{s.label}</p>
-                  <p className="text-xs text-muted-foreground">{s.count} items</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Gallery Section */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-foreground">Your Gallery</h2>
-            <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" variant="secondary" className="rounded-full">
-                  <ImagePlus className="w-4 h-4 mr-2" />Upload Image
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Upload Image</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div
-                    className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    {previewUrl ? (
-                      <div className="relative">
-                        <img src={previewUrl} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain" />
-                        <Button variant="ghost" size="icon" className="absolute top-0 right-0" onClick={e => { e.stopPropagation(); handleFileSelect(null); }}>
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">Click to select an image</p>
-                      </>
-                    )}
-                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleFileSelect(e.target.files?.[0] || null)} />
-                  </div>
-                  <Input placeholder="Caption (optional)" value={caption} onChange={e => setCaption(e.target.value)} />
-                  <Button onClick={handleUploadImage} disabled={!selectedFile || uploading} className="w-full">
-                    {uploading ? 'Uploading...' : 'Upload'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          {galleryImages.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {galleryImages.map((img, i) => (
-                <motion.div
-                  key={img.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="relative group rounded-xl overflow-hidden bg-card aspect-square"
-                >
-                  <img src={img.image_url} alt={img.caption || ''} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-end p-2 opacity-0 group-hover:opacity-100">
-                    {img.caption && <p className="text-white text-xs truncate flex-1">{img.caption}</p>}
-                    <Button variant="ghost" size="icon" className="text-white/80 hover:text-white h-7 w-7" onClick={() => handleDeleteImage(img.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+        {/* Banner */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative w-full h-36 md:h-48 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary cursor-pointer group overflow-hidden rounded-b-2xl"
+          onClick={() => bannerInputRef.current?.click()}
+        >
+          {profile?.banner_url ? (
+            <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
           ) : (
-            <div className="text-center py-10 bg-card rounded-xl">
-              <ImagePlus className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-              <h3 className="font-medium text-foreground mb-1">No images yet</h3>
-              <p className="text-sm text-muted-foreground">Upload images to your gallery</p>
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center">
+                <Camera className="w-8 h-8 text-muted-foreground/40 mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground/50">Click to add a banner</p>
+              </div>
             </div>
           )}
-        </section>
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <div className="bg-black/60 rounded-full px-4 py-2 flex items-center gap-2">
+              <Camera className="w-4 h-4 text-white" />
+              <span className="text-white text-sm font-medium">Change Banner</span>
+            </div>
+          </div>
+          <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
+        </motion.div>
 
-        {/* Your Videos */}
-        <section>
-          <h2 className="text-lg font-bold text-foreground mb-4">Your Videos</h2>
-          {streams.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {streams.map((stream, i) => (
-                <motion.div key={stream.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-                  className="bg-card rounded-xl overflow-hidden hover:shadow-md transition-all cursor-pointer group">
-                  <div className="relative aspect-video">
-                    {stream.thumbnail_url ? (
-                      <img src={stream.thumbnail_url} alt={stream.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-secondary to-muted flex items-center justify-center">
-                        <Video className="w-8 h-8 text-muted-foreground/30" />
-                      </div>
-                    )}
-                    {stream.is_live && <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-md">LIVE</div>}
+        <div className="px-6 md:px-8 space-y-8 pb-8">
+          {/* Profile Header */}
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-5 -mt-10 relative z-10">
+            <div
+              className="relative group cursor-pointer"
+              onClick={() => avatarInputRef.current?.click()}
+            >
+              <Avatar className="w-20 h-20 ring-4 ring-background shadow-xl">
+                <AvatarImage src={profile?.avatar_url || ''} />
+                <AvatarFallback className="bg-secondary text-xl font-bold">
+                  {profile?.display_name?.[0]?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <Camera className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="flex-1 pt-6">
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-foreground">{profile?.display_name || 'User'}</h1>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={openEditDialog}>
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">@{profile?.username || user.email?.split('@')[0]}</p>
+              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                <span><span className="font-semibold text-foreground">{followerCount}</span> followers</span>
+                <span><span className="font-semibold text-foreground">{followingCount}</span> following</span>
+              </div>
+            </div>
+            <Link to={`/channel/${profile?.username}`}>
+              <Button variant="secondary" size="sm" className="rounded-full">
+                <Settings className="w-4 h-4 mr-2" />Manage
+              </Button>
+            </Link>
+          </motion.div>
+
+          {/* Bio - clickable to edit */}
+          <div
+            className="cursor-pointer group rounded-lg p-3 -mx-3 hover:bg-accent/20 transition-colors"
+            onClick={openEditDialog}
+          >
+            {profile?.bio ? (
+              <div className="flex items-start gap-2">
+                <p className="text-sm text-muted-foreground max-w-xl flex-1">{profile.bio}</p>
+                <Pencil className="w-3.5 h-3.5 text-muted-foreground/0 group-hover:text-muted-foreground transition-colors mt-0.5 shrink-0" />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground/50 italic">Click to add a bio...</p>
+            )}
+          </div>
+
+          {/* Edit Profile Dialog */}
+          <Dialog open={editOpen} onOpenChange={setEditOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Profile</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Display Name</label>
+                  <Input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Your display name" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Username</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
+                    <Input value={editUsername} onChange={e => setEditUsername(e.target.value)} placeholder="username" className="pl-7" />
                   </div>
-                  <div className="p-3">
-                    <h3 className="text-sm font-medium text-foreground truncate">{stream.title}</h3>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                      <Eye className="w-3 h-3" />{stream.viewer_count} views
+                  <p className="text-xs text-muted-foreground mt-1">Only lowercase letters, numbers, and underscores</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Bio</label>
+                  <Textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Tell people about yourself..." rows={3} />
+                </div>
+                <Button onClick={handleSaveProfile} disabled={saving || !editName.trim() || !editUsername.trim()} className="w-full">
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Quick Sections */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {sections.map((s, i) => (
+              <Link to={s.link} key={s.label}>
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                  className="bg-card rounded-xl p-4 hover:bg-accent/30 transition-colors cursor-pointer group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                      <s.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{s.label}</p>
+                      <p className="text-xs text-muted-foreground">{s.count} items</p>
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              </Link>
+            ))}
+          </div>
+
+          {/* Gallery Section */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground">Your Gallery</h2>
+              <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="secondary" className="rounded-full">
+                    <ImagePlus className="w-4 h-4 mr-2" />Upload Image
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Upload Image</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div
+                      className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {previewUrl ? (
+                        <div className="relative">
+                          <img src={previewUrl} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain" />
+                          <Button variant="ghost" size="icon" className="absolute top-0 right-0" onClick={e => { e.stopPropagation(); handleFileSelect(null); }}>
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-sm text-muted-foreground">Click to select an image</p>
+                        </>
+                      )}
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleFileSelect(e.target.files?.[0] || null)} />
+                    </div>
+                    <Input placeholder="Caption (optional)" value={caption} onChange={e => setCaption(e.target.value)} />
+                    <Button onClick={handleUploadImage} disabled={!selectedFile || uploading} className="w-full">
+                      {uploading ? 'Uploading...' : 'Upload'}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
-          ) : (
-            <div className="text-center py-12 bg-card rounded-xl">
-              <Video className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <h3 className="font-medium text-foreground mb-1">No videos yet</h3>
-              <p className="text-sm text-muted-foreground mb-4">Start streaming to create your first video</p>
-              <Link to="/go-live"><Button size="sm">Go Live</Button></Link>
-            </div>
-          )}
-        </section>
+
+            {galleryImages.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {galleryImages.map((img, i) => (
+                  <motion.div
+                    key={img.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="relative group rounded-xl overflow-hidden bg-card aspect-square"
+                  >
+                    <img src={img.image_url} alt={img.caption || ''} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-end p-2 opacity-0 group-hover:opacity-100">
+                      {img.caption && <p className="text-white text-xs truncate flex-1">{img.caption}</p>}
+                      <Button variant="ghost" size="icon" className="text-white/80 hover:text-white h-7 w-7" onClick={() => handleDeleteImage(img.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-card rounded-xl">
+                <ImagePlus className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <h3 className="font-medium text-foreground mb-1">No images yet</h3>
+                <p className="text-sm text-muted-foreground">Upload images to your gallery</p>
+              </div>
+            )}
+          </section>
+
+          {/* Your Videos */}
+          <section>
+            <h2 className="text-lg font-bold text-foreground mb-4">Your Videos</h2>
+            {streams.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {streams.map((stream, i) => (
+                  <motion.div key={stream.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
+                    className="bg-card rounded-xl overflow-hidden hover:shadow-md transition-all cursor-pointer group">
+                    <div className="relative aspect-video">
+                      {stream.thumbnail_url ? (
+                        <img src={stream.thumbnail_url} alt={stream.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-secondary to-muted flex items-center justify-center">
+                          <Video className="w-8 h-8 text-muted-foreground/30" />
+                        </div>
+                      )}
+                      {stream.is_live && <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-md">LIVE</div>}
+                    </div>
+                    <div className="p-3">
+                      <h3 className="text-sm font-medium text-foreground truncate">{stream.title}</h3>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                        <Eye className="w-3 h-3" />{stream.viewer_count} views
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-card rounded-xl">
+                <Video className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <h3 className="font-medium text-foreground mb-1">No videos yet</h3>
+                <p className="text-sm text-muted-foreground mb-4">Start streaming to create your first video</p>
+                <Link to="/go-live"><Button size="sm">Go Live</Button></Link>
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </AppLayout>
   );
