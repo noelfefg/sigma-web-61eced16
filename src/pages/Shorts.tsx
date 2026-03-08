@@ -96,12 +96,12 @@ export default function ShortsPage() {
           <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
             <DialogTrigger asChild>
               <Button className="absolute top-4 right-4 z-20 rounded-full" size="sm">
-                <Plus className="w-4 h-4 mr-1" /> Post Short
+                <Plus className="w-4 h-4 mr-1" /> Post Lil Vid
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Post a Short</DialogTitle>
+                <DialogTitle>Post a Lil Vid</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <Input placeholder="Title (optional)" value={title} onChange={e => setTitle(e.target.value)} />
@@ -132,11 +132,11 @@ export default function ShortsPage() {
         ) : shorts.length === 0 ? (
           <div className="text-center">
             <Play className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-foreground mb-2">No shorts yet</h2>
-            <p className="text-muted-foreground mb-4">Be the first to post a short video!</p>
+            <h2 className="text-xl font-bold text-foreground mb-2">No lil vids yet</h2>
+            <p className="text-muted-foreground mb-4">Be the first to post a lil vid!</p>
             {user && (
               <Button onClick={() => setUploadOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />Post a Short
+                <Plus className="w-4 h-4 mr-2" />Post a Lil Vid
               </Button>
             )}
           </div>

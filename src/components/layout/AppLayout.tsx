@@ -19,7 +19,7 @@ const navItems = [
   { icon: Compass, label: 'Browse', path: '/browse' },
   { icon: Users, label: 'Following', path: '/following' },
   { icon: ImageIcon, label: 'Feed', path: '/feed' },
-  { icon: Play, label: 'Shorts', path: '/shorts' },
+  { icon: Play, label: 'Lil Vids', path: '/shorts' },
   { icon: UsersRound, label: 'Community', path: '/community' },
   { icon: Camera, label: 'Camera', path: '/camera' },
   { icon: Mail, label: 'Messages', path: '/messages' },
