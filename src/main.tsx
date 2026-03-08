@@ -15,6 +15,7 @@ import YouPage from "./pages/You";
 import ShortsPage from "./pages/Shorts";
 import CommunityPage from "./pages/Community";
 import MessagesPage from "./pages/Messages";
+import SnapCameraPage from "./pages/SnapCamera";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
