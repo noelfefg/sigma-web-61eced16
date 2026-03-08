@@ -165,9 +165,14 @@ export function PostCard({ post, likeCount, commentCount, isLiked: initialLiked,
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="text-muted-foreground h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary">
-          <MoreHorizontal className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="text-muted-foreground h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary" onClick={handleMessageCreator} disabled={messageSending || user?.id === post.user_id}>
+            <Mail className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-muted-foreground h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary">
+            <MoreHorizontal className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Media with double-tap to like */}
