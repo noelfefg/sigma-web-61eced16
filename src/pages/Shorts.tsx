@@ -96,7 +96,7 @@ export default function ShortsPage() {
           <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
             <DialogTrigger asChild>
               <Button className="absolute top-4 right-4 z-20 rounded-full" size="sm">
-                <Plus className="w-4 h-4 mr-1" /> Post Short
+                <Plus className="w-4 h-4 mr-1" /> Post Lil Vid
               </Button>
             </DialogTrigger>
             <DialogContent>
