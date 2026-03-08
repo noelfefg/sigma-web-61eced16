@@ -75,7 +75,7 @@ export default function HomePage() {
 
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 space-y-8">
+      <div className="p-6 md:p-8 lg:p-10 space-y-10">
         {/* Featured Stream */}
         {loading ? (
           <Skeleton className="w-full aspect-[21/9] rounded-2xl" />
