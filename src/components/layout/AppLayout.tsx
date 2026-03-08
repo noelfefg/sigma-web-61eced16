@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound, Mail, Camera } from 'lucide-react';
+import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound, Mail, Camera, Paintbrush } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,9 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { PopularStreamers } from '@/components/layout/PopularStreamers';
 import { RecommendedCategories } from '@/components/layout/RecommendedCategories';
 import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
+import { CreateMenu } from '@/components/layout/CreateMenu';
+import { LiveBackground, useLiveBackground } from '@/components/layout/LiveBackground';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -33,9 +36,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { bg, setBg, backgrounds } = useLiveBackground();
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex relative">
+      <LiveBackground variant={bg} />
       {/* Desktop Sidebar */}
       <aside className={`hidden md:flex flex-col bg-card/80 backdrop-blur-xl transition-all duration-300 ${sidebarOpen ? 'w-56' : 'w-14'}`}>
         {/* Logo */}
@@ -118,7 +123,22 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-8 w-8">
+                  <Paintbrush className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl">
+                {backgrounds.map(b => (
+                  <DropdownMenuItem key={b.id} onClick={() => setBg(b.id)} className={bg === b.id ? 'bg-accent' : ''}>
+                    {b.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <ThemeToggle />
+            <CreateMenu />
             {user ? (
               <>
                 <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-8 w-8">
