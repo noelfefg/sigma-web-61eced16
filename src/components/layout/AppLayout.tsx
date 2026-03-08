@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle } from 'lucide-react';
+import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
