@@ -131,6 +131,71 @@ export type Database = {
           },
         ]
       }
+      communities: {
+        Row: {
+          banner_url: string | null
+          created_at: string
+          creator_id: string
+          description: string | null
+          icon_url: string | null
+          id: string
+          member_count: number
+          name: string
+          slug: string
+        }
+        Insert: {
+          banner_url?: string | null
+          created_at?: string
+          creator_id: string
+          description?: string | null
+          icon_url?: string | null
+          id?: string
+          member_count?: number
+          name: string
+          slug: string
+        }
+        Update: {
+          banner_url?: string | null
+          created_at?: string
+          creator_id?: string
+          description?: string | null
+          icon_url?: string | null
+          id?: string
+          member_count?: number
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      community_members: {
+        Row: {
+          community_id: string
+          id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          id?: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_members_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       followers: {
         Row: {
           created_at: string
@@ -322,6 +387,36 @@ export type Database = {
         }
         Relationships: []
       }
+      shorts: {
+        Row: {
+          created_at: string
+          id: string
+          thumbnail_url: string | null
+          title: string | null
+          user_id: string
+          video_url: string
+          view_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          thumbnail_url?: string | null
+          title?: string | null
+          user_id: string
+          video_url: string
+          view_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          thumbnail_url?: string | null
+          title?: string | null
+          user_id?: string
+          video_url?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       streams: {
         Row: {
           category_id: string | null
@@ -378,6 +473,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_gallery: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          image_url: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
