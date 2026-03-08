@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound, Mail, Camera } from 'lucide-react';
+import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound, Mail, Camera, Paintbrush } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,9 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { PopularStreamers } from '@/components/layout/PopularStreamers';
 import { RecommendedCategories } from '@/components/layout/RecommendedCategories';
 import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
+import { CreateMenu } from '@/components/layout/CreateMenu';
+import { LiveBackground, useLiveBackground } from '@/components/layout/LiveBackground';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface AppLayoutProps {
   children: ReactNode;
