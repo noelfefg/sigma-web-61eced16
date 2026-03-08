@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, User, Send, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, User, Send, Eye, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 
 interface PostCardProps {
@@ -30,13 +32,79 @@ interface PostCardProps {
 
 export function PostCard({ post, likeCount, commentCount, isLiked: initialLiked, onCommentClick }: PostCardProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(initialLiked);
   const [likes, setLikes] = useState(likeCount);
   const [saved, setSaved] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
   const [showHeart, setShowHeart] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [messageSending, setMessageSending] = useState(false);
   const lastTapRef = useRef(0);
+
+  const handleMessageCreator = async () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    if (user.id === post.user_id) return; // Can't message yourself
+    setMessageSending(true);
+
+    try {
+      // Check if conversation already exists between these two users
+      const { data: myConvs } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', user.id);
+
+      let existingConvId: string | null = null;
+
+      if (myConvs) {
+        for (const mc of myConvs) {
+          const { data: otherPart } = await supabase
+            .from('conversation_participants')
+            .select('user_id')
+            .eq('conversation_id', mc.conversation_id)
+            .eq('user_id', post.user_id);
+
+          if (otherPart?.length) {
+            existingConvId = mc.conversation_id;
+            break;
+          }
+        }
+      }
+
+      if (existingConvId) {
+        navigate('/messages');
+        toast({ title: `Chat with ${post.profiles?.display_name || 'user'} opened` });
+      } else {
+        // Create new conversation
+        const { data: conv, error } = await supabase
+          .from('conversations')
+          .insert({})
+          .select()
+          .single();
+
+        if (error || !conv) {
+          toast({ title: 'Error', description: 'Failed to start conversation', variant: 'destructive' });
+          setMessageSending(false);
+          return;
+        }
+
+        await supabase.from('conversation_participants').insert([
+          { conversation_id: conv.id, user_id: user.id },
+          { conversation_id: conv.id, user_id: post.user_id },
+        ]);
+
+        navigate('/messages');
+        toast({ title: `Conversation started with ${post.profiles?.display_name || 'user'}` });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
+    }
+    setMessageSending(false);
+  };
 
   const handleLike = async () => {
     if (!user) return;
@@ -97,9 +165,14 @@ export function PostCard({ post, likeCount, commentCount, isLiked: initialLiked,
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="text-muted-foreground h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary">
-          <MoreHorizontal className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="text-muted-foreground h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary" onClick={handleMessageCreator} disabled={messageSending || user?.id === post.user_id}>
+            <Mail className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-muted-foreground h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary">
+            <MoreHorizontal className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Media with double-tap to like */}
@@ -164,7 +237,7 @@ export function PostCard({ post, likeCount, commentCount, isLiked: initialLiked,
             <button onClick={onCommentClick} className="p-2 rounded-full hover:bg-primary/10 transition-colors">
               <MessageCircle className="w-6 h-6 text-foreground" />
             </button>
-            <button className="p-2 rounded-full hover:bg-accent/30 transition-colors">
+            <button onClick={handleMessageCreator} disabled={messageSending || user?.id === post.user_id} className="p-2 rounded-full hover:bg-accent/30 transition-colors disabled:opacity-40">
               <Send className="w-6 h-6 text-foreground -rotate-12" />
             </button>
           </div>
