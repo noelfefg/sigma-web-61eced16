@@ -15,6 +15,7 @@ import YouPage from "./pages/You";
 import ShortsPage from "./pages/Shorts";
 import CommunityPage from "./pages/Community";
 import MessagesPage from "./pages/Messages";
+import SnapCameraPage from "./pages/SnapCamera";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
@@ -35,6 +36,7 @@ function App() {
         <Route path="/shorts" element={<ShortsPage />} />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/camera" element={<SnapCameraPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />

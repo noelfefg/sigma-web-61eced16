@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound, Mail } from 'lucide-react';
+import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound, Mail, Camera } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ const navItems = [
   { icon: ImageIcon, label: 'Feed', path: '/feed' },
   { icon: Play, label: 'Shorts', path: '/shorts' },
   { icon: UsersRound, label: 'Community', path: '/community' },
+  { icon: Camera, label: 'Camera', path: '/camera' },
   { icon: Mail, label: 'Messages', path: '/messages' },
   { icon: Gift, label: 'Gifts', path: '/gifts' },
   { icon: Video, label: 'Go Live', path: '/go-live' },
