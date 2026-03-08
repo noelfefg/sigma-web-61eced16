@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle } from 'lucide-react';
+import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
@@ -36,10 +37,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         {/* Logo */}
         <div className="h-14 flex items-center justify-between px-3">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/60 rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">Σ</span>
-            </div>
-            {sidebarOpen && <span className="text-lg font-bold text-foreground">SIGMA</span>}
+            <img src={sigmaLogo} alt="Sigma" className="w-8 h-8 rounded-lg object-cover" />
           </Link>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="text-muted-foreground hover:text-foreground h-8 w-8">
             <Menu className="w-4 h-4" />
@@ -146,9 +144,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className={`fixed top-0 left-0 h-full w-64 bg-card/95 backdrop-blur-2xl z-50 transform transition-transform duration-300 md:hidden ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-14 flex items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/60 rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">Σ</span>
-            </div>
+            <img src={sigmaLogo} alt="Sigma" className="w-8 h-8 rounded-lg object-cover" />
             <span className="text-lg font-bold text-foreground">SIGMA</span>
           </Link>
           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} className="h-8 w-8">
