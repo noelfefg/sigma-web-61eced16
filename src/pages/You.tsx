@@ -183,7 +183,6 @@ export default function YouPage() {
     setUploading(false);
   }
 
-  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <AppLayout>
