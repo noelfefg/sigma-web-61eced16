@@ -162,9 +162,60 @@ export default function YouPage() {
     { icon: Clock, label: 'Watch history', count: 0 },
   ];
 
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/avatar.${ext}`;
+    const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+    if (upErr) {
+      toast({ title: 'Upload failed', description: upErr.message, variant: 'destructive' });
+      setUploading(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+    const newUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+    await supabase.from('profiles').update({ avatar_url: newUrl }).eq('id', user.id);
+    setProfile(prev => prev ? { ...prev, avatar_url: newUrl } : prev);
+    toast({ title: 'Profile picture updated!' });
+    setUploading(false);
+  }
+
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto p-6 md:p-8 space-y-8">
+      <div className="max-w-4xl mx-auto p-6 md:p-8 space-y-8 relative">
+        {/* Floating Profile Picture - Top Right */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="fixed top-20 right-6 z-40 flex flex-col items-center gap-1.5"
+        >
+          <div
+            className="relative group cursor-pointer"
+            onClick={() => avatarInputRef.current?.click()}
+          >
+            <Avatar className="w-16 h-16 ring-3 ring-primary/30 shadow-lg shadow-primary/10">
+              <AvatarImage src={profile?.avatar_url || ''} />
+              <AvatarFallback className="bg-secondary text-lg font-bold">
+                {profile?.display_name?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <ImagePlus className="w-5 h-5 text-white" />
+            </div>
+            {uploading && (
+              <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+                <div className="w-5 h-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              </div>
+            )}
+          </div>
+          <span className="text-[10px] text-muted-foreground font-medium">You</span>
+          <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+        </motion.div>
+
         {/* Profile Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-5">
           <Avatar className="w-20 h-20">
