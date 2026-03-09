@@ -21,28 +21,38 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface UserDropdownMenuProps {
   user: { email?: string };
   signOut: () => void;
+  avatarUrl?: string | null;
 }
 
-export function UserDropdownMenu({ user, signOut }: UserDropdownMenuProps) {
+export function UserDropdownMenu({ user, signOut, avatarUrl }: UserDropdownMenuProps) {
   const { theme, setTheme } = useTheme();
   const username = user.email?.split('@')[0] || 'user';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="w-9 h-9 bg-gradient-to-br from-primary/30 to-accent rounded-full flex items-center justify-center ring-2 ring-primary/20 hover:ring-primary/40 transition-all duration-300 focus:outline-none">
-          <User className="w-4 h-4 text-primary" />
+        <button className="w-9 h-9 rounded-full flex items-center justify-center ring-2 ring-primary/20 hover:ring-primary/40 transition-all duration-300 focus:outline-none overflow-hidden">
+          <Avatar className="w-9 h-9">
+            <AvatarImage src={avatarUrl || ''} />
+            <AvatarFallback className="bg-gradient-to-br from-primary/30 to-accent text-primary text-xs">
+              <User className="w-4 h-4" />
+            </AvatarFallback>
+          </Avatar>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 bg-card/95 backdrop-blur-xl border-border/50 rounded-xl p-1">
         <div className="px-3 py-2.5 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary/40 to-accent rounded-full flex items-center justify-center">
-            <User className="w-5 h-5 text-primary" />
-          </div>
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={avatarUrl || ''} />
+            <AvatarFallback className="bg-gradient-to-br from-primary/40 to-accent text-primary text-sm">
+              <User className="w-5 h-5" />
+            </AvatarFallback>
+          </Avatar>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground truncate">{username}</p>
             <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>

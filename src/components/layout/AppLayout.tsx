@@ -1,10 +1,12 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound, Mail, Camera, Paintbrush } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PopularStreamers } from '@/components/layout/PopularStreamers';
 import { RecommendedCategories } from '@/components/layout/RecommendedCategories';
@@ -37,6 +39,13 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { bg, setBg, backgrounds } = useLiveBackground();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) { setAvatarUrl(null); return; }
+    supabase.from('profiles').select('avatar_url').eq('id', user.id).single()
+      .then(({ data }) => setAvatarUrl(data?.avatar_url || null));
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-background flex relative">
@@ -88,9 +97,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="p-3">
           {user ? (
             <div className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}>
-              <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-muted-foreground" />
-              </div>
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={avatarUrl || ''} />
+                <AvatarFallback className="bg-secondary text-muted-foreground text-xs">
+                  <User className="w-4 h-4" />
+                </AvatarFallback>
+              </Avatar>
               {sidebarOpen && (
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{user.email?.split('@')[0]}</p>
@@ -144,7 +156,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-8 w-8">
                   <Bell className="w-4 h-4" />
                 </Button>
-                <UserDropdownMenu user={user} signOut={signOut} />
+                <UserDropdownMenu user={user} signOut={signOut} avatarUrl={avatarUrl} />
               </>
             ) : (
               <Link to="/auth">
@@ -196,9 +208,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="absolute bottom-0 left-0 right-0 p-4">
           {user ? (
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-muted-foreground" />
-              </div>
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={avatarUrl || ''} />
+                <AvatarFallback className="bg-secondary text-muted-foreground text-xs">
+                  <User className="w-4 h-4" />
+                </AvatarFallback>
+              </Avatar>
               <div className="flex-1">
                 <p className="text-sm font-medium text-foreground">{user.email?.split('@')[0]}</p>
                 <button onClick={signOut} className="text-xs text-muted-foreground hover:text-primary transition-colors">Sign out</button>
