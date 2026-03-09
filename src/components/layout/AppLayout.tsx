@@ -97,9 +97,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="p-3">
           {user ? (
             <div className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}>
-              <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-muted-foreground" />
-              </div>
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={avatarUrl || ''} />
+                <AvatarFallback className="bg-secondary text-muted-foreground text-xs">
+                  <User className="w-4 h-4" />
+                </AvatarFallback>
+              </Avatar>
               {sidebarOpen && (
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{user.email?.split('@')[0]}</p>
