@@ -156,7 +156,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-8 w-8">
                   <Bell className="w-4 h-4" />
                 </Button>
-                <UserDropdownMenu user={user} signOut={signOut} />
+                <UserDropdownMenu user={user} signOut={signOut} avatarUrl={avatarUrl} />
               </>
             ) : (
               <Link to="/auth">
