@@ -53,6 +53,8 @@ export default function WatchPage() {
       if (!profile) { setLoading(false); return; }
       const { data: followerData } = await supabase.rpc('get_follower_count', { profile_id: profile.id });
       setFollowerCount(followerData || 0);
+      const ownStream = user?.id === profile.id;
+      setIsOwnStream(ownStream);
       if (user) {
         const { data: followData } = await supabase.rpc('is_following', { follower: user.id, following: profile.id });
         setIsFollowing(!!followData);
@@ -66,8 +68,27 @@ export default function WatchPage() {
         navigate(`/channel/${username}`); return;
       }
       setLoading(false);
+
+      // Start webcam for own stream
+      if (ownStream) {
+        try {
+          const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          streamRef.current = mediaStream;
+          if (videoRef.current) {
+            videoRef.current.srcObject = mediaStream;
+          }
+        } catch (e) {
+          console.log('Could not access camera for own stream preview');
+        }
+      }
     }
     fetchStreamData();
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+    };
   }, [username, user, navigate]);
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
