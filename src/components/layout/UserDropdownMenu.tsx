@@ -36,8 +36,13 @@ export function UserDropdownMenu({ user, signOut, avatarUrl }: UserDropdownMenuP
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="w-9 h-9 bg-gradient-to-br from-primary/30 to-accent rounded-full flex items-center justify-center ring-2 ring-primary/20 hover:ring-primary/40 transition-all duration-300 focus:outline-none">
-          <User className="w-4 h-4 text-primary" />
+        <button className="w-9 h-9 rounded-full flex items-center justify-center ring-2 ring-primary/20 hover:ring-primary/40 transition-all duration-300 focus:outline-none overflow-hidden">
+          <Avatar className="w-9 h-9">
+            <AvatarImage src={avatarUrl || ''} />
+            <AvatarFallback className="bg-gradient-to-br from-primary/30 to-accent text-primary text-xs">
+              <User className="w-4 h-4" />
+            </AvatarFallback>
+          </Avatar>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 bg-card/95 backdrop-blur-xl border-border/50 rounded-xl p-1">
