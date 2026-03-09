@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Heart, Share2, Users, Send, Settings, Maximize2, Volume2, VolumeX, Play, Pause, MessageSquare, Gift, Loader2 } from 'lucide-react';
+import { Heart, Share2, Users, Send, Settings, Maximize2, Volume2, VolumeX, Play, Pause, MessageSquare, Gift, Loader2, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -40,7 +40,10 @@ export default function WatchPage() {
   const [chatCollapsed, setChatCollapsed] = useState(false);
   const [giftNotifications, setGiftNotifications] = useState<GiftNotification[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
+  const [isOwnStream, setIsOwnStream] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     async function fetchStreamData() {
@@ -50,6 +53,8 @@ export default function WatchPage() {
       if (!profile) { setLoading(false); return; }
       const { data: followerData } = await supabase.rpc('get_follower_count', { profile_id: profile.id });
       setFollowerCount(followerData || 0);
+      const ownStream = user?.id === profile.id;
+      setIsOwnStream(ownStream);
       if (user) {
         const { data: followData } = await supabase.rpc('is_following', { follower: user.id, following: profile.id });
         setIsFollowing(!!followData);
@@ -63,8 +68,27 @@ export default function WatchPage() {
         navigate(`/channel/${username}`); return;
       }
       setLoading(false);
+
+      // Start webcam for own stream
+      if (ownStream) {
+        try {
+          const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          streamRef.current = mediaStream;
+          if (videoRef.current) {
+            videoRef.current.srcObject = mediaStream;
+          }
+        } catch (e) {
+          console.log('Could not access camera for own stream preview');
+        }
+      }
     }
     fetchStreamData();
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+    };
   }, [username, user, navigate]);
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -109,12 +133,16 @@ export default function WatchPage() {
         <div className={`flex-1 flex flex-col ${chatCollapsed ? '' : 'lg:mr-80'}`}>
           {/* Video */}
           <div className="relative bg-black aspect-video lg:aspect-auto lg:flex-1">
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4"><Play className="w-8 h-8 text-muted-foreground" /></div>
-                <p className="text-muted-foreground text-sm">Live stream</p>
+            {isOwnStream ? (
+              <video ref={videoRef} autoPlay muted playsInline className="absolute inset-0 w-full h-full object-cover" />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><Camera className="w-8 h-8 text-primary" /></div>
+                  <p className="text-muted-foreground text-sm">Watching {streamData.profiles.display_name}'s live stream</p>
+                </div>
               </div>
-            </div>
+            )}
             <GiftOverlay notifications={giftNotifications} onRemove={handleRemoveNotification} />
             <div className="absolute top-4 left-4 flex items-center gap-2">
               <div className="bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1 rounded-md">LIVE</div>
