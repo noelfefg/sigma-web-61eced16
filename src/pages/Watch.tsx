@@ -40,7 +40,10 @@ export default function WatchPage() {
   const [chatCollapsed, setChatCollapsed] = useState(false);
   const [giftNotifications, setGiftNotifications] = useState<GiftNotification[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
+  const [isOwnStream, setIsOwnStream] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     async function fetchStreamData() {
