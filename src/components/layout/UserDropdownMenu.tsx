@@ -47,9 +47,12 @@ export function UserDropdownMenu({ user, signOut, avatarUrl }: UserDropdownMenuP
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 bg-card/95 backdrop-blur-xl border-border/50 rounded-xl p-1">
         <div className="px-3 py-2.5 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary/40 to-accent rounded-full flex items-center justify-center">
-            <User className="w-5 h-5 text-primary" />
-          </div>
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={avatarUrl || ''} />
+            <AvatarFallback className="bg-gradient-to-br from-primary/40 to-accent text-primary text-sm">
+              <User className="w-5 h-5" />
+            </AvatarFallback>
+          </Avatar>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground truncate">{username}</p>
             <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
