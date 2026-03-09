@@ -21,10 +21,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface UserDropdownMenuProps {
   user: { email?: string };
   signOut: () => void;
+  avatarUrl?: string | null;
 }
 
 export function UserDropdownMenu({ user, signOut }: UserDropdownMenuProps) {
