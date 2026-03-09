@@ -29,7 +29,7 @@ interface UserDropdownMenuProps {
   avatarUrl?: string | null;
 }
 
-export function UserDropdownMenu({ user, signOut }: UserDropdownMenuProps) {
+export function UserDropdownMenu({ user, signOut, avatarUrl }: UserDropdownMenuProps) {
   const { theme, setTheme } = useTheme();
   const username = user.email?.split('@')[0] || 'user';
 
