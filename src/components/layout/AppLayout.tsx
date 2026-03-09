@@ -208,9 +208,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="absolute bottom-0 left-0 right-0 p-4">
           {user ? (
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-muted-foreground" />
-              </div>
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={avatarUrl || ''} />
+                <AvatarFallback className="bg-secondary text-muted-foreground text-xs">
+                  <User className="w-4 h-4" />
+                </AvatarFallback>
+              </Avatar>
               <div className="flex-1">
                 <p className="text-sm font-medium text-foreground">{user.email?.split('@')[0]}</p>
                 <button onClick={signOut} className="text-xs text-muted-foreground hover:text-primary transition-colors">Sign out</button>
