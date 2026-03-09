@@ -39,6 +39,13 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { bg, setBg, backgrounds } = useLiveBackground();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) { setAvatarUrl(null); return; }
+    supabase.from('profiles').select('avatar_url').eq('id', user.id).single()
+      .then(({ data }) => setAvatarUrl(data?.avatar_url || null));
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-background flex relative">
