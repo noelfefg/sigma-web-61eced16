@@ -57,7 +57,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <Link to="/" className="flex items-center gap-2 group">
             <img src={sigmaLogo} alt="Sigma" className="w-8 h-8 rounded-lg object-cover" />
           </Link>
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="text-muted-foreground hover:text-foreground h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="text-foreground hover:text-foreground h-8 w-8">
             <Menu className="w-4 h-4" />
           </Button>
         </div>
