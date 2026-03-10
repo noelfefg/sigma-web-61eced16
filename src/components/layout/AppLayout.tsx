@@ -168,8 +168,33 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
       </div>
+
+      {/* Mobile Bottom Tab Bar - YouTube style */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card border-t border-border flex items-center justify-around h-14">
+        {[
+          { icon: Home, label: 'Home', path: '/' },
+          { icon: Compass, label: 'Browse', path: '/browse' },
+          { icon: Play, label: 'Lil Vids', path: '/shorts' },
+          { icon: ImageIcon, label: 'Feed', path: '/feed' },
+          { icon: UserCircle, label: 'You', path: '/you' },
+        ].map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
+                isActive ? 'text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              <item.icon className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
 
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
