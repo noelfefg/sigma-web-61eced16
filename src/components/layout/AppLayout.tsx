@@ -221,7 +221,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 to={item.path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
-                  isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                  isActive ? 'bg-accent text-accent-foreground' : 'text-foreground/70 hover:bg-accent/50 hover:text-foreground'
                 }`}
               >
                 <item.icon className="w-5 h-5" />
