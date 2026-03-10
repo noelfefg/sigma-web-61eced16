@@ -153,7 +153,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <CreateMenu />
             {user ? (
               <>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-8 w-8">
+                <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground h-8 w-8">
                   <Bell className="w-4 h-4" />
                 </Button>
                 <UserDropdownMenu user={user} signOut={signOut} avatarUrl={avatarUrl} />
