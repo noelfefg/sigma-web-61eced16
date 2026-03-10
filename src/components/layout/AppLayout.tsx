@@ -202,7 +202,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
 
       {/* Mobile Menu */}
-      <div className={`fixed top-0 left-0 h-full w-64 bg-card/95 backdrop-blur-2xl z-50 transform transition-transform duration-300 md:hidden ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed top-0 left-0 h-full w-64 bg-card border-r border-border z-50 transform transition-transform duration-300 md:hidden ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-14 flex items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
             <img src={sigmaLogo} alt="Sigma" className="w-8 h-8 rounded-lg object-cover" />
