@@ -124,7 +124,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-14 bg-card/80 backdrop-blur-xl flex items-center justify-between px-4 sticky top-0 z-30">
+        <header className="h-14 bg-card border-b border-border flex items-center justify-between px-4 sticky top-0 z-30">
           <Button variant="ghost" size="icon" className="md:hidden h-8 w-8" onClick={() => setMobileMenuOpen(true)}>
             <Menu className="w-5 h-5" />
           </Button>
