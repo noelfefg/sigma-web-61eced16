@@ -64,7 +64,7 @@ const pulseGlow = {
       "0 0 40px hsl(var(--primary) / 0.25)",
       "0 0 20px hsl(var(--primary) / 0.1)",
     ],
-    transition: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+    transition: { duration: 2, repeat: Infinity, ease: "easeInOut" as const },
   },
 };
 
