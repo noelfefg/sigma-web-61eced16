@@ -186,7 +186,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               key={item.path}
               to={item.path}
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
-                isActive ? 'text-foreground' : 'text-muted-foreground'
+                isActive ? 'text-foreground' : 'text-foreground/70'
               }`}
             >
               <item.icon className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
