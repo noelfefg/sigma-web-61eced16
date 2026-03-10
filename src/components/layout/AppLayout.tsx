@@ -51,13 +51,13 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen bg-background flex relative">
       <LiveBackground variant={bg} />
       {/* Desktop Sidebar */}
-      <aside className={`hidden md:flex flex-col bg-card/80 backdrop-blur-xl transition-all duration-300 ${sidebarOpen ? 'w-56' : 'w-14'}`}>
+      <aside className={`hidden md:flex flex-col bg-card transition-all duration-300 border-r border-border ${sidebarOpen ? 'w-56' : 'w-14'}`}>
         {/* Logo */}
         <div className="h-14 flex items-center justify-between px-3">
           <Link to="/" className="flex items-center gap-2 group">
             <img src={sigmaLogo} alt="Sigma" className="w-8 h-8 rounded-lg object-cover" />
           </Link>
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="text-muted-foreground hover:text-foreground h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="text-foreground hover:text-foreground h-8 w-8">
             <Menu className="w-4 h-4" />
           </Button>
         </div>
@@ -71,7 +71,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group ${
-                  isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                  isActive ? 'bg-accent text-accent-foreground' : 'text-foreground/70 hover:bg-accent/50 hover:text-foreground'
                 }`}
               >
                 <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -124,7 +124,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-14 bg-card/80 backdrop-blur-xl flex items-center justify-between px-4 sticky top-0 z-30">
+        <header className="h-14 bg-card border-b border-border flex items-center justify-between px-4 sticky top-0 z-30">
           <Button variant="ghost" size="icon" className="md:hidden h-8 w-8" onClick={() => setMobileMenuOpen(true)}>
             <Menu className="w-5 h-5" />
           </Button>
@@ -137,7 +137,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-8 w-8">
+                <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground h-8 w-8">
                   <Paintbrush className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -153,7 +153,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <CreateMenu />
             {user ? (
               <>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-8 w-8">
+                <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground h-8 w-8">
                   <Bell className="w-4 h-4" />
                 </Button>
                 <UserDropdownMenu user={user} signOut={signOut} avatarUrl={avatarUrl} />
@@ -172,7 +172,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       {/* Mobile Bottom Tab Bar - YouTube style */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card border-t border-border flex items-center justify-around h-14">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card border-t border-border flex items-center justify-around h-14 shadow-lg">
         {[
           { icon: Home, label: 'Home', path: '/' },
           { icon: Compass, label: 'Browse', path: '/browse' },
@@ -186,7 +186,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               key={item.path}
               to={item.path}
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
-                isActive ? 'text-foreground' : 'text-muted-foreground'
+                isActive ? 'text-foreground' : 'text-foreground/70'
               }`}
             >
               <item.icon className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
@@ -202,7 +202,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
 
       {/* Mobile Menu */}
-      <div className={`fixed top-0 left-0 h-full w-64 bg-card/95 backdrop-blur-2xl z-50 transform transition-transform duration-300 md:hidden ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed top-0 left-0 h-full w-64 bg-card border-r border-border z-50 transform transition-transform duration-300 md:hidden ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-14 flex items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
             <img src={sigmaLogo} alt="Sigma" className="w-8 h-8 rounded-lg object-cover" />
@@ -221,7 +221,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 to={item.path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
-                  isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                  isActive ? 'bg-accent text-accent-foreground' : 'text-foreground/70 hover:bg-accent/50 hover:text-foreground'
                 }`}
               >
                 <item.icon className="w-5 h-5" />
