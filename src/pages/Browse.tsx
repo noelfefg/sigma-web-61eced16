@@ -304,6 +304,17 @@ export default function BrowsePage() {
             </motion.div>
           )}
         </div>
+
+        {/* Masthead Footer */}
+        <div className="border-t border-border mt-16 pt-8 pb-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <p>© 2026 NOSHIAN. INC</p>
+            <div className="flex items-center gap-6">
+              <span>CEO. Mifong NOEL (NOSH)</span>
+              <span>CFO. Bekoula Fabrice Joyce</span>
+            </div>
+          </div>
+        </div>
       </div>
     </AppLayout>
   );
