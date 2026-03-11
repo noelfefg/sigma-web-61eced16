@@ -37,7 +37,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const { bg, setBg, backgrounds } = useLiveBackground();
+  
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
