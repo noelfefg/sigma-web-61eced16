@@ -18,12 +18,8 @@ export default {
   	},
   	extend: {
   		fontFamily: {
-  			bagel: [
-  				'Bagel Fat One',
-  				'cursive'
-  			],
   			sans: [
-  				'Space Grotesk',
+  				'Inter',
   				'ui-sans-serif',
   				'system-ui',
   				'-apple-system',
@@ -32,12 +28,9 @@ export default {
   				'Roboto',
   				'Helvetica Neue',
   				'Arial',
-  				'Noto Sans',
   				'sans-serif'
   			],
   			serif: [
-  				'Lora',
-  				'ui-serif',
   				'Georgia',
   				'Cambria',
   				'Times New Roman',
@@ -45,13 +38,11 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'Space Mono',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
   				'Monaco',
   				'Consolas',
-  				'Liberation Mono',
   				'Courier New',
   				'monospace'
   			]

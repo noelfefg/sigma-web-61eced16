@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound, Mail, Camera, Paintbrush } from 'lucide-react';
+import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, UserCircle, Play, UsersRound, Mail, Camera } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +12,7 @@ import { PopularStreamers } from '@/components/layout/PopularStreamers';
 import { RecommendedCategories } from '@/components/layout/RecommendedCategories';
 import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
 import { CreateMenu } from '@/components/layout/CreateMenu';
-import { LiveBackground, useLiveBackground } from '@/components/layout/LiveBackground';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -38,7 +37,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const { bg, setBg, backgrounds } = useLiveBackground();
+  
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,7 +48,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background flex relative">
-      <LiveBackground variant={bg} />
+      
       {/* Desktop Sidebar */}
       <aside className={`hidden md:flex flex-col bg-card transition-all duration-300 border-r border-border ${sidebarOpen ? 'w-56' : 'w-14'}`}>
         {/* Logo */}
@@ -128,27 +127,13 @@ export function AppLayout({ children }: AppLayoutProps) {
           <Button variant="ghost" size="icon" className="md:hidden h-8 w-8" onClick={() => setMobileMenuOpen(true)}>
             <Menu className="w-5 h-5" />
           </Button>
-          <div className="flex-1 max-w-md mx-4">
+          <div className="flex-1 max-w-2xl mx-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Search..." className="pl-10 bg-secondary/60 rounded-lg h-9 text-sm" />
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground h-8 w-8">
-                  <Paintbrush className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="rounded-xl">
-                {backgrounds.map(b => (
-                  <DropdownMenuItem key={b.id} onClick={() => setBg(b.id)} className={bg === b.id ? 'bg-accent' : ''}>
-                    {b.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
             <ThemeToggle />
             <CreateMenu />
             {user ? (
