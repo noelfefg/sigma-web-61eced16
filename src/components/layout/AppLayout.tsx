@@ -48,7 +48,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background flex relative">
-      <LiveBackground variant={bg} />
+      
       {/* Desktop Sidebar */}
       <aside className={`hidden md:flex flex-col bg-card transition-all duration-300 border-r border-border ${sidebarOpen ? 'w-56' : 'w-14'}`}>
         {/* Logo */}
