@@ -127,7 +127,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <Button variant="ghost" size="icon" className="md:hidden h-8 w-8" onClick={() => setMobileMenuOpen(true)}>
             <Menu className="w-5 h-5" />
           </Button>
-          <div className="flex-1 max-w-md mx-4">
+          <div className="flex-1 max-w-2xl mx-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Search..." className="pl-10 bg-secondary/60 rounded-lg h-9 text-sm" />
