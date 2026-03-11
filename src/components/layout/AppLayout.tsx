@@ -12,8 +12,7 @@ import { PopularStreamers } from '@/components/layout/PopularStreamers';
 import { RecommendedCategories } from '@/components/layout/RecommendedCategories';
 import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
 import { CreateMenu } from '@/components/layout/CreateMenu';
-import { LiveBackground, useLiveBackground } from '@/components/layout/LiveBackground';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
 
 interface AppLayoutProps {
   children: ReactNode;
