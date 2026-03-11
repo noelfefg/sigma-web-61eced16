@@ -134,20 +134,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground h-8 w-8">
-                  <Paintbrush className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="rounded-xl">
-                {backgrounds.map(b => (
-                  <DropdownMenuItem key={b.id} onClick={() => setBg(b.id)} className={bg === b.id ? 'bg-accent' : ''}>
-                    {b.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
             <ThemeToggle />
             <CreateMenu />
             {user ? (
