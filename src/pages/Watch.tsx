@@ -186,9 +186,16 @@ export default function WatchPage() {
                   <Heart className={`w-4 h-4 mr-1 ${isFollowing ? 'fill-current text-destructive' : ''}`} />{isFollowing ? 'Following' : 'Follow'}
                 </Button>
                 <Button variant="secondary" size="sm"><Share2 className="w-4 h-4" /></Button>
+                <StreamGiftPanel
+                  senderName={user?.email?.split('@')[0] || 'Anonymous'}
+                  onSendGift={(n) => setGiftNotifications(prev => [...prev, n])}
+                />
               </div>
             </div>
-          </div>
+            {/* Live Reactions */}
+            <div className="mt-3 pt-3 border-t border-border">
+              <LiveReactions />
+            </div>
         </div>
 
         {/* Chat */}
