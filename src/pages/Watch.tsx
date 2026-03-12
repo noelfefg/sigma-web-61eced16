@@ -197,6 +197,7 @@ export default function WatchPage() {
               <LiveReactions />
             </div>
           </div>
+        </div>
 
         {/* Chat */}
         <div className={`hidden lg:flex flex-col fixed right-0 top-14 bottom-0 w-80 bg-card transition-transform ${chatCollapsed ? 'translate-x-full' : 'translate-x-0'}`}>
