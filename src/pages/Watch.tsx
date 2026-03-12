@@ -8,6 +8,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { GiftOverlay, GiftNotification } from '@/components/stream/GiftOverlay';
+import { LiveReactions } from '@/components/stream/LiveReactions';
+import { StreamGiftPanel } from '@/components/stream/StreamGiftPanel';
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
@@ -184,7 +186,15 @@ export default function WatchPage() {
                   <Heart className={`w-4 h-4 mr-1 ${isFollowing ? 'fill-current text-destructive' : ''}`} />{isFollowing ? 'Following' : 'Follow'}
                 </Button>
                 <Button variant="secondary" size="sm"><Share2 className="w-4 h-4" /></Button>
+                <StreamGiftPanel
+                  senderName={user?.email?.split('@')[0] || 'Anonymous'}
+                  onSendGift={(n) => setGiftNotifications(prev => [...prev, n])}
+                />
               </div>
+            </div>
+            {/* Live Reactions */}
+            <div className="mt-3 pt-3 border-t border-border">
+              <LiveReactions />
             </div>
           </div>
         </div>
