@@ -8,6 +8,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { GiftOverlay, GiftNotification } from '@/components/stream/GiftOverlay';
+import { LiveReactions } from '@/components/stream/LiveReactions';
+import { StreamGiftPanel } from '@/components/stream/StreamGiftPanel';
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
