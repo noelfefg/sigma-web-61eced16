@@ -29,6 +29,7 @@ const navItems = [
   { icon: Mail, label: 'Messages', path: '/messages' },
   { icon: Gift, label: 'Gifts', path: '/gifts' },
   { icon: Video, label: 'Go Live', path: '/go-live' },
+  { icon: MessageSquareHeart, label: 'Feedback', path: '/feedback' },
   { icon: UserCircle, label: 'You', path: '/you' },
 ];
 

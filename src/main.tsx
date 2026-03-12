@@ -38,6 +38,7 @@ function App() {
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/camera" element={<SnapCameraPage />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
