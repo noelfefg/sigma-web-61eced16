@@ -98,7 +98,7 @@ export default function HomePage() {
 
   return (
     <AppLayout>
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
 
         {/* Section Header */}
         <div className="flex items-center gap-3">
@@ -139,10 +139,10 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Vertical Stream Feed */}
+        {/* Stream Grid */}
         {!loading && liveStreams.length > 0 && (
           <motion.div
-            className="space-y-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             initial="hidden"
             animate="visible"
             variants={containerVariants}
