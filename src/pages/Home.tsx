@@ -98,7 +98,7 @@ export default function HomePage() {
 
   return (
     <AppLayout>
-      <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
 
         {/* Section Header */}
         <div className="flex items-center gap-3">
@@ -123,15 +123,16 @@ export default function HomePage() {
 
         {/* Loading Skeletons */}
         {loading && (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {[1, 2, 3].map(i => (
               <div key={i} className="space-y-3">
-                <Skeleton className="w-full aspect-video rounded-2xl" />
+                <Skeleton className="w-full aspect-video rounded-xl" />
                 <div className="flex gap-3">
-                  <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+                  <Skeleton className="w-11 h-11 rounded-full flex-shrink-0" />
                   <div className="flex-1 space-y-2">
                     <Skeleton className="h-4 w-3/4" />
                     <Skeleton className="h-3 w-1/2" />
+                    <Skeleton className="h-3 w-1/3" />
                   </div>
                 </div>
               </div>
@@ -139,10 +140,10 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Stream Grid */}
+        {/* Vertical Stream Feed */}
         {!loading && liveStreams.length > 0 && (
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            className="space-y-8"
             initial="hidden"
             animate="visible"
             variants={containerVariants}
@@ -151,7 +152,7 @@ export default function HomePage() {
               <motion.div key={stream.id} variants={cardVariants}>
                 <Link to={`/watch/${stream.profiles.username}`} className="group block">
                   {/* Thumbnail */}
-                  <div className="relative rounded-2xl overflow-hidden bg-card">
+                  <div className="relative rounded-xl overflow-hidden bg-card">
                     <div className="aspect-video relative overflow-hidden">
                       {stream.thumbnail_url ? (
                         <img
@@ -161,14 +162,14 @@ export default function HomePage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-secondary via-muted to-accent/10 flex items-center justify-center">
-                          <Video className="w-10 h-10 text-muted-foreground/20" />
+                          <Video className="w-12 h-12 text-muted-foreground/20" />
                         </div>
                       )}
 
                       {/* LIVE Badge + Viewers */}
                       <div className="absolute top-3 left-3 flex items-center gap-2">
                         <motion.div
-                          className="bg-destructive text-destructive-foreground text-xs font-black px-3 py-1 rounded-md flex items-center gap-1.5"
+                          className="bg-destructive text-destructive-foreground text-xs font-black px-3 py-1 rounded flex items-center gap-1.5"
                           animate={{
                             boxShadow: [
                               "0 0 8px hsl(var(--destructive) / 0.3)",
@@ -180,34 +181,25 @@ export default function HomePage() {
                         >
                           LIVE
                         </motion.div>
-                        <div className="bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-md flex items-center gap-1">
+                        <div className="bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded flex items-center gap-1">
                           <Users className="w-3 h-3" />
                           {formatViewerCount(stream.viewer_count)}
                         </div>
                       </div>
-
-                      {/* Hover play overlay */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                        <motion.div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center shadow-xl">
-                            <Play className="w-6 h-6 text-primary-foreground ml-0.5" fill="currentColor" />
-                          </div>
-                        </motion.div>
-                      </div>
                     </div>
                   </div>
 
-                  {/* Stream Info */}
+                  {/* Stream Info - Kick style */}
                   <div className="flex gap-3 mt-3">
                     <div className="flex-shrink-0">
                       {stream.profiles.avatar_url ? (
                         <img
                           src={stream.profiles.avatar_url}
                           alt={stream.profiles.display_name}
-                          className="w-10 h-10 rounded-full object-cover ring-2 ring-destructive/50"
+                          className="w-11 h-11 rounded-full object-cover ring-2 ring-destructive/50"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center ring-2 ring-destructive/50">
+                        <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center ring-2 ring-destructive/50">
                           <span className="text-sm font-bold text-muted-foreground">
                             {stream.profiles.display_name[0]?.toUpperCase()}
                           </span>
@@ -215,24 +207,24 @@ export default function HomePage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                      <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
                         {stream.title}
                       </h3>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-sm text-muted-foreground">{stream.profiles.display_name}</span>
-                        <CheckCircle className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-sm text-muted-foreground font-medium">{stream.profiles.display_name}</span>
+                        <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
                       </div>
-                      <p className="text-xs text-muted-foreground/70 mt-0.5">
+                      <p className="text-sm text-muted-foreground/70 mt-0.5">
                         {stream.categories?.name || 'Uncategorized'}
                       </p>
                       {/* Tags */}
                       {streamTags[stream.id] && (
-                        <div className="flex gap-1.5 mt-2 flex-wrap">
+                        <div className="flex gap-2 mt-2 flex-wrap">
                           {streamTags[stream.id].map(tag => (
                             <Badge
                               key={tag}
                               variant="outline"
-                              className="text-[10px] px-2 py-0.5 rounded-full font-medium text-muted-foreground border-border"
+                              className="text-xs px-3 py-0.5 rounded-full font-medium text-muted-foreground border-border"
                             >
                               {tag}
                             </Badge>
@@ -246,7 +238,6 @@ export default function HomePage() {
             ))}
           </motion.div>
         )}
-
         {/* Categories */}
         {!loading && categories.length > 0 && (
           <motion.section
