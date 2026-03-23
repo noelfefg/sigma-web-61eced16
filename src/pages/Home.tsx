@@ -1,313 +1,294 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Users, Video, Sparkles, Play, TrendingUp, Flame, CheckCircle } from 'lucide-react';
+import { Users, ChevronRight } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
-import { Skeleton } from '@/components/ui/skeleton';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { motion } from 'framer-motion';
+import { LottieIcon, LottieEmptyState } from '@/components/animations/LottieIcon';
 
 interface Stream {
-  id: string;
-  title: string;
-  viewer_count: number;
-  thumbnail_url: string | null;
-  category_id: string | null;
-  profiles: {
-    username: string;
-    display_name: string;
-    avatar_url: string | null;
-  };
-  categories: {
-    name: string;
-  } | null;
+  id: string; title: string; viewer_count: number; thumbnail_url: string | null;
+  profiles: { username: string; display_name: string; avatar_url: string | null };
+  categories: { name: string; slug: string } | null;
+  tags?: string[];
+}
+interface Category { id: string; name: string; slug: string; }
+
+function fmt(n: number) {
+  if (n >= 1_000_000) return `${(n/1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n/1_000).toFixed(1)}K`;
+  return String(n);
 }
 
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  image_url: string | null;
-}
-
-function formatViewerCount(count: number): string {
-  if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-  return count.toString();
-}
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.05 },
-  },
+// Tags per category slug (dynamic feel like the screenshot)
+const CAT_TAGS: Record<string, string[]> = {
+  gaming:        ['fps', 'competitive', 'gameplay'],
+  music:         ['production', 'beats', 'chill'],
+  art:           ['digital', 'illustration', 'drawing'],
+  technology:    ['coding', 'react', 'typescript'],
+  sports:        ['fitness', 'training', 'live'],
+  education:     ['tutorial', 'learn', 'tips'],
+  cooking:       ['recipes', 'food', 'chef'],
+  entertainment: ['fun', 'variety', 'talk'],
+  science:       ['research', 'experiments', 'stem'],
+  fashion:       ['style', 'trends', 'ootd'],
 };
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1, y: 0,
-    transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const },
-  },
+const CAT_ANIM: Record<string, any> = {
+  gaming: 'gamepad', music: 'music', art: 'art', sports: 'trophy',
+  science: 'lightning', cooking: 'fire', fashion: 'sparkle',
+  education: 'analytics', technology: 'signal', entertainment: 'play',
 };
 
-// Fake tags for visual richness
-const streamTags: Record<string, string[]> = {};
-const tagOptions = [
-  ['coding', 'react', 'typescript'],
-  ['production', 'beats', 'chill'],
-  ['digital', 'illustration', 'art'],
-  ['gaming', 'fps', 'competitive'],
-  ['irl', 'travel', 'vlog'],
-  ['music', 'live', 'acoustic'],
-];
+// ── Kick/mobile style stream card ────────────────────────────────────────────
+function StreamCard({ stream, i }: { stream: Stream; i: number }) {
+  const [imgError, setImgError] = useState(false);
+  const tags = CAT_TAGS[stream.categories?.slug || ''] || ['live', 'stream', 'sigma'];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: i * 0.04, type: 'spring', stiffness: 300, damping: 28 }}
+      className="mb-1"
+    >
+      <Link to={`/watch/${stream.profiles.username}`} style={{ textDecoration: 'none' }}>
+        {/* ── Streamer info row ── */}
+        <div className="flex items-start gap-3 px-4 pt-4 pb-2">
+          {/* Avatar with red live ring */}
+          <div className="relative shrink-0">
+            <div className="rounded-full p-[2.5px]" style={{ background: 'linear-gradient(135deg, #e91916, #ff4444)' }}>
+              <Avatar className="w-[52px] h-[52px] rounded-full" style={{ border: '2px solid #0a0a0a' }}>
+                <AvatarImage src={stream.profiles.avatar_url || ''} />
+                <AvatarFallback style={{ background: '#1a1a2e', color: '#1a56db', fontWeight: 900, fontSize: 20 }}>
+                  {stream.profiles.display_name[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            {/* Live pulse dot */}
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full animate-pulse"
+              style={{ background: '#e91916', border: '2px solid #0a0a0a' }} />
+          </div>
+
+          {/* Name + category + tags */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <h3 className="font-bold text-[15px] truncate" style={{ color: '#ffffff' }}>
+                {stream.title}
+              </h3>
+            </div>
+            <div className="flex items-center gap-1 mb-1">
+              <span className="text-sm font-semibold truncate" style={{ color: '#d0d0d0' }}>
+                {stream.profiles.display_name}
+              </span>
+              {/* Verified checkmark */}
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                <circle cx="7.5" cy="7.5" r="7.5" fill="#1a56db"/>
+                <path d="M4.5 7.5L6.5 9.5L10.5 5.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <p className="text-xs mb-2" style={{ color: '#888' }}>
+              {stream.categories?.name || 'Live'}
+            </p>
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1.5">
+              {tags.map(tag => (
+                <span key={tag} className="text-[11px] px-2 py-0.5 rounded-full font-medium"
+                  style={{ background: '#1a1a1a', color: '#aaa', border: '1px solid #2a2a2a' }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Thumbnail ── */}
+        <div className="relative mx-4 mb-4 rounded-xl overflow-hidden"
+          style={{ aspectRatio: '16/9', background: '#111' }}>
+
+          {stream.thumbnail_url && !imgError ? (
+            <img
+              src={stream.thumbnail_url}
+              alt={stream.title}
+              className="w-full h-full object-cover"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            /* Gradient placeholder with streamer identity */
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2 relative overflow-hidden"
+              style={{ background: `linear-gradient(135deg, #0a0a1a 0%, #0d1b3e 50%, #0a1628 100%)` }}>
+              {/* Subtle grid pattern */}
+              <div className="absolute inset-0 opacity-10"
+                style={{ backgroundImage: 'repeating-linear-gradient(0deg, #1a56db 0, #1a56db 1px, transparent 0, transparent 50%), repeating-linear-gradient(90deg, #1a56db 0, #1a56db 1px, transparent 0, transparent 50%)', backgroundSize: '40px 40px' }} />
+              <Avatar className="w-16 h-16 rounded-full ring-2 ring-white/10 z-10">
+                <AvatarImage src={stream.profiles.avatar_url || ''} />
+                <AvatarFallback style={{ background: '#0d1b3e', color: '#1a56db', fontWeight: 900, fontSize: 24 }}>
+                  {stream.profiles.display_name[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <p className="text-xs font-semibold z-10" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                {stream.profiles.display_name} is LIVE
+              </p>
+              <div className="z-10">
+                <LottieIcon name={CAT_ANIM[stream.categories?.slug || ''] || 'broadcast'} size={32} loop autoplay />
+              </div>
+            </div>
+          )}
+
+          {/* LIVE badge — top left, red pill */}
+          <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-[3px] rounded"
+            style={{ background: '#e91916', fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: '0.06em' }}>
+            LIVE
+          </div>
+
+          {/* Viewer count — top right, dark pill with icon */}
+          <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-[3px] rounded"
+            style={{ background: 'rgba(0,0,0,0.75)', fontSize: 11, fontWeight: 600, color: '#fff' }}>
+            <Users className="w-3 h-3" />
+            {fmt(stream.viewer_count)}
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
 
 export default function HomePage() {
-  const [liveStreams, setLiveStreams] = useState<Stream[]>([]);
+  const [streams, setStreams] = useState<Stream[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategory, setActiveCategory] = useState('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
+    const loadData = async () => {
       setLoading(true);
-      const [{ data: streams }, { data: cats }] = await Promise.all([
-        supabase
-          .from('streams')
-          .select('id, title, viewer_count, thumbnail_url, category_id, profiles!inner(username, display_name, avatar_url), categories(name)')
-          .eq('is_live', true)
-          .order('viewer_count', { ascending: false })
-          .limit(20),
-        supabase
-          .from('categories')
-          .select('id, name, slug, image_url')
-          .order('name')
-          .limit(8),
-      ]);
-      if (streams) {
-        const s = streams as unknown as Stream[];
-        s.forEach((stream, i) => {
-          streamTags[stream.id] = tagOptions[i % tagOptions.length];
-        });
-        setLiveStreams(s);
-      }
-      if (cats) setCategories(cats);
+      try {
+        const [{ data: cats }, { data: sd }] = await Promise.all([
+          supabase.from('categories').select('*').order('name').limit(16),
+          supabase.from('streams')
+            .select('id,title,viewer_count,thumbnail_url,profiles(username,display_name,avatar_url),categories(name,slug)')
+            .eq('is_live', true).order('viewer_count', { ascending: false }).limit(30),
+        ]);
+        setCategories(cats || []);
+        setStreams((sd || []) as any);
+      } catch {}
       setLoading(false);
-    }
-    fetchData();
+    };
+    loadData();
+
+    // Realtime updates
+    const ch = supabase.channel('home-streams')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'streams' }, loadData)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
   }, []);
+
+  const filtered = activeCategory === 'all' ? streams
+    : streams.filter(s => s.categories?.slug === activeCategory);
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div style={{ background: '#0a0a0a', minHeight: '100%' }}>
 
-        {/* Section Header */}
-        <div className="flex items-center gap-3">
-          <motion.div
-            className="p-2 rounded-xl bg-destructive/10"
-            animate={{ rotate: [0, -5, 5, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Flame className="w-5 h-5 text-destructive" />
-          </motion.div>
-          <h1 className="text-xl font-black text-foreground">Live Now</h1>
-          {liveStreams.length > 0 && (
-            <motion.span
-              className="text-xs font-bold text-destructive bg-destructive/10 px-3 py-1 rounded-full"
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              {liveStreams.length} live
-            </motion.span>
-          )}
+        {/* ── Category filter pills ── */}
+        <div className="sticky top-0 z-10 px-4 py-2.5 flex gap-2 overflow-x-auto no-scrollbar"
+          style={{ background: '#0a0a0a', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          {[{ id: 'all', name: 'All', slug: 'all' }, ...categories].map(cat => (
+            <motion.button key={cat.id} whileTap={{ scale: 0.95 }}
+              onClick={() => setActiveCategory(cat.slug)}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+              style={{
+                background: activeCategory === cat.slug ? '#1a56db' : '#1a1a1a',
+                color: activeCategory === cat.slug ? '#fff' : '#888',
+                border: `1px solid ${activeCategory === cat.slug ? '#1a56db' : '#2a2a2a'}`,
+              }}>
+              {cat.slug !== 'all' && <LottieIcon name={(CAT_ANIM[cat.slug] || 'play') as any} size={13} loop autoplay />}
+              {cat.name}
+            </motion.button>
+          ))}
         </div>
 
-        {/* Loading Skeletons */}
-        {loading && (
-          <div className="space-y-8">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="space-y-3">
-                <Skeleton className="w-full aspect-video rounded-xl" />
-                <div className="flex gap-3">
-                  <Skeleton className="w-11 h-11 rounded-full flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                    <Skeleton className="h-3 w-1/3" />
+        {/* ── Section header ── */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-1">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#e91916' }} />
+            <span className="text-sm font-bold" style={{ color: '#efeff1' }}>
+              Live Channels
+            </span>
+            <span className="text-[11px] px-2 py-0.5 rounded-full tabular-nums"
+              style={{ background: '#1a1a1a', color: '#666' }}>{filtered.length}</span>
+          </div>
+          <Link to="/browse" className="flex items-center gap-1 text-xs font-semibold"
+            style={{ color: '#1a56db' }}>
+            Browse all <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* ── Stream list ── */}
+        {loading ? (
+          /* Skeleton loaders matching the card layout */
+          <div>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="flex items-start gap-3 px-4 pt-4 pb-2">
+                  <div className="w-14 h-14 rounded-full shrink-0" style={{ background: '#1a1a1a' }} />
+                  <div className="flex-1 space-y-2 pt-1">
+                    <div className="h-4 rounded-full w-3/4" style={{ background: '#1a1a1a' }} />
+                    <div className="h-3 rounded-full w-1/2" style={{ background: '#1a1a1a' }} />
+                    <div className="h-3 rounded-full w-1/3" style={{ background: '#1a1a1a' }} />
+                    <div className="flex gap-1.5">
+                      {[1,2,3].map(j => <div key={j} className="h-5 w-12 rounded-full" style={{ background: '#1a1a1a' }} />)}
+                    </div>
                   </div>
                 </div>
+                <div className="mx-4 mb-4 rounded-xl" style={{ background: '#1a1a1a', aspectRatio: '16/9' }} />
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <LottieEmptyState
+            name="broadcast"
+            title="No one is live right now"
+            description="Be the first to go live on SIGMA!"
+            action={
+              <Link to="/go-live">
+                <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold"
+                  style={{ background: '#1a56db', color: '#fff' }}>
+                  <LottieIcon name="broadcast" size={18} loop autoplay />Go Live
+                </motion.button>
+              </Link>
+            }
+          />
+        ) : (
+          /* Divider between cards */
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+            {filtered.map((s, i) => (
+              <div key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                <StreamCard stream={s} i={i} />
               </div>
             ))}
           </div>
         )}
 
-        {/* Vertical Stream Feed */}
-        {!loading && liveStreams.length > 0 && (
-          <motion.div
-            className="space-y-8"
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-          >
-            {liveStreams.map((stream) => (
-              <motion.div key={stream.id} variants={cardVariants}>
-                <Link to={`/watch/${stream.profiles.username}`} className="group block">
-                  {/* Thumbnail */}
-                  <div className="relative rounded-xl overflow-hidden bg-card">
-                    <div className="aspect-video relative overflow-hidden">
-                      {stream.thumbnail_url ? (
-                        <img
-                          src={stream.thumbnail_url}
-                          alt={stream.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-secondary via-muted to-accent/10 flex items-center justify-center">
-                          <Video className="w-12 h-12 text-muted-foreground/20" />
-                        </div>
-                      )}
-
-                      {/* LIVE Badge + Viewers */}
-                      <div className="absolute top-3 left-3 flex items-center gap-2">
-                        <motion.div
-                          className="bg-destructive text-destructive-foreground text-xs font-black px-3 py-1 rounded flex items-center gap-1.5"
-                          animate={{
-                            boxShadow: [
-                              "0 0 8px hsl(var(--destructive) / 0.3)",
-                              "0 0 20px hsl(var(--destructive) / 0.5)",
-                              "0 0 8px hsl(var(--destructive) / 0.3)",
-                            ],
-                          }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        >
-                          LIVE
-                        </motion.div>
-                        <div className="bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded flex items-center gap-1">
-                          <Users className="w-3 h-3" />
-                          {formatViewerCount(stream.viewer_count)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Stream Info - Kick style */}
-                  <div className="flex gap-3 mt-3">
-                    <div className="flex-shrink-0">
-                      {stream.profiles.avatar_url ? (
-                        <img
-                          src={stream.profiles.avatar_url}
-                          alt={stream.profiles.display_name}
-                          className="w-11 h-11 rounded-full object-cover ring-2 ring-destructive/50"
-                        />
-                      ) : (
-                        <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center ring-2 ring-destructive/50">
-                          <span className="text-sm font-bold text-muted-foreground">
-                            {stream.profiles.display_name[0]?.toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                        {stream.title}
-                      </h3>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-sm text-muted-foreground font-medium">{stream.profiles.display_name}</span>
-                        <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                      </div>
-                      <p className="text-sm text-muted-foreground/70 mt-0.5">
-                        {stream.categories?.name || 'Uncategorized'}
-                      </p>
-                      {/* Tags */}
-                      {streamTags[stream.id] && (
-                        <div className="flex gap-2 mt-2 flex-wrap">
-                          {streamTags[stream.id].map(tag => (
-                            <Badge
-                              key={tag}
-                              variant="outline"
-                              className="text-xs px-3 py-0.5 rounded-full font-medium text-muted-foreground border-border"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-        {/* Categories */}
-        {!loading && categories.length > 0 && (
-          <motion.section
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-          >
-            <motion.div variants={cardVariants} className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/10">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                </div>
-                <h2 className="text-xl font-black text-foreground">Categories</h2>
+        {/* ── Go Live CTA ── */}
+        {!loading && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+            className="mx-4 my-6 flex items-center justify-between p-4 rounded-xl"
+            style={{ background: '#0d1b3e', border: '1px solid #1a2d5a' }}>
+            <div className="flex items-center gap-3">
+              <LottieIcon name="broadcast" size={36} loop autoplay />
+              <div>
+                <p className="text-sm font-bold" style={{ color: '#efeff1' }}>Start streaming</p>
+                <p className="text-xs" style={{ color: '#6b7280' }}>Go live in seconds</p>
               </div>
-              <Link to="/browse">
-                <span className="text-sm text-primary hover:text-primary/80 font-bold">
-                  View All →
-                </span>
-              </Link>
-            </motion.div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {categories.map((cat) => (
-                <motion.div key={cat.id} variants={cardVariants} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-                  <Link to={`/browse?category=${cat.slug}`} className="group block">
-                    <div className="rounded-2xl overflow-hidden bg-card">
-                      <div className="aspect-[3/4] bg-gradient-to-br from-secondary to-muted flex items-center justify-center relative overflow-hidden">
-                        {cat.image_url ? (
-                          <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        ) : (
-                          <span className="text-3xl font-black text-muted-foreground/20">{cat.name[0]}</span>
-                        )}
-                      </div>
-                      <div className="p-2.5">
-                        <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{cat.name}</p>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
             </div>
-          </motion.section>
-        )}
-
-        {/* Empty state */}
-        {!loading && liveStreams.length === 0 && categories.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
-          >
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-12 h-12 text-primary/60" />
-              </div>
-            </motion.div>
-            <h2 className="text-2xl font-black text-foreground mb-3">Welcome to SIGMA</h2>
-            <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              No one's live right now — be the first to start streaming!
-            </p>
             <Link to="/go-live">
-              <motion.button
-                className="bg-primary text-primary-foreground px-8 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Video className="w-4 h-4" />
-                Go Live Now
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                className="px-4 py-2 rounded-lg text-sm font-bold"
+                style={{ background: '#1a56db', color: '#fff' }}>
+                Go Live
               </motion.button>
             </Link>
           </motion.div>
