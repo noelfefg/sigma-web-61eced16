@@ -33,6 +33,7 @@ const navItems = [
   { lordIcon: ICONS.studio,    label: 'Creator Studio',path: '/studio' },
   { lordIcon: ICONS.feedback,  label: 'Feedback',      path: '/feedback' },
   { lordIcon: ICONS.video,     label: 'Go Live',       path: '/go-live' },
+  { lordIcon: ICONS.shield,    label: 'Admin',         path: '/admin' },
   { lordIcon: ICONS.user,      label: 'You',           path: '/you' },
 ];
 
