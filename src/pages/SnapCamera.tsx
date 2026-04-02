@@ -484,8 +484,24 @@ export default function SnapCameraPage() {
               animate={{ opacity: 1, y: 0 }}
               className="lg:w-80 bg-card/80 backdrop-blur-2xl border-t lg:border-t-0 lg:border-l border-border/20 flex flex-col"
             >
+              {/* Mobile Toggle Header */}
+              <button
+                onClick={() => setFiltersExpanded(!filtersExpanded)}
+                className="lg:hidden flex items-center justify-between px-4 py-2.5"
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-semibold text-foreground">
+                    {currentFilter.name}{currentLens.name !== 'None' ? ` + ${currentLens.name}` : ''}
+                  </span>
+                </div>
+                <motion.div animate={{ rotate: filtersExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronLeft className="w-4 h-4 text-muted-foreground -rotate-90" />
+                </motion.div>
+              </button>
+
               {/* Category Tabs */}
-              <div className="flex items-center gap-1 p-3 pb-0">
+              <div className={`${filtersExpanded ? 'flex' : 'hidden'} lg:flex items-center gap-1 p-3 pb-0`}>
                 <button
                   onClick={() => setFilterCategory('filters')}
                   className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${
@@ -508,56 +524,56 @@ export default function SnapCameraPage() {
                 </button>
               </div>
 
-              <ScrollArea className="flex-1 p-3">
-                {filterCategory === 'filters' ? (
-                  <div className="grid grid-cols-3 gap-2">
-                    {FILTERS.map((filter, i) => (
-                      <motion.button
-                        key={filter.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.03 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setActiveFilter(filter.id)}
-                        className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all duration-200 ${
-                          activeFilter === filter.id
-                            ? 'bg-primary/15 ring-2 ring-primary/40 text-primary'
-                            : 'bg-secondary/40 hover:bg-secondary/60 text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        {filter.icon}
-                        <span className="text-[10px] font-medium">{filter.name}</span>
-                      </motion.button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {LENS_EFFECTS.map((lens, i) => (
-                      <motion.button
-                        key={lens.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.04 }}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => setActiveLens(lens.id)}
-                        className={`flex items-center gap-2.5 p-3 rounded-2xl transition-all duration-200 ${
-                          activeLens === lens.id
-                            ? 'bg-primary/15 ring-2 ring-primary/40 text-primary'
-                            : 'bg-secondary/40 hover:bg-secondary/60 text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        {lens.icon}
-                        <span className="text-xs font-medium">{lens.name}</span>
-                      </motion.button>
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
+              <div className={`${filtersExpanded ? 'block' : 'hidden'} lg:block`}>
+                <ScrollArea className="p-3 max-h-[40vh] lg:max-h-none lg:flex-1">
+                  {filterCategory === 'filters' ? (
+                    <div className="grid grid-cols-4 lg:grid-cols-3 gap-1.5 lg:gap-2">
+                      {FILTERS.map((filter, i) => (
+                        <motion.button
+                          key={filter.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.03 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setActiveFilter(filter.id)}
+                          className={`flex flex-col items-center gap-1 p-2 lg:p-3 rounded-xl lg:rounded-2xl transition-all duration-200 ${
+                            activeFilter === filter.id
+                              ? 'bg-primary/15 ring-2 ring-primary/40 text-primary'
+                              : 'bg-secondary/40 hover:bg-secondary/60 text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          {filter.icon}
+                          <span className="text-[9px] lg:text-[10px] font-medium">{filter.name}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 lg:grid-cols-2 gap-1.5 lg:gap-2">
+                      {LENS_EFFECTS.map((lens, i) => (
+                        <motion.button
+                          key={lens.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.04 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => setActiveLens(lens.id)}
+                          className={`flex flex-col lg:flex-row items-center gap-1.5 lg:gap-2.5 p-2 lg:p-3 rounded-xl lg:rounded-2xl transition-all duration-200 ${
+                            activeLens === lens.id
+                              ? 'bg-primary/15 ring-2 ring-primary/40 text-primary'
+                              : 'bg-secondary/40 hover:bg-secondary/60 text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          {lens.icon}
+                          <span className="text-[9px] lg:text-xs font-medium">{lens.name}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
+              </div>
 
               {/* Active Filter Info */}
-              <div className="p-3 border-t border-border/20">
+              <div className={`${filtersExpanded ? 'block' : 'hidden'} lg:block p-3 border-t border-border/20`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
