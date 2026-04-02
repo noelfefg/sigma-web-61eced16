@@ -81,6 +81,7 @@ export default function SnapCameraPage() {
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [filterCategory, setFilterCategory] = useState<'filters' | 'lenses'>('filters');
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
 
   const currentFilter = FILTERS.find(f => f.id === activeFilter) || FILTERS[0];
   const currentLens = LENS_EFFECTS.find(l => l.id === activeLens) || LENS_EFFECTS[0];
