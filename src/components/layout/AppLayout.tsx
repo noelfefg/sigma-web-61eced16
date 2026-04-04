@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, MessageSquareHeart, UserCircle, Play, UsersRound, Mail, Camera } from 'lucide-react';
+import { Home, Compass, Users, Menu, X, LogIn, User, Bell, Search, Gift, Video, ImageIcon, MessageSquare, MessageSquareHeart, UserCircle, Play, UsersRound, Mail, Camera, Trophy, Tv, ShoppingBag, Hash, UserPlus, Settings, Flag } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,10 +25,16 @@ const navItems = [
   { icon: ImageIcon, label: 'Feed', path: '/feed' },
   { icon: Play, label: 'Lil Vids', path: '/shorts' },
   { icon: UsersRound, label: 'Community', path: '/community' },
+  { icon: Hash, label: 'Chat Rooms', path: '/chat' },
+  { icon: UserPlus, label: 'Friends', path: '/friends' },
   { icon: Camera, label: 'Camera', path: '/camera' },
   { icon: Mail, label: 'Messages', path: '/messages' },
   { icon: Gift, label: 'Gifts', path: '/gifts' },
+  { icon: Trophy, label: 'Rankings', path: '/rankings' },
+  { icon: ShoppingBag, label: 'Store', path: '/store' },
+  { icon: Tv, label: 'Creator Studio', path: '/studio' },
   { icon: Video, label: 'Go Live', path: '/go-live' },
+  { icon: Settings, label: 'Settings', path: '/settings' },
   { icon: MessageSquareHeart, label: 'Feedback', path: '/feedback' },
   { icon: UserCircle, label: 'You', path: '/you' },
 ];
