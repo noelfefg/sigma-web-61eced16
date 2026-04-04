@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Users, Video, Sparkles, Play, TrendingUp, Flame, CheckCircle } from 'lucide-react';
+import { Eye, Users, Video, Sparkles, Play, TrendingUp, Flame, CheckCircle, Star, Clock } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,20 +39,18 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.05 },
+    transition: { staggerChildren: 0.05, delayChildren: 0.02 },
   },
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 16, scale: 0.98 },
   visible: {
-    opacity: 1, y: 0,
-    transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    opacity: 1, y: 0, scale: 1,
+    transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] },
   },
 };
 
-// Fake tags for visual richness
-const streamTags: Record<string, string[]> = {};
 const tagOptions = [
   ['coding', 'react', 'typescript'],
   ['production', 'beats', 'chill'],
@@ -62,10 +60,13 @@ const tagOptions = [
   ['music', 'live', 'acoustic'],
 ];
 
+const streamTags: Record<string, string[]> = {};
+
 export default function HomePage() {
   const [liveStreams, setLiveStreams] = useState<Stream[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     async function fetchData() {
@@ -81,7 +82,7 @@ export default function HomePage() {
           .from('categories')
           .select('id, name, slug, image_url')
           .order('name')
-          .limit(8),
+          .limit(12),
       ]);
       if (streams) {
         const s = streams as unknown as Stream[];
@@ -98,41 +99,44 @@ export default function HomePage() {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-8">
 
-        {/* Section Header */}
-        <div className="flex items-center gap-3">
-          <motion.div
-            className="p-2 rounded-xl bg-destructive/10"
-            animate={{ rotate: [0, -5, 5, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Flame className="w-5 h-5 text-destructive" />
-          </motion.div>
-          <h1 className="text-xl font-black text-foreground">Live Now</h1>
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+                <Flame className="w-5 h-5 text-destructive" />
+              </div>
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full animate-pulse" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">Live Now</h1>
+              <p className="text-xs text-muted-foreground">Discover what's streaming</p>
+            </div>
+          </div>
           {liveStreams.length > 0 && (
-            <motion.span
-              className="text-xs font-bold text-destructive bg-destructive/10 px-3 py-1 rounded-full"
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
+            <span className="text-xs font-semibold text-destructive bg-destructive/10 px-3 py-1.5 rounded-full">
               {liveStreams.length} live
-            </motion.span>
+            </span>
           )}
-        </div>
+        </motion.div>
 
-        {/* Loading Skeletons */}
+        {/* Loading */}
         {loading && (
-          <div className="space-y-8">
-            {[1, 2, 3].map(i => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i} className="space-y-3">
                 <Skeleton className="w-full aspect-video rounded-xl" />
                 <div className="flex gap-3">
-                  <Skeleton className="w-11 h-11 rounded-full flex-shrink-0" />
+                  <Skeleton className="w-9 h-9 rounded-full flex-shrink-0" />
                   <div className="flex-1 space-y-2">
                     <Skeleton className="h-4 w-3/4" />
                     <Skeleton className="h-3 w-1/2" />
-                    <Skeleton className="h-3 w-1/3" />
                   </div>
                 </div>
               </div>
@@ -140,10 +144,10 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Vertical Stream Feed */}
+        {/* Streams Grid - Modern poster-style cards */}
         {!loading && liveStreams.length > 0 && (
           <motion.div
-            className="space-y-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             initial="hidden"
             animate="visible"
             variants={containerVariants}
@@ -151,9 +155,9 @@ export default function HomePage() {
             {liveStreams.map((stream) => (
               <motion.div key={stream.id} variants={cardVariants}>
                 <Link to={`/watch/${stream.profiles.username}`} className="group block">
-                  {/* Thumbnail */}
-                  <div className="relative rounded-xl overflow-hidden bg-card">
-                    <div className="aspect-video relative overflow-hidden">
+                  <div className="rounded-xl overflow-hidden bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
+                    {/* Thumbnail */}
+                    <div className="relative aspect-video overflow-hidden">
                       {stream.thumbnail_url ? (
                         <img
                           src={stream.thumbnail_url}
@@ -162,72 +166,69 @@ export default function HomePage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-secondary via-muted to-accent/10 flex items-center justify-center">
-                          <Video className="w-12 h-12 text-muted-foreground/20" />
+                          <Video className="w-10 h-10 text-muted-foreground/20" />
                         </div>
                       )}
 
-                      {/* LIVE Badge + Viewers */}
-                      <div className="absolute top-3 left-3 flex items-center gap-2">
-                        <motion.div
-                          className="bg-destructive text-destructive-foreground text-xs font-black px-3 py-1 rounded flex items-center gap-1.5"
-                          animate={{
-                            boxShadow: [
-                              "0 0 8px hsl(var(--destructive) / 0.3)",
-                              "0 0 20px hsl(var(--destructive) / 0.5)",
-                              "0 0 8px hsl(var(--destructive) / 0.3)",
-                            ],
-                          }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        >
+                      {/* LIVE Badge + Viewers overlay */}
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                           LIVE
-                        </motion.div>
-                        <div className="bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded flex items-center gap-1">
-                          <Users className="w-3 h-3" />
-                          {formatViewerCount(stream.viewer_count)}
-                        </div>
+                        </span>
                       </div>
-                    </div>
-                  </div>
+                      <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        {formatViewerCount(stream.viewer_count)}
+                      </div>
 
-                  {/* Stream Info - Kick style */}
-                  <div className="flex gap-3 mt-3">
-                    <div className="flex-shrink-0">
-                      {stream.profiles.avatar_url ? (
-                        <img
-                          src={stream.profiles.avatar_url}
-                          alt={stream.profiles.display_name}
-                          className="w-11 h-11 rounded-full object-cover ring-2 ring-destructive/50"
-                        />
-                      ) : (
-                        <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center ring-2 ring-destructive/50">
-                          <span className="text-sm font-bold text-muted-foreground">
-                            {stream.profiles.display_name[0]?.toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                        {stream.title}
-                      </h3>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-sm text-muted-foreground font-medium">{stream.profiles.display_name}</span>
-                        <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                      {/* Hover play overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                        <Play className="w-12 h-12 text-white opacity-0 group-hover:opacity-80 transition-opacity duration-300 drop-shadow-lg" fill="white" />
                       </div>
-                      <p className="text-sm text-muted-foreground/70 mt-0.5">
-                        {stream.categories?.name || 'Uncategorized'}
-                      </p>
+                    </div>
+
+                    {/* Info */}
+                    <div className="p-3">
+                      <div className="flex gap-2.5">
+                        <div className="flex-shrink-0 mt-0.5">
+                          {stream.profiles.avatar_url ? (
+                            <img
+                              src={stream.profiles.avatar_url}
+                              alt={stream.profiles.display_name}
+                              className="w-8 h-8 rounded-full object-cover ring-2 ring-destructive/40"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center ring-2 ring-destructive/40">
+                              <span className="text-xs font-bold text-muted-foreground">
+                                {stream.profiles.display_name[0]?.toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                            {stream.title}
+                          </h3>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="text-xs text-muted-foreground truncate">{stream.profiles.display_name}</span>
+                            <CheckCircle className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                          </div>
+                          <p className="text-[11px] text-muted-foreground/60 mt-0.5">
+                            {stream.categories?.name || 'Uncategorized'}
+                          </p>
+                        </div>
+                      </div>
                       {/* Tags */}
                       {streamTags[stream.id] && (
-                        <div className="flex gap-2 mt-2 flex-wrap">
+                        <div className="flex gap-1.5 mt-2.5 flex-wrap">
                           {streamTags[stream.id].map(tag => (
-                            <Badge
+                            <span
                               key={tag}
-                              variant="outline"
-                              className="text-xs px-3 py-0.5 rounded-full font-medium text-muted-foreground border-border"
+                              className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground font-medium"
                             >
                               {tag}
-                            </Badge>
+                            </span>
                           ))}
                         </div>
                       )}
@@ -238,40 +239,42 @@ export default function HomePage() {
             ))}
           </motion.div>
         )}
-        {/* Categories */}
+
+        {/* Categories - Modern poster grid */}
         {!loading && categories.length > 0 && (
-          <motion.section
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-          >
-            <motion.div variants={cardVariants} className="flex items-center justify-between mb-4">
+          <motion.section initial="hidden" animate="visible" variants={containerVariants}>
+            <motion.div variants={cardVariants} className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/10">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <TrendingUp className="w-5 h-5 text-primary" />
                 </div>
-                <h2 className="text-xl font-black text-foreground">Categories</h2>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground tracking-tight">Categories</h2>
+                  <p className="text-xs text-muted-foreground">Browse by interest</p>
+                </div>
               </div>
               <Link to="/browse">
-                <span className="text-sm text-primary hover:text-primary/80 font-bold">
+                <span className="text-sm text-primary hover:text-primary/80 font-semibold transition-colors">
                   View All →
                 </span>
               </Link>
             </motion.div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
               {categories.map((cat) => (
                 <motion.div key={cat.id} variants={cardVariants} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
                   <Link to={`/browse?category=${cat.slug}`} className="group block">
-                    <div className="rounded-2xl overflow-hidden bg-card">
+                    <div className="rounded-xl overflow-hidden bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md">
                       <div className="aspect-[3/4] bg-gradient-to-br from-secondary to-muted flex items-center justify-center relative overflow-hidden">
                         {cat.image_url ? (
                           <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         ) : (
                           <span className="text-3xl font-black text-muted-foreground/20">{cat.name[0]}</span>
                         )}
+                        {/* Bottom gradient */}
+                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
                       </div>
-                      <div className="p-2.5">
-                        <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{cat.name}</p>
+                      <div className="p-2">
+                        <p className="text-xs font-semibold text-foreground truncate group-hover:text-primary transition-colors">{cat.name}</p>
                       </div>
                     </div>
                   </Link>
@@ -286,25 +289,25 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
+            className="text-center py-24"
           >
             <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             >
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-12 h-12 text-primary/60" />
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mx-auto mb-6 border border-border/50">
+                <Sparkles className="w-10 h-10 text-primary/50" />
               </div>
             </motion.div>
-            <h2 className="text-2xl font-black text-foreground mb-3">Welcome to SIGMA</h2>
-            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+            <h2 className="text-2xl font-bold text-foreground mb-2">Welcome to SIGMA</h2>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
               No one's live right now — be the first to start streaming!
             </p>
             <Link to="/go-live">
               <motion.button
-                className="bg-primary text-primary-foreground px-8 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
               >
                 <Video className="w-4 h-4" />
                 Go Live Now

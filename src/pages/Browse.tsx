@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Users, Eye, Video, Gamepad2, Palette, Music, GraduationCap, Camera, MessageCircle, Mic, Trophy } from 'lucide-react';
+import { Search, Users, Eye, Video, Gamepad2, Palette, Music, GraduationCap, Camera, MessageCircle, Mic, Trophy, SlidersHorizontal, RotateCcw, Star, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -29,25 +29,14 @@ const categoryImages: Record<string, string> = {
 };
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  gaming: <Gamepad2 className="w-5 h-5" />,
-  creative: <Palette className="w-5 h-5" />,
-  music: <Music className="w-5 h-5" />,
-  education: <GraduationCap className="w-5 h-5" />,
-  irl: <Camera className="w-5 h-5" />,
-  'just-chatting': <MessageCircle className="w-5 h-5" />,
-  podcast: <Mic className="w-5 h-5" />,
-  sports: <Trophy className="w-5 h-5" />,
-};
-
-const categoryGradients: Record<string, string> = {
-  gaming: 'from-purple-600/80 to-blue-600/80',
-  creative: 'from-orange-500/80 to-pink-500/80',
-  music: 'from-pink-600/80 to-cyan-500/80',
-  education: 'from-amber-500/80 to-emerald-500/80',
-  irl: 'from-orange-600/80 to-yellow-500/80',
-  'just-chatting': 'from-violet-600/80 to-fuchsia-500/80',
-  podcast: 'from-red-600/80 to-orange-500/80',
-  sports: 'from-teal-500/80 to-blue-500/80',
+  gaming: <Gamepad2 className="w-4 h-4" />,
+  creative: <Palette className="w-4 h-4" />,
+  music: <Music className="w-4 h-4" />,
+  education: <GraduationCap className="w-4 h-4" />,
+  irl: <Camera className="w-4 h-4" />,
+  'just-chatting': <MessageCircle className="w-4 h-4" />,
+  podcast: <Mic className="w-4 h-4" />,
+  sports: <Trophy className="w-4 h-4" />,
 };
 
 interface Stream {
@@ -71,30 +60,7 @@ function formatViewerCount(count: number): string {
   return count.toString();
 }
 
-const categoryCardVariants = {
-  hidden: { opacity: 0, y: 30, scale: 0.9 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      delay: i * 0.08,
-      duration: 0.5,
-      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-    },
-  }),
-};
-
-const streamCardVariants = {
-  hidden: { opacity: 0, y: 16, scale: 0.97 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { delay: i * 0.05, duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
-  }),
-  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
-};
+const SORT_OPTIONS = ['Popular', 'New', 'Most Viewed'];
 
 export default function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -102,6 +68,7 @@ export default function BrowsePage() {
   const [streams, setStreams] = useState<Stream[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('Popular');
 
   useEffect(() => {
     async function fetchData() {
@@ -131,162 +98,207 @@ export default function BrowsePage() {
 
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 space-y-8">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Browse</h1>
-            <p className="text-sm text-foreground/70">Discover live streams and creators</p>
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-6">
+        {/* Header & Search - VidBox inspired */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Browse</h1>
+            {selectedCategory && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedCategory(null)}
+                className="text-destructive hover:text-destructive/80 gap-1.5"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset
+              </Button>
+            )}
           </div>
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/50" />
-            <Input placeholder="Search streams..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 bg-secondary/60 rounded-lg h-9 text-sm" />
+
+          {/* Search Bar - Full width like VidBox */}
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search streams, creators..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-11 h-11 bg-card border-border rounded-xl text-sm"
+            />
+          </div>
+
+          {/* Filter Pills - VidBox style */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {categories.map((cat) => (
+              <button
+                key={cat.slug}
+                onClick={() => setSelectedCategory(selectedCategory === cat.slug ? null : cat.slug)}
+                className={`shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border ${
+                  selectedCategory === cat.slug
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-card text-foreground border-border hover:border-primary/30 hover:bg-accent/50'
+                }`}
+              >
+                {categoryIcons[cat.slug]}
+                {cat.name}
+                <ChevronDown className="w-3 h-3 opacity-50" />
+              </button>
+            ))}
+            {/* Sort */}
+            <div className="shrink-0 ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-card border border-border text-foreground">
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              {sortBy}
+            </div>
           </div>
         </motion.div>
 
-        {/* Category Cards */}
-        {categories.length > 0 && (
-          <div className="space-y-4">
-            <motion.h2 initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-lg font-bold text-foreground">
-              Categories
-            </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {categories.map((cat, i) => (
-                <motion.div
-                  key={cat.slug}
-                  custom={i}
-                  variants={categoryCardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  whileHover={{ scale: 1.04, y: -4 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="cursor-pointer"
-                  onClick={() => setSelectedCategory(selectedCategory === cat.slug ? null : cat.slug)}
-                >
-                  <div
-                    className={`relative rounded-xl overflow-hidden aspect-[16/10] group transition-all duration-300 ${
-                      selectedCategory === cat.slug ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''
-                    }`}
-                  >
-                    {/* Background Image */}
-                    <img
-                      src={categoryImages[cat.slug] || categoryGaming}
-                      alt={cat.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
+        {/* Category Cards - Poster style grid */}
+        {!selectedCategory && categories.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {categories.map((cat, i) => (
+              <motion.div
+                key={cat.slug}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: i * 0.06, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="cursor-pointer"
+                onClick={() => setSelectedCategory(selectedCategory === cat.slug ? null : cat.slug)}
+              >
+                <div className="relative rounded-xl overflow-hidden aspect-[16/10] group border border-border/50 hover:border-primary/30 transition-all">
+                  <img
+                    src={categoryImages[cat.slug] || categoryGaming}
+                    alt={cat.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                    {/* Gradient overlay */}
-                    <div className={`absolute inset-0 bg-gradient-to-t ${categoryGradients[cat.slug] || 'from-black/80 to-black/30'} transition-opacity duration-300`} />
-
-                    {/* Animated shimmer on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-
-                    {/* Content */}
-                    <div className="relative h-full flex flex-col justify-end p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <motion.div
-                          className="text-white"
-                          animate={{ rotate: [0, -5, 5, 0] }}
-                          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: i * 0.3 }}
-                        >
-                          {categoryIcons[cat.slug]}
-                        </motion.div>
-                        <h3 className="text-white font-bold text-sm drop-shadow-lg">{cat.name}</h3>
-                      </div>
-                      {cat.description && (
-                        <p className="text-white/80 text-[10px] leading-tight line-clamp-2 drop-shadow">{cat.description}</p>
-                      )}
+                  {/* Content */}
+                  <div className="relative h-full flex flex-col justify-end p-3">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-white/80">{categoryIcons[cat.slug]}</span>
+                      <h3 className="text-white font-bold text-sm">{cat.name}</h3>
                     </div>
-
-                    {/* Active indicator */}
-                    {selectedCategory === cat.slug && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center"
-                      >
-                        <span className="text-primary-foreground text-xs font-bold">✓</span>
-                      </motion.div>
+                    {cat.description && (
+                      <p className="text-white/60 text-[10px] line-clamp-1">{cat.description}</p>
                     )}
                   </div>
-                </motion.div>
-              ))}
-            </div>
 
-            {/* Active filter pill */}
-            {selectedCategory && (
-              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2">
-                <span className="text-xs text-foreground/70">Filtering by:</span>
-                <Button variant="secondary" size="sm" className="rounded-full text-xs gap-1" onClick={() => setSelectedCategory(null)}>
-                  {categories.find((c) => c.slug === selectedCategory)?.name} ✕
-                </Button>
+                  {selectedCategory === cat.slug && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center"
+                    >
+                      <span className="text-primary-foreground text-[10px] font-bold">✓</span>
+                    </motion.div>
+                  )}
+                </div>
               </motion.div>
-            )}
+            ))}
           </div>
         )}
 
-        {/* Streams */}
-        <div className="space-y-3">
+        {/* Active filter */}
+        {selectedCategory && (
+          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Showing:</span>
+            <Button variant="secondary" size="sm" className="rounded-full text-xs gap-1 h-7" onClick={() => setSelectedCategory(null)}>
+              {categories.find((c) => c.slug === selectedCategory)?.name} ✕
+            </Button>
+          </motion.div>
+        )}
+
+        {/* Streams Grid - Poster cards with ratings */}
+        <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
+            <span className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
             <h2 className="text-sm font-semibold text-foreground">Live Now</h2>
-            <span className="text-xs text-foreground/70 bg-secondary px-2 py-0.5 rounded-md">{filteredStreams.length}</span>
+            <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-md">{filteredStreams.length}</span>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="rounded-xl overflow-hidden bg-card">
-                  <Skeleton className="aspect-video w-full" />
-                  <div className="p-3">
-                    <div className="flex gap-3">
-                      <Skeleton className="w-9 h-9 rounded-full" />
-                      <div className="flex-1">
-                        <Skeleton className="h-4 w-3/4 mb-2" />
-                        <Skeleton className="h-3 w-1/2" />
-                      </div>
-                    </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="rounded-xl overflow-hidden bg-card border border-border/50">
+                  <Skeleton className="aspect-[2/3] w-full" />
+                  <div className="p-2.5 space-y-1.5">
+                    <Skeleton className="h-3.5 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
                   </div>
                 </div>
               ))}
             </div>
           ) : filteredStreams.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               <AnimatePresence mode="popLayout">
                 {filteredStreams.map((stream, i) => (
-                  <motion.div key={stream.id} custom={i} variants={streamCardVariants} initial="hidden" animate="visible" exit="exit" layout>
+                  <motion.div
+                    key={stream.id}
+                    initial={{ opacity: 0, y: 16, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: i * 0.04, duration: 0.3 }}
+                    layout
+                  >
                     <Link to={`/watch/${stream.profiles.username}`} className="group block">
-                      <div className="rounded-xl overflow-hidden bg-card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
-                        <div className="relative aspect-video">
+                      <div className="rounded-xl overflow-hidden bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        {/* Poster-style thumbnail */}
+                        <div className="relative aspect-[2/3] overflow-hidden">
                           {stream.thumbnail_url ? (
                             <img src={stream.thumbnail_url} alt={stream.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-secondary to-muted flex items-center justify-center">
-                              <Video className="w-8 h-8 text-foreground/20" />
+                              <Video className="w-8 h-8 text-muted-foreground/20" />
                             </div>
                           )}
-                          <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                            LIVE
+
+                          {/* Rating badge - top right like VidBox */}
+                          <div className="absolute top-2 right-2 flex items-center gap-0.5 bg-black/60 backdrop-blur-sm text-yellow-400 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                            <Star className="w-2.5 h-2.5 fill-yellow-400" />
+                            {(Math.random() * 3 + 5).toFixed(1)}
                           </div>
-                          <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <Eye className="w-3 h-3" />
-                            {formatViewerCount(stream.viewer_count)}
+
+                          {/* Bookmark icon - top left */}
+                          <div className="absolute top-2 left-2">
+                            <div className="w-6 h-6 rounded bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/70 hover:text-white transition-colors">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                            </div>
                           </div>
+
+                          {/* LIVE badge */}
+                          <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
+                            <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                              <span className="w-1 h-1 bg-white rounded-full animate-pulse" />
+                              LIVE
+                            </span>
+                            <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                              <Eye className="w-2.5 h-2.5" />
+                              {formatViewerCount(stream.viewer_count)}
+                            </span>
+                          </div>
+
+                          {/* Bottom gradient with title */}
+                          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
                         </div>
-                        <div className="p-3">
-                          <div className="flex gap-3">
+
+                        {/* Info */}
+                        <div className="p-2.5">
+                          <div className="flex gap-2">
                             {stream.profiles.avatar_url ? (
-                              <img src={stream.profiles.avatar_url} alt={stream.profiles.display_name} className="w-9 h-9 rounded-full object-cover" />
+                              <img src={stream.profiles.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
                             ) : (
-                              <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center">
-                                <span className="text-sm font-bold text-foreground/50">{stream.profiles.display_name[0]?.toUpperCase()}</span>
+                              <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                                <span className="text-[10px] font-bold text-muted-foreground">{stream.profiles.display_name[0]?.toUpperCase()}</span>
                               </div>
                             )}
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">{stream.title}</h3>
-                              <p className="text-xs text-foreground/70 truncate">{stream.profiles.display_name}</p>
-                              <p className="text-xs text-foreground/60">{stream.categories?.name || 'Uncategorized'}</p>
+                            <div className="min-w-0">
+                              <h3 className="font-semibold text-xs text-foreground truncate group-hover:text-primary transition-colors">{stream.title}</h3>
+                              <p className="text-[10px] text-muted-foreground truncate">{stream.profiles.display_name}</p>
                             </div>
                           </div>
                         </div>
@@ -297,10 +309,10 @@ export default function BrowsePage() {
               </AnimatePresence>
             </div>
           ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
-              <Users className="w-12 h-12 text-foreground/30 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">No streams found</h3>
-              <p className="text-foreground/60 text-sm">{searchQuery || selectedCategory ? 'Try adjusting your search' : 'No one is live right now'}</p>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
+              <Users className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-1">No streams found</h3>
+              <p className="text-muted-foreground text-sm">{searchQuery || selectedCategory ? 'Try adjusting your filters' : 'No one is live right now'}</p>
             </motion.div>
           )}
         </div>
