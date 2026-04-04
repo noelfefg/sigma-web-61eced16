@@ -39,7 +39,7 @@ export default function CreatorStudioPage() {
   );
 
   const tabs: [Tab,string,React.ReactNode][] = [
-    ['dashboard','Dashboard',<LordIcon icon={ICONS.chart} size={22} trigger="loop" primary="6b7280" 2 className="w-4 h-4"/>],
+    ['dashboard','Dashboard',<LordIcon icon={ICONS.chart} size={22} trigger="loop" primary="6b7280" className="w-4 h-4"/>],
     ['content','Content',<Video className="w-4 h-4"/>],
     ['analytics','Analytics',<LordIcon icon={ICONS.trending} size={22} trigger="loop" primary="22c55e"  className="w-4 h-4"/>],
     ['settings','Channel',<Settings className="w-4 h-4"/>],
