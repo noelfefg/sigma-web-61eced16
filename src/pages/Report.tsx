@@ -133,7 +133,7 @@ export default function ReportPage() {
                   <textarea
                     className="w-full rounded-xl px-3 py-2.5 text-sm outline-none resize-none"
                     style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', color: '#e5e7eb',
-                      minHeight: 100, placeholder: '#555' }}
+                      minHeight: 100 }}
                     placeholder="Describe what's happening (optional)…"
                     value={details}
                     onChange={e => setDetails(e.target.value.slice(0, 500))}
