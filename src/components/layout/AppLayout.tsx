@@ -57,7 +57,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen bg-background flex relative">
       
       {/* Desktop Sidebar */}
-      <aside className={`hidden md:flex flex-col bg-card transition-all duration-300 border-r border-border ${sidebarOpen ? 'w-56' : 'w-14'}`}>
+      <aside className={`hidden md:flex flex-col bg-card transition-all duration-300 border-r border-border/60 ${sidebarOpen ? 'w-56' : 'w-14'}`}>
         {/* Logo */}
         <div className="h-14 flex items-center justify-between px-3">
           <Link to="/" className="flex items-center gap-2 group">
