@@ -57,7 +57,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen bg-background flex relative">
       
       {/* Desktop Sidebar */}
-      <aside className={`hidden md:flex flex-col bg-card transition-all duration-300 border-r border-border/60 ${sidebarOpen ? 'w-56' : 'w-14'}`}>
+      <aside className={`hidden md:flex flex-col bg-card/80 backdrop-blur-md transition-all duration-300 border-r border-border/40 ${sidebarOpen ? 'w-56' : 'w-14'}`}>
         {/* Logo */}
         <div className="h-14 flex items-center justify-between px-3">
           <Link to="/" className="flex items-center gap-2 group">
@@ -130,7 +130,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-14 bg-card border-b border-border flex items-center justify-between px-4 sticky top-0 z-30">
+        <header className="h-14 bg-card/90 backdrop-blur-md border-b border-border/40 flex items-center justify-between px-4 sticky top-0 z-30">
           <Button variant="ghost" size="icon" className="md:hidden h-8 w-8" onClick={() => setMobileMenuOpen(true)}>
             <Menu className="w-5 h-5" />
           </Button>
@@ -164,7 +164,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       {/* Mobile Bottom Tab Bar - YouTube style */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card border-t border-border flex items-center justify-around h-14 shadow-lg">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card/95 backdrop-blur-md border-t border-border/40 flex items-center justify-around h-14">
         {[
           { icon: Home, label: 'Home', path: '/' },
           { icon: Compass, label: 'Browse', path: '/browse' },

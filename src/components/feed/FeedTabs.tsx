@@ -6,30 +6,30 @@ interface FeedTabsProps {
 }
 
 const tabs = [
-  { id: 'foryou', label: '🔥 For You' },
-  { id: 'following', label: '👥 Following' },
-  { id: 'trending', label: '📈 Trending' },
+  { id: 'foryou', label: 'For you' },
+  { id: 'following', label: 'Following' },
+  { id: 'trending', label: 'Trending' },
 ];
 
 export function FeedTabs({ active, onChange }: FeedTabsProps) {
   return (
-    <div className="flex gap-1 bg-secondary/40 backdrop-blur-sm rounded-2xl p-1 border border-border/30">
+    <div className="flex border-b border-border/40 sticky top-14 z-10 bg-background/80 backdrop-blur-md">
       {tabs.map(tab => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          className="relative flex-1 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200"
+          className="relative flex-1 py-3.5 text-sm font-semibold transition-colors duration-200 hover:bg-accent/20"
         >
-          {active === tab.id && (
-            <motion.div
-              layoutId="feedTab"
-              className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/15 to-primary/10 rounded-xl border border-primary/20 shadow-sm"
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            />
-          )}
-          <span className={`relative z-10 ${active === tab.id ? 'text-primary' : 'text-muted-foreground'}`}>
+          <span className={active === tab.id ? 'text-foreground' : 'text-muted-foreground'}>
             {tab.label}
           </span>
+          {active === tab.id && (
+            <motion.div
+              layoutId="feedTabIndicator"
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 bg-primary rounded-full"
+              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+            />
+          )}
         </button>
       ))}
     </div>
