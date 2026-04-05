@@ -164,7 +164,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       {/* Mobile Bottom Tab Bar - YouTube style */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card border-t border-border flex items-center justify-around h-14 shadow-lg">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card/95 backdrop-blur-md border-t border-border/40 flex items-center justify-around h-14">
         {[
           { icon: Home, label: 'Home', path: '/' },
           { icon: Compass, label: 'Browse', path: '/browse' },
