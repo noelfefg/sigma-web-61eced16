@@ -1,36 +1,36 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ImageIcon, Video, Play, Radio } from 'lucide-react';
+import { Plus, ImageIcon, Video, Play, Radio, UsersRound, Hash, UserPlus, Camera, Gift, Trophy, ShoppingBag, Tv, MessageSquareHeart, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const createOptions = [
-  { icon: ImageIcon, label: 'Post', description: 'Share a photo or text', action: 'post' },
-  { icon: Video, label: 'Video', description: 'Upload a video', action: 'video' },
-  { icon: Play, label: 'Lil Vid', description: 'Create a short clip', action: 'lilvid' },
-  { icon: Radio, label: 'Go Live', description: 'Start streaming', action: 'golive' },
+  { icon: ImageIcon, label: 'Post', description: 'Share a photo or text', path: '/feed' },
+  { icon: Video, label: 'Video', description: 'Upload a video', path: '/feed' },
+  { icon: Play, label: 'Lil Vid', description: 'Create a short clip', path: '/shorts' },
+  { icon: Radio, label: 'Go Live', description: 'Start streaming', path: '/go-live' },
+];
+
+const moreOptions = [
+  { icon: UsersRound, label: 'Community', path: '/community' },
+  { icon: Hash, label: 'Chat Rooms', path: '/chat' },
+  { icon: UserPlus, label: 'Friends', path: '/friends' },
+  { icon: Camera, label: 'Sigma Cam', path: '/camera' },
+  { icon: Gift, label: 'Gifts', path: '/gifts' },
+  { icon: Trophy, label: 'Rankings', path: '/rankings' },
+  { icon: ShoppingBag, label: 'Store', path: '/store' },
+  { icon: Tv, label: 'Creator Studio', path: '/studio' },
+  { icon: MessageSquareHeart, label: 'Feedback', path: '/feedback' },
+  { icon: Flag, label: 'Report', path: '/report' },
 ];
 
 export function CreateMenu() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleAction = (action: string) => {
+  const handleNav = (path: string) => {
     setOpen(false);
-    switch (action) {
-      case 'post':
-        navigate('/feed');
-        break;
-      case 'video':
-        navigate('/feed');
-        break;
-      case 'lilvid':
-        navigate('/shorts');
-        break;
-      case 'golive':
-        navigate('/go-live');
-        break;
-    }
+    navigate(path);
   };
 
   return (
@@ -58,16 +58,18 @@ export function CreateMenu() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 8 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 top-full mt-2 z-50 w-56 rounded-2xl bg-card/95 backdrop-blur-xl border border-border/50 shadow-2xl shadow-black/20 overflow-hidden"
+              className="absolute right-0 top-full mt-2 z-50 w-64 max-h-[70vh] overflow-y-auto rounded-2xl bg-card/95 backdrop-blur-xl border border-border/50 shadow-2xl shadow-black/20"
             >
-              <div className="p-1.5">
+              {/* Create section */}
+              <div className="p-1.5 border-b border-border/40">
+                <p className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Create</p>
                 {createOptions.map((opt, i) => (
                   <motion.button
-                    key={opt.action}
+                    key={opt.path + opt.label}
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                    onClick={() => handleAction(opt.action)}
+                    transition={{ delay: i * 0.03 }}
+                    onClick={() => handleNav(opt.path)}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-accent/60 group"
                   >
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -77,6 +79,24 @@ export function CreateMenu() {
                       <p className="text-sm font-medium text-foreground">{opt.label}</p>
                       <p className="text-xs text-muted-foreground">{opt.description}</p>
                     </div>
+                  </motion.button>
+                ))}
+              </div>
+
+              {/* More pages section */}
+              <div className="p-1.5">
+                <p className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">More</p>
+                {moreOptions.map((opt, i) => (
+                  <motion.button
+                    key={opt.path}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (i + createOptions.length) * 0.03 }}
+                    onClick={() => handleNav(opt.path)}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors hover:bg-accent/60 group"
+                  >
+                    <opt.icon className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span className="text-sm font-medium text-foreground">{opt.label}</span>
                   </motion.button>
                 ))}
               </div>
