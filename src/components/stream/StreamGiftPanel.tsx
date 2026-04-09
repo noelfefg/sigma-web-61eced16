@@ -105,7 +105,11 @@ export function StreamGiftPanel({ senderName, onSendGift }: StreamGiftPanelProps
                   onClick={() => sendGift(gift)}
                   className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-accent transition-colors"
                 >
-                  <gift.IconComp className="w-6 h-6" style={{ color: gift.color }} fill={gift.color} />
+                  {gift.image ? (
+                    <img src={gift.image} alt={gift.name} className="w-8 h-8 object-contain" />
+                  ) : gift.IconComp ? (
+                    <gift.IconComp className="w-6 h-6" style={{ color: gift.color }} fill={gift.color} />
+                  ) : null}
                   <span className="text-[10px] text-muted-foreground">{gift.price}c</span>
                 </motion.button>
               ))}
