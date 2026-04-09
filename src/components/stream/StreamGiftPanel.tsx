@@ -4,16 +4,29 @@ import { Gift, Heart, Star, Sparkles, Flame, Zap, Diamond, Crown, Trophy, Dollar
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { GiftNotification } from './GiftOverlay';
+import roseImg from '@/assets/gifts/rose.png';
+import flameHeartImg from '@/assets/gifts/flame-heart.png';
+import ggImg from '@/assets/gifts/gg.png';
+import awesomeCatImg from '@/assets/gifts/awesome-cat.png';
 
-const gifts = [
-  { name: 'Heart', icon: 'heart', IconComp: Heart, price: 1, color: '#ec4899' },
-  { name: 'Star', icon: 'star', IconComp: Star, price: 5, color: '#eab308' },
-  { name: 'Sparkle', icon: 'sparkle', IconComp: Sparkles, price: 10, color: '#a855f7' },
-  { name: 'Flame', icon: 'flame', IconComp: Flame, price: 25, color: '#f97316' },
-  { name: 'Zap', icon: 'zap', IconComp: Zap, price: 50, color: '#facc15' },
-  { name: 'Diamond', icon: 'diamond', IconComp: Diamond, price: 100, color: '#06b6d4' },
-  { name: 'Crown', icon: 'crown', IconComp: Crown, price: 250, color: '#f59e0b' },
-  { name: 'Trophy', icon: 'trophy', IconComp: Trophy, price: 500, color: '#eab308' },
+interface GiftItem {
+  name: string;
+  icon: string;
+  price: number;
+  color: string;
+  image?: string;
+  IconComp?: React.ComponentType<any>;
+}
+
+const gifts: GiftItem[] = [
+  { name: 'Rose', icon: 'rose', price: 1, color: '#ec4899', image: roseImg },
+  { name: 'Flame Heart', icon: 'flame-heart', price: 5, color: '#f97316', image: flameHeartImg },
+  { name: 'GG', icon: 'gg', price: 10, color: '#a855f7', image: ggImg },
+  { name: 'Awesome', icon: 'awesome', price: 25, color: '#facc15', image: awesomeCatImg },
+  { name: 'Zap', icon: 'zap', price: 50, color: '#facc15', IconComp: Zap },
+  { name: 'Diamond', icon: 'diamond', price: 100, color: '#06b6d4', IconComp: Diamond },
+  { name: 'Crown', icon: 'crown', price: 250, color: '#f59e0b', IconComp: Crown },
+  { name: 'Trophy', icon: 'trophy', price: 500, color: '#eab308', IconComp: Trophy },
 ];
 
 interface StreamGiftPanelProps {
