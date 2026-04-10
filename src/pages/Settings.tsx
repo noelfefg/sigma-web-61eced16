@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, CreditCard, ArrowDownLeft, ArrowUpRight, Gift, Zap, User, CheckCircle2, Clock, AlertCircle, Upload, FileText } from 'lucide-react';
+import { Shield, CreditCard, User, CheckCircle2, Clock, AlertCircle, Upload, FileText } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,37 +12,16 @@ import { useToast } from '@/hooks/use-toast';
 import { LottieIcon, LottieEmptyState } from '@/components/animations/LottieIcon';
 import { RelationshipStatusEditor } from '@/components/shared/RelationshipStatus';
 
-type Tx = { id: string; type: 'gift_sent' | 'gift_received' | 'subscription' | 'withdrawal' | 'deposit'; amount: number; description: string; created_at: string; status: 'completed' | 'pending' | 'failed'; };
 type KYCStatus = 'none' | 'pending' | 'approved' | 'rejected';
-type Tab = 'dashboard' | 'kyc' | 'settings';
-
-const MOCK_TX: Tx[] = [
-  { id:'1', type:'gift_received', amount: 12.50, description:'Gift from @nosh_fan', created_at: new Date(Date.now()-3600000).toISOString(), status:'completed' },
-  { id:'2', type:'subscription', amount: -4.99, description:'SIGMA Pro subscription', created_at: new Date(Date.now()-86400000).toISOString(), status:'completed' },
-  { id:'3', type:'gift_sent', amount: -2.00, description:'Gift to @bekoule_live', created_at: new Date(Date.now()-172800000).toISOString(), status:'completed' },
-  { id:'4', type:'deposit', amount: 20.00, description:'Wallet top-up', created_at: new Date(Date.now()-259200000).toISOString(), status:'completed' },
-  { id:'5', type:'withdrawal', amount: -15.00, description:'Withdrawal to bank', created_at: new Date(Date.now()-345600000).toISOString(), status:'pending' },
-];
-
-function TxIcon({ type }: { type: Tx['type'] }) {
-  const map: Record<Tx['type'], JSX.Element> = {
-    gift_received: <ArrowDownLeft className="w-4 h-4 text-green-500" />,
-    gift_sent: <Gift className="w-4 h-4 text-primary" />,
-    subscription: <Zap className="w-4 h-4 text-amber-500" />,
-    withdrawal: <ArrowUpRight className="w-4 h-4 text-red-500" />,
-    deposit: <ArrowDownLeft className="w-4 h-4 text-green-500" />,
-  };
-  return <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">{map[type]}</div>;
-}
+type Tab = 'kyc' | 'settings';
 
 export default function SettingsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [tab, setTab] = useState<Tab>('dashboard');
+  const [tab, setTab] = useState<Tab>('settings');
   const [kycStatus, setKycStatus] = useState<KYCStatus>('none');
   const [kycLoading, setKycLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [balance] = useState(47.32);
 
   useEffect(() => {
     if (!user) return;
@@ -61,9 +40,8 @@ export default function SettingsPage() {
   if (!user) return <AppLayout><div className="flex items-center justify-center min-h-[60vh] text-muted-foreground">Sign in to view settings</div></AppLayout>;
 
   const tabs: { id: Tab; label: string; icon: JSX.Element }[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: <CreditCard className="w-4 h-4" /> },
-    { id: 'kyc', label: 'Verification', icon: <LordIcon icon={ICONS.shield} size={20} trigger="hover" primary="6b7280" className="w-4 h-4" /> },
     { id: 'settings', label: 'Account', icon: <LordIcon icon={ICONS.user} size={20} trigger="hover" primary="6b7280" className="w-4 h-4" /> },
+    { id: 'kyc', label: 'Verification', icon: <LordIcon icon={ICONS.shield} size={20} trigger="hover" primary="6b7280" className="w-4 h-4" /> },
   ];
 
   return (
@@ -91,56 +69,6 @@ export default function SettingsPage() {
             </button>
           ))}
         </div>
-
-        {/* Dashboard tab */}
-        {tab === 'dashboard' && (
-          <div className="space-y-4">
-            {/* Balance card */}
-            <div className="bg-primary rounded-2xl p-5 text-primary-foreground">
-              <p className="text-sm opacity-80 mb-1">Wallet Balance</p>
-              <p className="text-4xl font-black mb-4">${balance.toFixed(2)}</p>
-              <div className="flex gap-2">
-                <button className="flex-1 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold py-2 rounded-xl transition-colors">Deposit</button>
-                <button className="flex-1 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold py-2 rounded-xl transition-colors">Withdraw</button>
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: 'Total Earned', value: '$143.20', color: 'text-green-500' },
-                { label: 'Total Spent', value: '$95.88', color: 'text-red-500' },
-                { label: 'Transactions', value: '24', color: 'text-primary' },
-              ].map(s => (
-                <div key={s.label} className="bg-card border border-border rounded-2xl p-3 text-center">
-                  <p className={`text-lg font-black ${s.color}`}>{s.value}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Transactions */}
-            <div className="bg-card border border-border rounded-2xl overflow-hidden">
-              <div className="px-4 py-3 border-b border-border">
-                <h2 className="font-bold text-sm">Recent Transactions</h2>
-              </div>
-              {MOCK_TX.map((tx, i) => (
-                <div key={tx.id} className={`flex items-center gap-3 px-4 py-3 ${i < MOCK_TX.length - 1 ? 'border-b border-border' : ''}`}>
-                  <TxIcon type={tx.type} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{tx.description}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()} · 
-                      <span className={`ml-1 font-medium ${tx.status === 'completed' ? 'text-green-500' : tx.status === 'pending' ? 'text-amber-500' : 'text-red-500'}`}>{tx.status}</span>
-                    </p>
-                  </div>
-                  <p className={`text-sm font-bold shrink-0 ${tx.amount > 0 ? 'text-green-500' : 'text-foreground'}`}>
-                    {tx.amount > 0 ? '+' : ''}${Math.abs(tx.amount).toFixed(2)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* KYC tab */}
         {tab === 'kyc' && (

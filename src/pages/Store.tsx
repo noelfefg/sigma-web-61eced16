@@ -198,11 +198,13 @@ export default function StorePage() {
                   <span className="absolute top-2 left-2 text-[10px] font-medium px-2 py-0.5 rounded bg-black/50 backdrop-blur-sm text-white capitalize">
                     {item.category}
                   </span>
-                  {/* Rating badge */}
-                  <div className="absolute top-2 right-2 flex items-center gap-0.5 bg-black/50 backdrop-blur-sm text-yellow-400 text-[10px] font-bold px-1.5 py-0.5 rounded">
-                    <Star className="w-2.5 h-2.5 fill-yellow-400" />
-                    {(Math.random() * 2 + 3).toFixed(1)}
-                  </div>
+                  {/* Rating badge - only show if item has sold */}
+                  {item.sold_count > 0 && (
+                    <div className="absolute top-2 right-2 flex items-center gap-0.5 bg-black/50 backdrop-blur-sm text-muted-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
+                      <Star className="w-2.5 h-2.5" />
+                      {item.sold_count} sold
+                    </div>
+                  )}
                 </div>
                 <div className="p-3">
                   <p className="text-sm font-semibold text-foreground truncate">{item.title}</p>
