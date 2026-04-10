@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Users, Eye, Video, Gamepad2, Palette, Music, GraduationCap, Camera, MessageCircle, Mic, Trophy, RotateCcw, Star, ChevronDown, Bookmark, Filter } from 'lucide-react';
+import { Search, Users, Eye, Video, Gamepad2, Palette, Music, GraduationCap, Camera, MessageCircle, Mic, Trophy, RotateCcw, ChevronDown, Bookmark, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AppLayout } from '@/components/layout/AppLayout';
