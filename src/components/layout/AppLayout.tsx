@@ -76,11 +76,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         </nav>
 
         {/* Post Button — X style */}
-        {sidebarOpen && (
-          <div className="px-4 py-3">
-            <CreateMenu />
-          </div>
-        )}
+        <div className="px-3 py-3">
+          <CreateMenu collapsed={!sidebarOpen} />
+        </div>
 
         {/* User */}
         <div className="p-4 mt-auto">

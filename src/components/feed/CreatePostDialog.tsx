@@ -77,9 +77,8 @@ export function CreatePostDialog({ onPostCreated }: CreatePostDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="rounded-full bg-gradient-to-r from-primary to-primary/70 shadow-lg shadow-primary/20 gap-2">
-          <Plus className="w-5 h-5" />
-          New Post
+        <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-5 h-9 text-[15px]">
+          Post
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg bg-card border-border/50 rounded-2xl">

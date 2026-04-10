@@ -3,16 +3,15 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PostCard } from '@/components/feed/PostCard';
 import { CreatePostDialog } from '@/components/feed/CreatePostDialog';
 import { CommentsSheet } from '@/components/feed/CommentsSheet';
-import { StoriesBar } from '@/components/feed/StoriesBar';
-import { SuggestedUsers } from '@/components/feed/SuggestedUsers';
 import { FeedTabs } from '@/components/feed/FeedTabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Camera, Sparkles, TrendingUp, Hash, Search } from 'lucide-react';
+import { Camera, Sparkles, Hash, Search, Image, ListFilter, MapPin, Smile } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { SuggestedUsers } from '@/components/feed/SuggestedUsers';
 
 interface Post {
   id: string;
@@ -79,47 +78,40 @@ export default function FeedPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-[1100px] mx-auto py-4 px-3 md:px-6">
-        <div className="flex gap-6">
-          {/* Main Feed Column - X/Twitter style */}
-          <div className="flex-1 min-w-0 space-y-0">
-            {/* Tabs - X/Twitter style */}
+      <div className="max-w-[1200px] mx-auto">
+        <div className="flex">
+          {/* Main Feed Column */}
+          <div className="flex-1 min-w-0 border-r border-border/40 max-w-[600px]">
+            {/* Tabs */}
             <FeedTabs active={activeTab} onChange={setActiveTab} />
             
-            {/* Compose Box - X/Twitter style */}
+            {/* Compose Box — X style */}
             {user && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="border-b border-border/40 p-4"
-              >
+              <div className="border-b border-border/40 px-4 pt-3 pb-2">
                 <div className="flex gap-3">
-                  <Avatar className="w-10 h-10 flex-shrink-0">
+                  <Avatar className="w-10 h-10 flex-shrink-0 mt-1">
                     <AvatarImage src={avatarUrl || ''} />
-                    <AvatarFallback className="bg-secondary text-xs text-muted-foreground">
+                    <AvatarFallback className="bg-secondary text-muted-foreground">
                       <Camera className="w-4 h-4" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <div className="mb-3">
-                      <p className="text-muted-foreground text-base">What's happening?</p>
+                    <div className="min-h-[52px] flex items-center">
+                      <p className="text-xl text-muted-foreground/60 select-none">What is happening?!</p>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-primary">
-                        <button className="p-1.5 rounded-full hover:bg-primary/10 transition-colors"><Camera className="w-4 h-4" /></button>
-                        <button className="p-1.5 rounded-full hover:bg-primary/10 transition-colors"><Hash className="w-4 h-4" /></button>
+                    <div className="flex items-center justify-between border-t border-border/30 pt-2 mt-1">
+                      <div className="flex items-center gap-0.5 -ml-2">
+                        <button className="p-2 rounded-full hover:bg-primary/10 text-primary transition-colors"><Image className="w-[18px] h-[18px]" /></button>
+                        <button className="p-2 rounded-full hover:bg-primary/10 text-primary transition-colors"><ListFilter className="w-[18px] h-[18px]" /></button>
+                        <button className="p-2 rounded-full hover:bg-primary/10 text-primary transition-colors"><Smile className="w-[18px] h-[18px]" /></button>
+                        <button className="p-2 rounded-full hover:bg-primary/10 text-primary transition-colors"><MapPin className="w-[18px] h-[18px]" /></button>
                       </div>
                       <CreatePostDialog onPostCreated={fetchPosts} />
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
-
-            {/* Stories */}
-            <div className="border-b border-border/40 py-3 px-4">
-              <StoriesBar />
-            </div>
 
             {/* Posts */}
             {loading ? (
@@ -129,7 +121,7 @@ export default function FeedPage() {
                     <div className="flex items-center gap-3"><Skeleton className="w-10 h-10 rounded-full" /><div className="space-y-1"><Skeleton className="h-3.5 w-24" /><Skeleton className="h-3 w-16" /></div></div>
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="w-full aspect-video rounded-xl" />
+                    <Skeleton className="w-full aspect-video rounded-2xl" />
                   </div>
                 ))}
               </div>
@@ -138,13 +130,13 @@ export default function FeedPage() {
                 <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
                   <Sparkles className="w-8 h-8 text-primary/50" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">No Posts Yet</h3>
-                <p className="text-muted-foreground text-sm max-w-xs mx-auto">Share your first post and start connecting!</p>
+                <h3 className="text-xl font-bold text-foreground">Welcome to Sigma</h3>
+                <p className="text-muted-foreground text-[15px] max-w-xs mx-auto">This is the best place to see what's happening. Share your first post!</p>
               </motion.div>
             ) : (
               <div className="divide-y divide-border/30">
                 {posts.map((post, i) => (
-                  <motion.div key={post.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}>
+                  <motion.div key={post.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
                     <PostCard
                       post={post}
                       likeCount={likeCounts[post.id] || 0}
@@ -158,34 +150,40 @@ export default function FeedPage() {
             )}
           </div>
 
-          {/* Right Sidebar - X/Twitter style */}
-          <div className="hidden lg:block w-80 shrink-0 space-y-4 sticky top-16 self-start">
+          {/* Right Sidebar — X style */}
+          <div className="hidden lg:block w-[350px] shrink-0 pl-6 pr-4 py-3 space-y-4 sticky top-16 self-start">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Search" className="pl-10 bg-card border-border/60 rounded-full h-10 text-sm" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input placeholder="Search" className="pl-11 bg-secondary/60 border-transparent focus:border-primary/50 rounded-full h-[42px] text-[15px]" />
             </div>
 
             {/* Subscribe CTA */}
             <div className="bg-card rounded-2xl p-4 border border-border/40">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-base font-bold text-foreground">Subscribe to Premium</h3>
-                <span className="text-[10px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded">NEW</span>
+                <h3 className="text-xl font-extrabold text-foreground">Subscribe to Premium</h3>
+                <span className="text-[10px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">50% off</span>
               </div>
-              <p className="text-xs text-muted-foreground mb-3">Get exclusive features and boost your content reach.</p>
-              <button className="w-full bg-foreground text-background font-bold text-sm py-2 rounded-full hover:opacity-90 transition-opacity">Subscribe</button>
+              <p className="text-[13px] text-muted-foreground mb-3 leading-snug">Get rid of ads, see your analytics, boost your replies and unlock 20+ features.</p>
+              <button className="bg-foreground text-background font-bold text-[15px] py-2 px-5 rounded-full hover:opacity-90 transition-opacity">Subscribe</button>
             </div>
 
             {/* Trending */}
             <div className="bg-card rounded-2xl border border-border/40 overflow-hidden">
-              <h3 className="text-base font-bold text-foreground p-4 pb-2">Trending</h3>
-              {['Gaming', 'Music Production', 'Art & Creative', 'Tech Talk'].map((topic, i) => (
-                <div key={topic} className="px-4 py-3 hover:bg-accent/30 transition-colors cursor-pointer">
-                  <p className="text-[10px] text-muted-foreground">Trending in Streaming</p>
-                  <p className="text-sm font-bold text-foreground">{topic}</p>
-                  <p className="text-[10px] text-muted-foreground">{(Math.random() * 50 + 5).toFixed(0)}K posts</p>
+              <h3 className="text-xl font-extrabold text-foreground p-4 pb-0">What's happening</h3>
+              {[
+                { category: 'Gaming', topic: 'Fortnite Season 8', posts: '24.5K' },
+                { category: 'Music', topic: 'New Album Drop', posts: '18.2K' },
+                { category: 'Technology', topic: 'AI Breakthrough', posts: '42.1K' },
+                { category: 'Sports', topic: 'Champions League', posts: '31.8K' },
+              ].map((item) => (
+                <div key={item.topic} className="px-4 py-3 hover:bg-accent/30 transition-colors cursor-pointer">
+                  <p className="text-[13px] text-muted-foreground">{item.category} · Trending</p>
+                  <p className="text-[15px] font-bold text-foreground">{item.topic}</p>
+                  <p className="text-[13px] text-muted-foreground">{item.posts} posts</p>
                 </div>
               ))}
+              <button className="w-full text-left px-4 py-3 text-primary hover:bg-accent/30 transition-colors text-[15px]">Show more</button>
             </div>
 
             {/* Suggested */}

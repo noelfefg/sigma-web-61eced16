@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ImageIcon, Video, Play, Radio, UsersRound, Hash, UserPlus, Camera, Gift, Trophy, ShoppingBag, Tv, MessageSquareHeart, Flag } from 'lucide-react';
+import { Plus, ImageIcon, Video, Play, Radio, UsersRound, Hash, UserPlus, Camera, Gift, Trophy, ShoppingBag, Tv, MessageSquareHeart, Flag, Feather } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -24,7 +24,11 @@ const moreOptions = [
   { icon: Flag, label: 'Report', path: '/report' },
 ];
 
-export function CreateMenu() {
+interface CreateMenuProps {
+  collapsed?: boolean;
+}
+
+export function CreateMenu({ collapsed = false }: CreateMenuProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -35,18 +39,18 @@ export function CreateMenu() {
 
   return (
     <div className="relative">
+      {/* X-style Post Button */}
       <Button
-        variant="ghost"
-        size="icon"
         onClick={() => setOpen(!open)}
-        className="relative text-muted-foreground hover:text-foreground h-8 w-8"
+        className={`bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full transition-all duration-200 shadow-lg shadow-primary/25 ${
+          collapsed ? 'w-12 h-12 p-0' : 'w-full h-[52px] text-[17px]'
+        }`}
       >
-        <motion.div
-          animate={{ rotate: open ? 45 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <Plus className="w-5 h-5" />
-        </motion.div>
+        {collapsed ? (
+          <Feather className="w-5 h-5" />
+        ) : (
+          'Post'
+        )}
       </Button>
 
       <AnimatePresence>
@@ -54,15 +58,15 @@ export function CreateMenu() {
           <>
             <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 8 }}
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 8 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 top-full mt-2 z-50 w-64 max-h-[70vh] overflow-y-auto rounded-2xl bg-card/95 backdrop-blur-xl border border-border/50 shadow-2xl shadow-black/20"
+              className="absolute left-0 bottom-full mb-2 z-50 w-72 max-h-[70vh] overflow-y-auto rounded-2xl bg-card border border-border/50 shadow-2xl shadow-black/30"
             >
               {/* Create section */}
               <div className="p-1.5 border-b border-border/40">
-                <p className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Create</p>
+                <p className="px-3 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Create</p>
                 {createOptions.map((opt, i) => (
                   <motion.button
                     key={opt.path + opt.label}
@@ -72,11 +76,11 @@ export function CreateMenu() {
                     onClick={() => handleNav(opt.path)}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-accent/60 group"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <opt.icon className="w-4 h-4 text-primary" />
+                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <opt.icon className="w-[18px] h-[18px] text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">{opt.label}</p>
+                      <p className="text-[15px] font-semibold text-foreground">{opt.label}</p>
                       <p className="text-xs text-muted-foreground">{opt.description}</p>
                     </div>
                   </motion.button>
@@ -85,7 +89,7 @@ export function CreateMenu() {
 
               {/* More pages section */}
               <div className="p-1.5">
-                <p className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">More</p>
+                <p className="px-3 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">More</p>
                 {moreOptions.map((opt, i) => (
                   <motion.button
                     key={opt.path}
@@ -95,8 +99,8 @@ export function CreateMenu() {
                     onClick={() => handleNav(opt.path)}
                     className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors hover:bg-accent/60 group"
                   >
-                    <opt.icon className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                    <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                    <opt.icon className="w-[18px] h-[18px] text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span className="text-[15px] font-medium text-foreground">{opt.label}</span>
                   </motion.button>
                 ))}
               </div>
