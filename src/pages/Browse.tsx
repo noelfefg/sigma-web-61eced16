@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Users, Eye, Video, Gamepad2, Palette, Music, GraduationCap, Camera, MessageCircle, Mic, Trophy, RotateCcw, Star, ChevronDown, Bookmark, Filter } from 'lucide-react';
+import { Search, Users, Eye, Video, Gamepad2, Palette, Music, GraduationCap, Camera, MessageCircle, Mic, Trophy, RotateCcw, ChevronDown, Bookmark, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -37,12 +37,6 @@ function formatViewerCount(count: number): string {
   return count.toString();
 }
 
-// Stable random ratings per stream
-const ratingMap = new Map<string, number>();
-function getRating(id: string) {
-  if (!ratingMap.has(id)) ratingMap.set(id, +(Math.random() * 3 + 5).toFixed(1));
-  return ratingMap.get(id)!;
-}
 
 export default function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -174,10 +168,12 @@ export default function BrowsePage() {
                             </div>
                           )}
 
-                          {/* Rating badge - top right like VidBox */}
-                          <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 bg-black/70 backdrop-blur-sm text-yellow-400 text-[10px] font-bold px-1.5 py-0.5 rounded">
-                            <Star className="w-2.5 h-2.5 fill-yellow-400" /> {getRating(stream.id)}
-                          </div>
+                          {/* Viewer count badge */}
+                          {stream.viewer_count > 0 && (
+                            <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 bg-black/70 backdrop-blur-sm text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
+                              {formatViewerCount(stream.viewer_count)} viewers
+                            </div>
+                          )}
 
                           {/* Bookmark - top left */}
                           <button className="absolute top-1.5 left-1.5 w-6 h-6 rounded bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/60 hover:text-white transition-colors">

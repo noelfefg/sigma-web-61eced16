@@ -55,7 +55,7 @@ export default function ChatRoomPage() {
   const [sending, setSending] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [userProfile, setUserProfile] = useState<{ username: string; display_name: string; avatar_url: string | null } | null>(null);
-  const [onlineCount, setOnlineCount] = useState(Math.floor(Math.random() * 40) + 10);
+  const [onlineCount, setOnlineCount] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
