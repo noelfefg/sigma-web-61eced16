@@ -45,11 +45,14 @@ export function AppLayout({ children }: AppLayoutProps) {
       
       {/* Desktop Sidebar — X/Twitter style */}
       <aside className={`hidden md:flex flex-col bg-card border-r border-border transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-[72px]'}`}>
-        {/* Logo */}
-        <div className="h-14 flex items-center px-4">
+        {/* Logo + Toggle */}
+        <div className="h-14 flex items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-3 group">
             <img src={sigmaLogo} alt="Sigma" className="w-8 h-8 rounded-full object-cover" />
           </Link>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-foreground/70 hover:text-foreground" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </Button>
         </div>
 
         {/* Nav — bold X-style */}
