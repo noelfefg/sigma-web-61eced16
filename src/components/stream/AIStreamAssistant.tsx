@@ -43,14 +43,8 @@ export function AIStreamAssistant({ onSuggestTitle, onToggleModeration }: AIStre
       setGenerating(false);
     }, 800);
   }
-      setGenerating(false);
-    }, 800);
-  }
 
-  function generateTags() {
-    const shuffled = [...TAG_SUGGESTIONS].sort(() => Math.random() - 0.5);
-    setSuggestedTags(shuffled.slice(0, 4));
-  }
+
 
   function toggleModeration() {
     setModEnabled(!modEnabled);
