@@ -45,6 +45,7 @@ export default function WatchPage() {
   const [giftNotifications, setGiftNotifications] = useState<GiftNotification[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [isOwnStream, setIsOwnStream] = useState(false);
+  const [moderationEnabled, setModerationEnabled] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
