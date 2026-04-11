@@ -259,6 +259,7 @@ export default function GoLivePage() {
           </div>
         </div>
       </div>
+      <AIStreamAssistant onSuggestTitle={(t) => setTitle(t)} />
     </AppLayout>
   );
 }
