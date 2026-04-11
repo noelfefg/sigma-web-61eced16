@@ -191,6 +191,7 @@ export default function WatchPage() {
                     <UsersRound className="w-4 h-4" />Watch Together
                   </Button>
                 </Link>
+                <StreamGiftPanel
                   senderName={user?.email?.split('@')[0] || 'Anonymous'}
                   onSendGift={(n) => setGiftNotifications(prev => [...prev, n])}
                 />
