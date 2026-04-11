@@ -200,9 +200,10 @@ export default function WatchPage() {
                 />
               </div>
             </div>
-            {/* Live Reactions */}
-            <div className="mt-3 pt-3 border-t border-border">
+            {/* Live Reactions & Poll */}
+            <div className="mt-3 pt-3 border-t border-border space-y-3">
               <LiveReactions />
+              {streamData && <StreamPoll streamId={streamData.id} isOwner={isOwnStream} />}
             </div>
           </div>
         </div>
@@ -215,7 +216,7 @@ export default function WatchPage() {
           </div>
           <ScrollArea className="flex-1 px-4">
             <div className="space-y-2">
-              {messages.map((msg) => (
+              {messages.filter(msg => !moderationEnabled || !filterToxicMessage(msg.message)).map((msg) => (
                 <div key={msg.id} className="text-sm"><span className="font-semibold mr-1.5 text-primary">{msg.profiles.display_name}:</span><span className="text-foreground">{msg.message}</span></div>
               ))}
               <div ref={chatEndRef} />
