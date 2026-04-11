@@ -94,7 +94,7 @@ export function AIStreamAssistant({ onSuggestTitle, onToggleModeration }: AIStre
                     >
                       {suggestedTitle}
                     </button>
-                    {suggestedTags.length === 0 && generateTags()}
+                    {suggestedTags.length === 0 && (() => { generateTags(); return null; })()}
                     <div className="flex flex-wrap gap-1">
                       {suggestedTags.map(tag => (
                         <span key={tag} className="text-[10px] bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">#{tag}</span>
