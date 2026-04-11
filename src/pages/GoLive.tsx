@@ -10,6 +10,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { AIStreamAssistant } from '@/components/stream/AIStreamAssistant';
 
 interface Category { id: string; name: string; slug: string; }
 
@@ -258,6 +259,7 @@ export default function GoLivePage() {
           </div>
         </div>
       </div>
+      <AIStreamAssistant onSuggestTitle={(t) => setTitle(t)} />
     </AppLayout>
   );
 }

@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { GiftOverlay, GiftNotification } from '@/components/stream/GiftOverlay';
 import { LiveReactions } from '@/components/stream/LiveReactions';
 import { StreamGiftPanel } from '@/components/stream/StreamGiftPanel';
+import { StreamPoll } from '@/components/stream/StreamPoll';
+import { AIStreamAssistant, filterToxicMessage } from '@/components/stream/AIStreamAssistant';
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
@@ -43,6 +45,7 @@ export default function WatchPage() {
   const [giftNotifications, setGiftNotifications] = useState<GiftNotification[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [isOwnStream, setIsOwnStream] = useState(false);
+  const [moderationEnabled, setModerationEnabled] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -197,9 +200,10 @@ export default function WatchPage() {
                 />
               </div>
             </div>
-            {/* Live Reactions */}
-            <div className="mt-3 pt-3 border-t border-border">
+            {/* Live Reactions & Poll */}
+            <div className="mt-3 pt-3 border-t border-border space-y-3">
               <LiveReactions />
+              {streamData && <StreamPoll streamId={streamData.id} isOwner={isOwnStream} />}
             </div>
           </div>
         </div>
@@ -212,7 +216,7 @@ export default function WatchPage() {
           </div>
           <ScrollArea className="flex-1 px-4">
             <div className="space-y-2">
-              {messages.map((msg) => (
+              {messages.filter(msg => !moderationEnabled || !filterToxicMessage(msg.message)).map((msg) => (
                 <div key={msg.id} className="text-sm"><span className="font-semibold mr-1.5 text-primary">{msg.profiles.display_name}:</span><span className="text-foreground">{msg.message}</span></div>
               ))}
               <div ref={chatEndRef} />
@@ -231,6 +235,7 @@ export default function WatchPage() {
         </div>
 
         {chatCollapsed && <Button variant="secondary" size="icon" className="fixed right-4 top-20 z-10 h-8 w-8" onClick={() => setChatCollapsed(false)}><MessageSquare className="w-4 h-4" /></Button>}
+        <AIStreamAssistant onToggleModeration={setModerationEnabled} />
       </div>
     </AppLayout>
   );
