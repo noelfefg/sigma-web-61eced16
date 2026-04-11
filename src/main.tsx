@@ -26,6 +26,7 @@ import FriendsPage from "./pages/Friends";
 import SettingsPage from "./pages/Settings";
 import ReportPage from "./pages/Report";
 import ProfilePage from "./pages/Profile";
+import VidRoomPage from "./pages/VidRoom";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
@@ -56,6 +57,7 @@ function App() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/report" element={<ReportPage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
+        <Route path="/room/:roomId" element={<VidRoomPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
