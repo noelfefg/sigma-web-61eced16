@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { GiftOverlay, GiftNotification } from '@/components/stream/GiftOverlay';
 import { LiveReactions } from '@/components/stream/LiveReactions';
 import { StreamGiftPanel } from '@/components/stream/StreamGiftPanel';
+import { StreamPoll } from '@/components/stream/StreamPoll';
+import { AIStreamAssistant, filterToxicMessage } from '@/components/stream/AIStreamAssistant';
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
