@@ -38,6 +38,11 @@ export function AIStreamAssistant({ onSuggestTitle, onToggleModeration }: AIStre
     setTimeout(() => {
       const t = TITLE_SUGGESTIONS[Math.floor(Math.random() * TITLE_SUGGESTIONS.length)];
       setSuggestedTitle(t);
+      const shuffled = [...TAG_SUGGESTIONS].sort(() => Math.random() - 0.5);
+      setSuggestedTags(shuffled.slice(0, 4));
+      setGenerating(false);
+    }, 800);
+  }
       setGenerating(false);
     }, 800);
   }
