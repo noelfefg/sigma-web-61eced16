@@ -235,6 +235,7 @@ export default function WatchPage() {
         </div>
 
         {chatCollapsed && <Button variant="secondary" size="icon" className="fixed right-4 top-20 z-10 h-8 w-8" onClick={() => setChatCollapsed(false)}><MessageSquare className="w-4 h-4" /></Button>}
+        <AIStreamAssistant onToggleModeration={setModerationEnabled} />
       </div>
     </AppLayout>
   );
