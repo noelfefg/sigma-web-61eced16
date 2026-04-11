@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Heart, Share2, Users, Send, Settings, Maximize2, Volume2, VolumeX, Play, Pause, MessageSquare, Gift, Loader2, Camera } from 'lucide-react';
+import { Heart, Share2, Users, Send, Settings, Maximize2, Volume2, VolumeX, Play, Pause, MessageSquare, Gift, Loader2, Camera, UsersRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -186,6 +186,11 @@ export default function WatchPage() {
                   <Heart className={`w-4 h-4 mr-1 ${isFollowing ? 'fill-current text-destructive' : ''}`} />{isFollowing ? 'Following' : 'Follow'}
                 </Button>
                 <Button variant="secondary" size="sm"><Share2 className="w-4 h-4" /></Button>
+                <Link to={`/room/${streamData.id}`}>
+                  <Button variant="secondary" size="sm" className="gap-1.5">
+                    <UsersRound className="w-4 h-4" />Watch Together
+                  </Button>
+                </Link>
                 <StreamGiftPanel
                   senderName={user?.email?.split('@')[0] || 'Anonymous'}
                   onSendGift={(n) => setGiftNotifications(prev => [...prev, n])}
