@@ -279,8 +279,9 @@ export default function StorePage() {
                     <span className="text-sm font-medium text-muted-foreground">Total</span>
                     <span className="text-xl font-bold text-foreground">${cartTotal.toFixed(2)}</span>
                   </div>
-                  <Button onClick={handleCheckout} disabled={submitting} className="w-full rounded-xl h-12 text-base font-bold">
-                    {submitting ? 'Processing...' : 'Checkout'}
+                  <Button onClick={handleCheckout} disabled={submitting} className="w-full rounded-xl h-12 text-base font-bold gap-2">
+                    <span className="w-6 h-6 rounded bg-yellow-400 text-black text-[10px] font-extrabold flex items-center justify-center">MTN</span>
+                    {submitting ? 'Processing…' : `Pay with MoMo · $${cartTotal.toFixed(2)}`}
                   </Button>
                 </div>
               )}
@@ -288,6 +289,14 @@ export default function StorePage() {
           </>
         )}
       </AnimatePresence>
+
+      <MTNMomoDialog
+        open={momoOpen}
+        amount={Math.round(cartTotal * 600)}
+        currency="XAF"
+        onClose={() => setMomoOpen(false)}
+        onSuccess={finalizeOrder}
+      />
     </AppLayout>
   );
 }
