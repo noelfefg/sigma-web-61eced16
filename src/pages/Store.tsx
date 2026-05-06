@@ -41,6 +41,7 @@ export default function StorePage() {
   const [submitting, setSubmitting] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [momoOpen, setMomoOpen] = useState(false);
 
   const fetchItems = async () => {
     setLoading(true);
