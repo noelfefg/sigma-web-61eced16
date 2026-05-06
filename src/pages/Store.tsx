@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MTNMomoDialog } from '@/components/payments/MTNMomoDialog';
 
 interface StoreItem {
   id: string; title: string; description: string | null; price: number;
@@ -40,6 +41,7 @@ export default function StorePage() {
   const [submitting, setSubmitting] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [momoOpen, setMomoOpen] = useState(false);
 
   const fetchItems = async () => {
     setLoading(true);
@@ -97,6 +99,11 @@ export default function StorePage() {
 
   async function handleCheckout() {
     if (!user || cart.length === 0) return;
+    setMomoOpen(true);
+  }
+
+  async function finalizeOrder(txnRef: string, phone: string) {
+    if (!user) return;
     setSubmitting(true);
     try {
       const { data: order, error: orderErr } = await supabase.from('orders').insert({
@@ -109,8 +116,8 @@ export default function StorePage() {
       }));
       await supabase.from('order_items').insert(orderItems);
 
-      toast({ title: 'Purchase complete! 🎉' });
-      setCart([]); setCartOpen(false);
+      toast({ title: 'Purchase complete! 🎉', description: `Ref ${txnRef} · MoMo +237 ${phone}` });
+      setCart([]); setCartOpen(false); setMomoOpen(false);
     } catch (e: any) { toast({ title: 'Checkout failed', description: e?.message, variant: 'destructive' }); }
     setSubmitting(false);
   }
@@ -272,8 +279,9 @@ export default function StorePage() {
                     <span className="text-sm font-medium text-muted-foreground">Total</span>
                     <span className="text-xl font-bold text-foreground">${cartTotal.toFixed(2)}</span>
                   </div>
-                  <Button onClick={handleCheckout} disabled={submitting} className="w-full rounded-xl h-12 text-base font-bold">
-                    {submitting ? 'Processing...' : 'Checkout'}
+                  <Button onClick={handleCheckout} disabled={submitting} className="w-full rounded-xl h-12 text-base font-bold gap-2">
+                    <span className="w-6 h-6 rounded bg-yellow-400 text-black text-[10px] font-extrabold flex items-center justify-center">MTN</span>
+                    {submitting ? 'Processing…' : `Pay with MoMo · $${cartTotal.toFixed(2)}`}
                   </Button>
                 </div>
               )}
@@ -281,6 +289,14 @@ export default function StorePage() {
           </>
         )}
       </AnimatePresence>
+
+      <MTNMomoDialog
+        open={momoOpen}
+        amount={Math.round(cartTotal * 600)}
+        currency="XAF"
+        onClose={() => setMomoOpen(false)}
+        onSuccess={finalizeOrder}
+      />
     </AppLayout>
   );
 }
