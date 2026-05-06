@@ -99,6 +99,11 @@ export default function StorePage() {
 
   async function handleCheckout() {
     if (!user || cart.length === 0) return;
+    setMomoOpen(true);
+  }
+
+  async function finalizeOrder(txnRef: string, phone: string) {
+    if (!user) return;
     setSubmitting(true);
     try {
       const { data: order, error: orderErr } = await supabase.from('orders').insert({
@@ -111,8 +116,8 @@ export default function StorePage() {
       }));
       await supabase.from('order_items').insert(orderItems);
 
-      toast({ title: 'Purchase complete! 🎉' });
-      setCart([]); setCartOpen(false);
+      toast({ title: 'Purchase complete! 🎉', description: `Ref ${txnRef} · MoMo +237 ${phone}` });
+      setCart([]); setCartOpen(false); setMomoOpen(false);
     } catch (e: any) { toast({ title: 'Checkout failed', description: e?.message, variant: 'destructive' }); }
     setSubmitting(false);
   }
