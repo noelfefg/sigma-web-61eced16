@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MTNMomoDialog } from '@/components/payments/MTNMomoDialog';
 
 interface StoreItem {
   id: string; title: string; description: string | null; price: number;
