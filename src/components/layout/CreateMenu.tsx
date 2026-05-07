@@ -39,18 +39,13 @@ export function CreateMenu({ collapsed = false }: CreateMenuProps) {
 
   return (
     <div className="relative">
-      {/* X-style Post Button */}
       <Button
         onClick={() => setOpen(!open)}
-        className={`bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full transition-all duration-200 shadow-lg shadow-primary/25 ${
-          collapsed ? 'w-12 h-12 p-0' : 'w-full h-[52px] text-[17px]'
-        }`}
+        size="icon"
+        className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9 shadow-md shadow-primary/25 transition-transform active:scale-90"
+        aria-label="Create"
       >
-        {collapsed ? (
-          <Feather className="w-5 h-5" />
-        ) : (
-          'Post'
-        )}
+        <Plus className="w-5 h-5" />
       </Button>
 
       <AnimatePresence>
@@ -58,11 +53,11 @@ export function CreateMenu({ collapsed = false }: CreateMenuProps) {
           <>
             <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              initial={{ opacity: 0, scale: 0.95, y: -8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              exit={{ opacity: 0, scale: 0.95, y: -8 }}
               transition={{ duration: 0.15 }}
-              className="absolute left-0 bottom-full mb-2 z-50 w-72 max-h-[70vh] overflow-y-auto rounded-2xl bg-card border border-border/50 shadow-2xl shadow-black/30"
+              className="absolute right-0 top-full mt-2 z-50 w-72 max-h-[70vh] overflow-y-auto rounded-2xl bg-card border border-border/50 shadow-2xl shadow-black/30"
             >
               {/* Create section */}
               <div className="p-1.5 border-b border-border/40">
