@@ -136,12 +136,14 @@ export function AppLayout({ children }: AppLayoutProps) {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
+              onClick={() => feedback('tap', 8)}
+              className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors active:scale-95 ${
                 isActive ? 'text-foreground' : 'text-foreground/70'
               }`}
             >
-              <item.icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : ''}`} />
+              <item.icon className={`w-5 h-5 transition-transform ${isActive ? 'stroke-[2.5] scale-110' : ''}`} />
               <span className="text-[10px] font-medium">{item.label}</span>
+              {isActive && <motion.span layoutId="mobNavIndicator" className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" transition={{ type:'spring', stiffness: 500, damping: 30 }} />}
             </Link>
           );
         })}
