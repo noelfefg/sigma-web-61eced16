@@ -36,6 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { feedback } = useSound();
 
   useEffect(() => {
     if (!user) { setAvatarUrl(null); return; }
