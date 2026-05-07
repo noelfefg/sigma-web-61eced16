@@ -38,15 +38,17 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black">
+    <div className="min-h-screen w-full relative bg-black text-white">
+      {/* Fallback gradient (always visible behind Galaxy in case WebGL fails) */}
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_hsl(220_30%_15%)_0%,_hsl(220_40%_4%)_60%,_#000_100%)]" />
       {/* Galaxy background */}
-      <div className="absolute inset-0 z-0">
-        <Galaxy density={1.2} hueShift={220} glowIntensity={0.5} saturation={0.2} twinkleIntensity={0.5} mouseRepulsion mouseInteraction />
+      <div className="fixed inset-0 z-0 opacity-90">
+        <Galaxy density={1.0} hueShift={220} glowIntensity={0.5} saturation={0.15} twinkleIntensity={0.5} mouseRepulsion mouseInteraction />
       </div>
       {/* Vignette */}
-      <div className="absolute inset-0 z-10 pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.7)_100%)]" />
+      <div className="fixed inset-0 z-10 pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.75)_100%)]" />
 
-      <div className="relative z-20 min-h-screen flex items-center justify-center p-4">
+      <div className="relative z-20 min-h-screen flex items-center justify-center p-4 py-10 overflow-y-auto">
         <div className="w-full max-w-md animate-fade-in">
           <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors text-sm">
             <ArrowLeft className="w-4 h-4" /> Back to SIGMA

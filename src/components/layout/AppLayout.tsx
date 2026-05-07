@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
 import { CreateMenu } from '@/components/layout/CreateMenu';
+import { useSound } from '@/hooks/useSound';
+import { motion } from 'framer-motion';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -34,6 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { feedback } = useSound();
 
   useEffect(() => {
     if (!user) { setAvatarUrl(null); return; }
@@ -69,13 +72,18 @@ export function AppLayout({ children }: AppLayoutProps) {
                 key={item.path}
                 to={item.path}
                 aria-label={item.label}
-                className={`relative flex items-center justify-center h-12 w-24 rounded-lg transition-colors hover:bg-accent ${
-                  isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                onClick={() => feedback('tap', 6)}
+                className={`group relative flex items-center justify-center h-12 w-24 rounded-lg transition-all active:scale-95 ${
+                  isActive ? 'text-foreground bg-accent/40' : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 }`}
               >
-                <item.icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                <item.icon className={`w-6 h-6 transition-transform group-hover:scale-110 group-active:scale-90 ${isActive ? 'stroke-[2.5]' : ''}`} />
                 {isActive && (
-                  <span className="absolute bottom-0 left-2 right-2 h-1 bg-primary rounded-full" />
+                  <motion.span
+                    layoutId="navIndicator"
+                    className="absolute bottom-0 left-2 right-2 h-1 bg-primary rounded-full"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
                 )}
               </Link>
             );
@@ -128,12 +136,14 @@ export function AppLayout({ children }: AppLayoutProps) {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
+              onClick={() => feedback('tap', 8)}
+              className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors active:scale-95 ${
                 isActive ? 'text-foreground' : 'text-foreground/70'
               }`}
             >
-              <item.icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : ''}`} />
+              <item.icon className={`w-5 h-5 transition-transform ${isActive ? 'stroke-[2.5] scale-110' : ''}`} />
               <span className="text-[10px] font-medium">{item.label}</span>
+              {isActive && <motion.span layoutId="mobNavIndicator" className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" transition={{ type:'spring', stiffness: 500, damping: 30 }} />}
             </Link>
           );
         })}
