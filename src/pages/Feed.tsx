@@ -153,10 +153,10 @@ export default function FeedPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-[1200px] mx-auto">
-        <div className="flex">
+      <div className="max-w-[1200px] mx-auto px-0 md:px-4">
+        <div className="flex gap-0 lg:gap-6">
           {/* Main Feed Column */}
-          <div className="flex-1 min-w-0 border-r border-border/40 max-w-[600px]">
+          <div className="flex-1 min-w-0 max-w-full lg:max-w-[600px] border-x border-border/40">
             <FeedTabs active={activeTab} onChange={setActiveTab} />
 
             {/* Stories */}
