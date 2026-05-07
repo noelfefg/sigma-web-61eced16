@@ -72,13 +72,18 @@ export function AppLayout({ children }: AppLayoutProps) {
                 key={item.path}
                 to={item.path}
                 aria-label={item.label}
-                className={`relative flex items-center justify-center h-12 w-24 rounded-lg transition-colors hover:bg-accent ${
-                  isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                onClick={() => feedback('tap', 6)}
+                className={`group relative flex items-center justify-center h-12 w-24 rounded-lg transition-all active:scale-95 ${
+                  isActive ? 'text-foreground bg-accent/40' : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 }`}
               >
-                <item.icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                <item.icon className={`w-6 h-6 transition-transform group-hover:scale-110 group-active:scale-90 ${isActive ? 'stroke-[2.5]' : ''}`} />
                 {isActive && (
-                  <span className="absolute bottom-0 left-2 right-2 h-1 bg-primary rounded-full" />
+                  <motion.span
+                    layoutId="navIndicator"
+                    className="absolute bottom-0 left-2 right-2 h-1 bg-primary rounded-full"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
                 )}
               </Link>
             );
