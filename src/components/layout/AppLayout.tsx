@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
 import { CreateMenu } from '@/components/layout/CreateMenu';
+import { useSound } from '@/hooks/useSound';
+import { motion } from 'framer-motion';
 
 interface AppLayoutProps {
   children: ReactNode;
