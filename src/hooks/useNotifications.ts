@@ -26,24 +26,38 @@ export function useNotifications() {
     setLoading(true);
     try {
       const { data } = await (supabase as any)
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(30);
+        .from('notifications').select('*').eq('user_id', user.id)
+        .order('created_at', { ascending: false }).limit(30);
       if (data) {
         const notifs = data as Notification[];
         setNotifications(notifs);
-        setUnreadCount(notifs.filter((n: Notification) => !n.is_read).length);
+        setUnreadCount(notifs.filter(n => !n.is_read).length);
       }
-    } catch {
-      // table may not exist yet — silent
-    } finally {
-      setLoading(false);
-    }
+    } catch { /* silent */ }
+    finally { setLoading(false); }
   }, [user]);
 
   useEffect(() => { fetchNotifications(); }, [fetchNotifications]);
+
+  // Realtime subscription
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`notif-${user.id}`)
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          const n = payload.new as Notification;
+          setNotifications(prev => [n, ...prev].slice(0, 30));
+          if (!n.is_read) setUnreadCount(c => c + 1);
+          // Browser notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(n.title, { body: n.body || '', icon: n.image_url || '/favicon.ico' });
+          }
+        })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
 
   const markAsRead = useCallback(async (id: string) => {
     try {
@@ -71,5 +85,11 @@ export function useNotifications() {
     } catch { /* silent */ }
   }, [notifications]);
 
-  return { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification, refetch: fetchNotifications };
+  const requestPushPermission = useCallback(async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      await Notification.requestPermission();
+    }
+  }, []);
+
+  return { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification, refetch: fetchNotifications, requestPushPermission };
 }

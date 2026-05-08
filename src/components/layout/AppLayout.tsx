@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
 import { CreateMenu } from '@/components/layout/CreateMenu';
+import { NotificationPanel, NotificationBell } from '@/components/notifications/NotificationPanel';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useSound } from '@/hooks/useSound';
 import { motion } from 'framer-motion';
 
@@ -34,9 +36,13 @@ const moreNav = [
 export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const { user, signOut } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { feedback } = useSound();
+  const { unreadCount, requestPushPermission } = useNotifications();
+
+  useEffect(() => { if (user) requestPushPermission(); }, [user, requestPushPermission]);
 
   useEffect(() => {
     if (!user) { setAvatarUrl(null); return; }
@@ -101,9 +107,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <MessageSquare className="w-5 h-5" />
                 </Button>
               </Link>
-              <Button variant="ghost" size="icon" className="rounded-full bg-secondary hover:bg-accent h-9 w-9">
-                <Bell className="w-5 h-5" />
-              </Button>
+              <NotificationBell onClick={() => { feedback('pop', 8); setNotifOpen(o => !o); }} count={unreadCount} />
               <UserDropdownMenu user={user} signOut={signOut} avatarUrl={avatarUrl} />
             </>
           ) : (
@@ -124,6 +128,8 @@ export function AppLayout({ children }: AppLayoutProps) {
           </Button>
         </div>
       </header>
+
+      <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
 
       {/* Main content */}
       <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
