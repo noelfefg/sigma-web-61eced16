@@ -1,1 +1,7 @@
 project_id = "qlrdqnxsdpqiymcstycn"
+
+[functions.graphql]
+verify_jwt = false
+
+[functions.rank-feed]
+verify_jwt = false
