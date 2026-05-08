@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import TargetCursor from "@/components/TargetCursor";
 import HomePage from "./pages/Home";
 import BrowsePage from "./pages/Browse";
 import FollowingPage from "./pages/Following";
@@ -61,6 +62,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
+      <TargetCursor targetSelector=".cursor-target" spinDuration={2} hideDefaultCursor={false} />
     </>
   );
 }
