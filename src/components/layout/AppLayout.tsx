@@ -129,6 +129,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         </div>
       </header>
 
+      <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
+
       {/* Main content */}
       <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
 
