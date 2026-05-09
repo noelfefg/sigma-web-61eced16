@@ -1,14 +1,15 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import Galaxy from '@/components/Galaxy';
+import LineWaves from '@/components/LineWaves';
 
 export default function AuthPage() {
+  const { user, loading: authLoading, signIn, signUp } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,9 +17,13 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // If already signed in, bounce to /you immediately (prevents flash + missing You access)
+  if (!authLoading && user) {
+    return <Navigate to="/you" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,27 +31,30 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         const { error } = await signIn(email, password);
-        if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
-        else { toast({ title: 'Welcome back!', description: 'Signed in successfully.' }); navigate('/'); }
+        if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+        toast({ title: 'Welcome back!', description: 'Signed in successfully.' });
+        navigate('/you', { replace: true });
       } else {
-        if (!username.trim()) { toast({ title: 'Error', description: 'Username is required', variant: 'destructive' }); setLoading(false); return; }
+        if (!username.trim()) { toast({ title: 'Error', description: 'Username is required', variant: 'destructive' }); return; }
         const { error } = await signUp(email, password, username);
-        if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
-        else { toast({ title: 'Account created!', description: 'Welcome to SIGMA!' }); navigate('/'); }
+        if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+        toast({ title: 'Account created!', description: 'Welcome to SIGMA!' });
+        navigate('/you', { replace: true });
       }
     } finally { setLoading(false); }
   };
 
   return (
     <div className="min-h-screen w-full relative bg-black text-white">
-      {/* Fallback gradient (always visible behind Galaxy in case WebGL fails) */}
+      {/* Fallback gradient (always visible behind LineWaves in case WebGL fails) */}
       <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_hsl(220_30%_15%)_0%,_hsl(220_40%_4%)_60%,_#000_100%)]" />
-      {/* Galaxy background */}
-      <div className="fixed inset-0 z-0 opacity-90">
-        <Galaxy density={1.0} hueShift={220} glowIntensity={0.5} saturation={0.15} twinkleIntensity={0.5} mouseRepulsion mouseInteraction />
+      {/* LineWaves background */}
+      <div className="fixed inset-0 z-0">
+        <LineWaves brightness={0.28} colorCycleSpeed={0.6} warpIntensity={1.0} rotation={-45} color1="#7dd3fc" color2="#a78bfa" color3="#f0abfc" />
       </div>
       {/* Vignette */}
       <div className="fixed inset-0 z-10 pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.75)_100%)]" />
+
 
       <div className="relative z-20 min-h-screen flex items-center justify-center p-4 py-10 overflow-y-auto">
         <div className="w-full max-w-md animate-fade-in">

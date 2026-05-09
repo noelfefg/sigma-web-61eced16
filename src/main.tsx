@@ -3,7 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import TargetCursor from "@/components/TargetCursor";
+import { CursorProvider } from "@/components/CursorProvider";
+import { RequireAuth } from "@/components/auth/RequireAuth";
 import HomePage from "./pages/Home";
 import BrowsePage from "./pages/Browse";
 import FollowingPage from "./pages/Following";
@@ -28,6 +29,8 @@ import SettingsPage from "./pages/Settings";
 import ReportPage from "./pages/Report";
 import ProfilePage from "./pages/Profile";
 import VidRoomPage from "./pages/VidRoom";
+import TagPage from "./pages/Tag";
+import ClansPage from "./pages/Clans";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
@@ -42,27 +45,29 @@ function App() {
         <Route path="/channel/:username" element={<ChannelPage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/gifts" element={<GiftsPage />} />
-        <Route path="/go-live" element={<GoLivePage />} />
+        <Route path="/go-live" element={<RequireAuth><GoLivePage /></RequireAuth>} />
         <Route path="/feed" element={<FeedPage />} />
-        <Route path="/you" element={<YouPage />} />
+        <Route path="/you" element={<RequireAuth><YouPage /></RequireAuth>} />
         <Route path="/shorts" element={<ShortsPage />} />
         <Route path="/community" element={<CommunityPage />} />
-        <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/messages" element={<RequireAuth><MessagesPage /></RequireAuth>} />
         <Route path="/camera" element={<SnapCameraPage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/rankings" element={<RankingsPage />} />
-        <Route path="/studio" element={<CreatorStudioPage />} />
+        <Route path="/studio" element={<RequireAuth><CreatorStudioPage /></RequireAuth>} />
         <Route path="/store" element={<StorePage />} />
         <Route path="/chat" element={<ChatRoomPage />} />
-        <Route path="/friends" element={<FriendsPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/friends" element={<RequireAuth><FriendsPage /></RequireAuth>} />
+        <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
         <Route path="/report" element={<ReportPage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/room/:roomId" element={<VidRoomPage />} />
+        <Route path="/tag/:tag" element={<TagPage />} />
+        <Route path="/clans" element={<ClansPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
-      <TargetCursor targetSelector=".cursor-target" spinDuration={2} hideDefaultCursor={false} />
+      <CursorProvider />
     </>
   );
 }
