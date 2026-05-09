@@ -164,7 +164,42 @@ export default function SettingsPage() {
             <Button className="w-full rounded-xl">Save Changes</Button>
           </div>
         )}
+
+        {/* Appearance tab */}
+        {tab === 'appearance' && <AppearanceSection />}
       </div>
     </AppLayout>
   );
 }
+
+function AppearanceSection() {
+  const [cursor, setCursor] = useState(getCursorEnabled());
+  const isTouch = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
+      <h2 className="font-bold">Appearance</h2>
+
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <MousePointer2 className="w-4 h-4 text-primary" />
+            <p className="font-semibold text-sm">Custom animated cursor</p>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Replace your system cursor with the SIGMA spinning target. Disabled automatically on touch devices.
+          </p>
+        </div>
+        <Switch
+          checked={cursor}
+          disabled={isTouch}
+          onCheckedChange={(v) => { setCursor(v); setCursorEnabled(v); }}
+        />
+      </div>
+      {isTouch && <p className="text-xs text-amber-500">Custom cursor is disabled on touch devices.</p>}
+    </div>
+  );
+}
+
+// keep file end below
+const _unused_close = null;
