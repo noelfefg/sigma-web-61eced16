@@ -3,17 +3,19 @@ import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, CreditCard, User, CheckCircle2, Clock, AlertCircle, Upload, FileText } from 'lucide-react';
+import { Shield, CreditCard, User, CheckCircle2, Clock, AlertCircle, Upload, FileText, Sparkles, MousePointer2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { LottieIcon, LottieEmptyState } from '@/components/animations/LottieIcon';
 import { RelationshipStatusEditor } from '@/components/shared/RelationshipStatus';
+import { getCursorEnabled, setCursorEnabled } from '@/components/CursorProvider';
 
 type KYCStatus = 'none' | 'pending' | 'approved' | 'rejected';
-type Tab = 'kyc' | 'settings';
+type Tab = 'kyc' | 'settings' | 'appearance';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -40,8 +42,9 @@ export default function SettingsPage() {
   if (!user) return <AppLayout><div className="flex items-center justify-center min-h-[60vh] text-muted-foreground">Sign in to view settings</div></AppLayout>;
 
   const tabs: { id: Tab; label: string; icon: JSX.Element }[] = [
-    { id: 'settings', label: 'Account', icon: <LordIcon icon={ICONS.user} size={20} trigger="hover" primary="6b7280" className="w-4 h-4" /> },
-    { id: 'kyc', label: 'Verification', icon: <LordIcon icon={ICONS.shield} size={20} trigger="hover" primary="6b7280" className="w-4 h-4" /> },
+    { id: 'settings', label: 'Account', icon: <User className="w-4 h-4" /> },
+    { id: 'appearance', label: 'Appearance', icon: <Sparkles className="w-4 h-4" /> },
+    { id: 'kyc', label: 'Verification', icon: <Shield className="w-4 h-4" /> },
   ];
 
   return (
