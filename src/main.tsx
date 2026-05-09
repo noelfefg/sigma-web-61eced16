@@ -29,6 +29,8 @@ import SettingsPage from "./pages/Settings";
 import ReportPage from "./pages/Report";
 import ProfilePage from "./pages/Profile";
 import VidRoomPage from "./pages/VidRoom";
+import TagPage from "./pages/Tag";
+import ClansPage from "./pages/Clans";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
@@ -60,6 +62,8 @@ function App() {
         <Route path="/report" element={<ReportPage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/room/:roomId" element={<VidRoomPage />} />
+        <Route path="/tag/:tag" element={<TagPage />} />
+        <Route path="/clans" element={<ClansPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
