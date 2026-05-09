@@ -78,7 +78,206 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "chat_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
+          },
         ]
+      }
+      chat_room_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_rooms: {
+        Row: {
+          created_at: string
+          id: string
+          is_live: boolean
+          kind: string
+          name: string
+          owner_id: string
+          parent_id: string | null
+          stream_kind: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_live?: boolean
+          kind: string
+          name: string
+          owner_id: string
+          parent_id?: string | null
+          stream_kind?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_live?: boolean
+          kind?: string
+          name?: string
+          owner_id?: string
+          parent_id?: string | null
+          stream_kind?: string
+        }
+        Relationships: []
+      }
+      clan_members: {
+        Row: {
+          clan_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          clan_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          clan_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      clan_war_gifts: {
+        Row: {
+          clan_id: string
+          coin_value: number
+          created_at: string
+          id: string
+          sender_id: string
+          war_id: string
+        }
+        Insert: {
+          clan_id: string
+          coin_value: number
+          created_at?: string
+          id?: string
+          sender_id: string
+          war_id: string
+        }
+        Update: {
+          clan_id?: string
+          coin_value?: number
+          created_at?: string
+          id?: string
+          sender_id?: string
+          war_id?: string
+        }
+        Relationships: []
+      }
+      clan_wars: {
+        Row: {
+          clan_a: string
+          clan_b: string
+          created_at: string
+          ends_at: string | null
+          id: string
+          score_a: number
+          score_b: number
+          started_at: string | null
+          status: string
+          visibility: string
+          winner_clan_id: string | null
+        }
+        Insert: {
+          clan_a: string
+          clan_b: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          score_a?: number
+          score_b?: number
+          started_at?: string | null
+          status?: string
+          visibility?: string
+          winner_clan_id?: string | null
+        }
+        Update: {
+          clan_a?: string
+          clan_b?: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          score_a?: number
+          score_b?: number
+          started_at?: string | null
+          status?: string
+          visibility?: string
+          winner_clan_id?: string | null
+        }
+        Relationships: []
+      }
+      clans: {
+        Row: {
+          banner_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          losses: number
+          member_count: number
+          name: string
+          owner_id: string
+          slug: string
+          visibility: string
+          wins: number
+        }
+        Insert: {
+          banner_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          losses?: number
+          member_count?: number
+          name: string
+          owner_id: string
+          slug: string
+          visibility?: string
+          wins?: number
+        }
+        Update: {
+          banner_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          losses?: number
+          member_count?: number
+          name?: string
+          owner_id?: string
+          slug?: string
+          visibility?: string
+          wins?: number
+        }
+        Relationships: []
       }
       clips: {
         Row: {
@@ -129,7 +328,41 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "clips_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
+          },
         ]
+      }
+      coin_transactions: {
+        Row: {
+          created_at: string
+          delta: number
+          id: string
+          reason: string
+          ref_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta: number
+          id?: string
+          reason: string
+          ref_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          id?: string
+          reason?: string
+          ref_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       communities: {
         Row: {
@@ -333,13 +566,189 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "followers_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "followers_following_id_fkey"
             columns: ["following_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "followers_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
+          },
         ]
+      }
+      friend_invites: {
+        Row: {
+          context_id: string
+          context_type: string
+          created_at: string
+          id: string
+          message: string | null
+          recipient_id: string
+          sender_id: string
+          status: string
+        }
+        Insert: {
+          context_id: string
+          context_type: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          recipient_id: string
+          sender_id: string
+          status?: string
+        }
+        Update: {
+          context_id?: string
+          context_type?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          recipient_id?: string
+          sender_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gift_sends: {
+        Row: {
+          coin_value: number
+          context_id: string | null
+          context_type: string
+          created_at: string
+          gift_id: string
+          id: string
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          coin_value: number
+          context_id?: string | null
+          context_type: string
+          created_at?: string
+          gift_id: string
+          id?: string
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          coin_value?: number
+          context_id?: string | null
+          context_type?: string
+          created_at?: string
+          gift_id?: string
+          id?: string
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      gifts_catalog: {
+        Row: {
+          coin_cost: number
+          icon: string
+          id: string
+          name: string
+          rarity: string
+        }
+        Insert: {
+          coin_cost: number
+          icon: string
+          id?: string
+          name: string
+          rarity?: string
+        }
+        Update: {
+          coin_cost?: number
+          icon?: string
+          id?: string
+          name?: string
+          rarity?: string
+        }
+        Relationships: []
+      }
+      hashtags: {
+        Row: {
+          created_at: string
+          id: string
+          tag: string
+          use_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag: string
+          use_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag?: string
+          use_count?: number
+        }
+        Relationships: []
+      }
+      message_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -447,6 +856,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          parent_id: string | null
           post_id: string
           user_id: string
         }
@@ -454,6 +864,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           post_id: string
           user_id: string
         }
@@ -461,6 +872,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           post_id?: string
           user_id?: string
         }
@@ -479,7 +891,32 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "post_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
+          },
         ]
+      }
+      post_hashtags: {
+        Row: {
+          hashtag_id: string
+          id: string
+          post_id: string
+        }
+        Insert: {
+          hashtag_id: string
+          id?: string
+          post_id: string
+        }
+        Update: {
+          hashtag_id?: string
+          id?: string
+          post_id?: string
+        }
+        Relationships: []
       }
       post_likes: {
         Row: {
@@ -514,6 +951,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -561,6 +1005,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -624,6 +1075,39 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          status: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          status?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          status?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       shorts: {
         Row: {
           created_at: string
@@ -651,6 +1135,126 @@ export type Database = {
           user_id?: string
           video_url?: string
           view_count?: number
+        }
+        Relationships: []
+      }
+      societies: {
+        Row: {
+          charter_md: string | null
+          created_at: string
+          founder_id: string
+          gov_type: string
+          id: string
+          invite_code: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          charter_md?: string | null
+          created_at?: string
+          founder_id: string
+          gov_type?: string
+          id?: string
+          invite_code?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          charter_md?: string | null
+          created_at?: string
+          founder_id?: string
+          gov_type?: string
+          id?: string
+          invite_code?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      society_members: {
+        Row: {
+          id: string
+          joined_at: string
+          role: string
+          society_id: string
+          user_id: string
+          voting_power: number
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          role?: string
+          society_id: string
+          user_id: string
+          voting_power?: number
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          role?: string
+          society_id?: string
+          user_id?: string
+          voting_power?: number
+        }
+        Relationships: []
+      }
+      society_proposals: {
+        Row: {
+          author_id: string
+          body: string | null
+          created_at: string
+          ends_at: string
+          id: string
+          society_id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          author_id: string
+          body?: string | null
+          created_at?: string
+          ends_at?: string
+          id?: string
+          society_id: string
+          status?: string
+          title: string
+        }
+        Update: {
+          author_id?: string
+          body?: string | null
+          created_at?: string
+          ends_at?: string
+          id?: string
+          society_id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      society_votes: {
+        Row: {
+          created_at: string
+          id: string
+          proposal_id: string
+          vote: string
+          voter_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          proposal_id: string
+          vote: string
+          voter_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          proposal_id?: string
+          vote?: string
+          voter_id?: string
+          weight?: number
         }
         Relationships: []
       }
@@ -812,6 +1416,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "streams_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       user_gallery: {
@@ -856,9 +1467,62 @@ export type Database = {
         }
         Relationships: []
       }
+      wallets: {
+        Row: {
+          coins: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coins?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coins?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      user_ranks: {
+        Row: {
+          avatar_url: string | null
+          avg_rating: number | null
+          display_name: string | null
+          follower_count: number | null
+          gift_coins_received: number | null
+          post_count: number | null
+          score: number | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          avg_rating?: never
+          display_name?: string | null
+          follower_count?: never
+          gift_coins_received?: never
+          post_count?: never
+          score?: never
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          avg_rating?: never
+          display_name?: string | null
+          follower_count?: never
+          gift_coins_received?: never
+          post_count?: never
+          score?: never
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_follower_count: { Args: { profile_id: string }; Returns: number }
@@ -870,6 +1534,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_clan_member: {
+        Args: { _clan: string; _user: string }
+        Returns: boolean
+      }
       is_conversation_member: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
@@ -877,6 +1545,19 @@ export type Database = {
       is_following: {
         Args: { follower: string; following: string }
         Returns: boolean
+      }
+      is_society_member: {
+        Args: { _society: string; _user: string }
+        Returns: boolean
+      }
+      send_gift: {
+        Args: {
+          _context_id: string
+          _context_type: string
+          _gift_id: string
+          _recipient: string
+        }
+        Returns: string
       }
     }
     Enums: {
