@@ -1,0 +1,1 @@
+ALTER VIEW public.user_ranks SET (security_invoker = on);
