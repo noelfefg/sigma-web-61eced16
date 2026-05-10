@@ -24,6 +24,8 @@ export default function GoLivePage() {
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
+  const [sourceType, setSourceType] = useState<'youtube' | 'hls'>('hls');
+  const [sourceUrl, setSourceUrl] = useState('');
   const [showStreamKey, setShowStreamKey] = useState(false);
   const [isLive, setIsLive] = useState(false);
   const [currentStream, setCurrentStream] = useState<{ id: string } | null>(null);
