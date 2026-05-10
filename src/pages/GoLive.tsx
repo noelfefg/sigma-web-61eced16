@@ -256,6 +256,29 @@ export default function GoLivePage() {
               <div className="space-y-2"><Label htmlFor="title" className="text-xs">Stream Title *</Label><Input id="title" placeholder="Enter your stream title..." value={title} onChange={(e) => setTitle(e.target.value)} className="bg-secondary text-sm h-9" /></div>
               <div className="space-y-2"><Label htmlFor="description" className="text-xs">Description</Label><Textarea id="description" placeholder="Tell viewers what your stream is about..." value={description} onChange={(e) => setDescription(e.target.value)} className="bg-secondary min-h-[80px] text-sm" /></div>
               <div className="space-y-2"><Label className="text-xs">Category</Label><Select value={categoryId} onValueChange={setCategoryId}><SelectTrigger className="bg-secondary text-sm h-9"><SelectValue placeholder="Select a category" /></SelectTrigger><SelectContent>{categories.map((cat) => (<SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>))}</SelectContent></Select></div>
+
+              <div className="space-y-2 pt-1 border-t border-border">
+                <Label className="text-xs">Stream Source</Label>
+                <Select value={sourceType} onValueChange={(v) => setSourceType(v as 'youtube' | 'hls')}>
+                  <SelectTrigger className="bg-secondary text-sm h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hls">HLS (.m3u8 — VLC / OBS / Mux)</SelectItem>
+                    <SelectItem value="youtube">YouTube Live (embed)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
+                  placeholder={sourceType === 'youtube' ? 'YouTube URL or video ID' : 'https://…/playlist.m3u8'}
+                  className="bg-secondary text-xs font-mono h-9"
+                />
+                <p className="text-[10px] text-muted-foreground">
+                  {sourceType === 'youtube'
+                    ? 'Paste your YouTube live URL — viewers will watch via embedded player.'
+                    : 'Paste an HLS playlist URL. Leave empty to broadcast from your camera.'}
+                </p>
+              </div>
+
               {isLive ? (
                 <div className="flex gap-2 pt-2"><Button onClick={handleUpdateStream} disabled={isSubmitting || !title.trim()} className="flex-1" variant="secondary" size="sm">Update</Button><Button onClick={handleEndStream} disabled={isSubmitting} variant="destructive" className="flex-1" size="sm">{isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-1" />}End Stream</Button></div>
               ) : (
