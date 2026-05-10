@@ -1369,6 +1369,8 @@ export type Database = {
           ended_at: string | null
           id: string
           is_live: boolean
+          source_type: string
+          source_url: string | null
           started_at: string | null
           thumbnail_url: string | null
           title: string
@@ -1382,6 +1384,8 @@ export type Database = {
           ended_at?: string | null
           id?: string
           is_live?: boolean
+          source_type?: string
+          source_url?: string | null
           started_at?: string | null
           thumbnail_url?: string | null
           title: string
@@ -1395,6 +1399,8 @@ export type Database = {
           ended_at?: string | null
           id?: string
           is_live?: boolean
+          source_type?: string
+          source_url?: string | null
           started_at?: string | null
           thumbnail_url?: string | null
           title?: string
