@@ -24,6 +24,8 @@ export default function GoLivePage() {
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
+  const [sourceType, setSourceType] = useState<'youtube' | 'hls'>('hls');
+  const [sourceUrl, setSourceUrl] = useState('');
   const [showStreamKey, setShowStreamKey] = useState(false);
   const [isLive, setIsLive] = useState(false);
   const [currentStream, setCurrentStream] = useState<{ id: string } | null>(null);
@@ -40,10 +42,10 @@ export default function GoLivePage() {
     async function init() {
       const [{ data: cats }, { data: stream }] = await Promise.all([
         supabase.from('categories').select('id, name, slug').order('name'),
-        user ? supabase.from('streams').select('id, title, description, category_id, is_live').eq('user_id', user.id).eq('is_live', true).maybeSingle() : Promise.resolve({ data: null }),
+        user ? supabase.from('streams').select('id, title, description, category_id, is_live, source_type, source_url').eq('user_id', user.id).eq('is_live', true).maybeSingle() : Promise.resolve({ data: null }),
       ]);
       if (cats) setCategories(cats);
-      if (stream) { setCurrentStream({ id: stream.id }); setTitle(stream.title); setDescription(stream.description || ''); setCategoryId(stream.category_id || ''); setIsLive(true); }
+      if (stream) { setCurrentStream({ id: stream.id }); setTitle(stream.title); setDescription(stream.description || ''); setCategoryId(stream.category_id || ''); setSourceType((stream.source_type as 'youtube' | 'hls') || 'hls'); setSourceUrl(stream.source_url || ''); setIsLive(true); }
     }
     init();
   }, [user]);
@@ -114,8 +116,10 @@ export default function GoLivePage() {
     if (!user || !title.trim()) { toast({ title: 'Error', description: 'Please enter a stream title', variant: 'destructive' }); return; }
     setIsSubmitting(true);
 
-    // Start camera if not already active
-    if (!previewActive) {
+    const usingExternal = !!sourceUrl.trim();
+
+    // Only request camera if no external source URL is provided
+    if (!usingExternal && !previewActive) {
       try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         streamRef.current = mediaStream;
@@ -124,14 +128,24 @@ export default function GoLivePage() {
         setCameraOn(true);
         setMicOn(true);
       } catch {
-        toast({ title: 'Camera required', description: 'Please allow camera access to go live.', variant: 'destructive' });
+        toast({ title: 'Camera required', description: 'Allow camera access or paste a YouTube/HLS URL.', variant: 'destructive' });
         setIsSubmitting(false);
         return;
       }
     }
 
     try {
-      const { data, error } = await supabase.from('streams').insert({ user_id: user.id, title: title.trim(), description: description.trim() || null, category_id: categoryId || null, is_live: true, started_at: new Date().toISOString(), viewer_count: 0 }).select().single();
+      const { data, error } = await supabase.from('streams').insert({
+        user_id: user.id,
+        title: title.trim(),
+        description: description.trim() || null,
+        category_id: categoryId || null,
+        is_live: true,
+        started_at: new Date().toISOString(),
+        viewer_count: 0,
+        source_type: sourceType,
+        source_url: usingExternal ? sourceUrl.trim() : null,
+      }).select().single();
       if (error) throw error;
       setCurrentStream({ id: data.id }); setIsLive(true);
       toast({ title: 'You are now live!', description: 'Your stream has started' });
@@ -155,7 +169,7 @@ export default function GoLivePage() {
   const handleUpdateStream = async () => {
     if (!currentStream || !title.trim()) return;
     try {
-      const { error } = await supabase.from('streams').update({ title: title.trim(), description: description.trim() || null, category_id: categoryId || null }).eq('id', currentStream.id);
+      const { error } = await supabase.from('streams').update({ title: title.trim(), description: description.trim() || null, category_id: categoryId || null, source_type: sourceType, source_url: sourceUrl.trim() || null }).eq('id', currentStream.id);
       if (error) throw error;
       toast({ title: 'Stream updated' });
     } catch { toast({ title: 'Error', description: 'Failed to update', variant: 'destructive' }); }
@@ -242,6 +256,29 @@ export default function GoLivePage() {
               <div className="space-y-2"><Label htmlFor="title" className="text-xs">Stream Title *</Label><Input id="title" placeholder="Enter your stream title..." value={title} onChange={(e) => setTitle(e.target.value)} className="bg-secondary text-sm h-9" /></div>
               <div className="space-y-2"><Label htmlFor="description" className="text-xs">Description</Label><Textarea id="description" placeholder="Tell viewers what your stream is about..." value={description} onChange={(e) => setDescription(e.target.value)} className="bg-secondary min-h-[80px] text-sm" /></div>
               <div className="space-y-2"><Label className="text-xs">Category</Label><Select value={categoryId} onValueChange={setCategoryId}><SelectTrigger className="bg-secondary text-sm h-9"><SelectValue placeholder="Select a category" /></SelectTrigger><SelectContent>{categories.map((cat) => (<SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>))}</SelectContent></Select></div>
+
+              <div className="space-y-2 pt-1 border-t border-border">
+                <Label className="text-xs">Stream Source</Label>
+                <Select value={sourceType} onValueChange={(v) => setSourceType(v as 'youtube' | 'hls')}>
+                  <SelectTrigger className="bg-secondary text-sm h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hls">HLS (.m3u8 — VLC / OBS / Mux)</SelectItem>
+                    <SelectItem value="youtube">YouTube Live (embed)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
+                  placeholder={sourceType === 'youtube' ? 'YouTube URL or video ID' : 'https://…/playlist.m3u8'}
+                  className="bg-secondary text-xs font-mono h-9"
+                />
+                <p className="text-[10px] text-muted-foreground">
+                  {sourceType === 'youtube'
+                    ? 'Paste your YouTube live URL — viewers will watch via embedded player.'
+                    : 'Paste an HLS playlist URL. Leave empty to broadcast from your camera.'}
+                </p>
+              </div>
+
               {isLive ? (
                 <div className="flex gap-2 pt-2"><Button onClick={handleUpdateStream} disabled={isSubmitting || !title.trim()} className="flex-1" variant="secondary" size="sm">Update</Button><Button onClick={handleEndStream} disabled={isSubmitting} variant="destructive" className="flex-1" size="sm">{isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-1" />}End Stream</Button></div>
               ) : (
