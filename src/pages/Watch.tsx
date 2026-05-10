@@ -16,6 +16,7 @@ import { AIStreamAssistant, filterToxicMessage } from '@/components/stream/AIStr
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
+  source_type: 'youtube' | 'hls'; source_url: string | null;
   profiles: { id: string; username: string; display_name: string; avatar_url: string | null; };
   categories: { name: string; } | null;
 }
