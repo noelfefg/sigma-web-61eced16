@@ -134,8 +134,10 @@ export default function WatchPage() {
         <div className={`flex-1 flex flex-col min-w-0 ${chatOpen ? 'lg:mr-[340px]' : ''}`}>
           {/* Video Player */}
           <div className="relative bg-black w-full" style={{ aspectRatio: '16/9' }}>
-            {isOwnStream ? (
+            {isOwnStream && !streamData.source_url ? (
               <video ref={videoRef} autoPlay muted playsInline className="absolute inset-0 w-full h-full object-cover" />
+            ) : streamData.source_url ? (
+              <StreamPlayer sourceType={streamData.source_type} sourceUrl={streamData.source_url} muted={isMuted} />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
                 <div className="text-center">
