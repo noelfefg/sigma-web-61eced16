@@ -169,7 +169,7 @@ export default function GoLivePage() {
   const handleUpdateStream = async () => {
     if (!currentStream || !title.trim()) return;
     try {
-      const { error } = await supabase.from('streams').update({ title: title.trim(), description: description.trim() || null, category_id: categoryId || null }).eq('id', currentStream.id);
+      const { error } = await supabase.from('streams').update({ title: title.trim(), description: description.trim() || null, category_id: categoryId || null, source_type: sourceType, source_url: sourceUrl.trim() || null }).eq('id', currentStream.id);
       if (error) throw error;
       toast({ title: 'Stream updated' });
     } catch { toast({ title: 'Error', description: 'Failed to update', variant: 'destructive' }); }
