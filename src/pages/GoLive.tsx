@@ -116,8 +116,10 @@ export default function GoLivePage() {
     if (!user || !title.trim()) { toast({ title: 'Error', description: 'Please enter a stream title', variant: 'destructive' }); return; }
     setIsSubmitting(true);
 
-    // Start camera if not already active
-    if (!previewActive) {
+    const usingExternal = !!sourceUrl.trim();
+
+    // Only request camera if no external source URL is provided
+    if (!usingExternal && !previewActive) {
       try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         streamRef.current = mediaStream;
@@ -126,14 +128,24 @@ export default function GoLivePage() {
         setCameraOn(true);
         setMicOn(true);
       } catch {
-        toast({ title: 'Camera required', description: 'Please allow camera access to go live.', variant: 'destructive' });
+        toast({ title: 'Camera required', description: 'Allow camera access or paste a YouTube/HLS URL.', variant: 'destructive' });
         setIsSubmitting(false);
         return;
       }
     }
 
     try {
-      const { data, error } = await supabase.from('streams').insert({ user_id: user.id, title: title.trim(), description: description.trim() || null, category_id: categoryId || null, is_live: true, started_at: new Date().toISOString(), viewer_count: 0 }).select().single();
+      const { data, error } = await supabase.from('streams').insert({
+        user_id: user.id,
+        title: title.trim(),
+        description: description.trim() || null,
+        category_id: categoryId || null,
+        is_live: true,
+        started_at: new Date().toISOString(),
+        viewer_count: 0,
+        source_type: sourceType,
+        source_url: usingExternal ? sourceUrl.trim() : null,
+      }).select().single();
       if (error) throw error;
       setCurrentStream({ id: data.id }); setIsLive(true);
       toast({ title: 'You are now live!', description: 'Your stream has started' });
