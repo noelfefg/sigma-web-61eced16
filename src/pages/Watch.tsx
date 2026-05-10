@@ -70,7 +70,7 @@ export default function WatchPage() {
         const { data: followData } = await supabase.rpc('is_following', { follower: user.id, following: profile.id });
         setIsFollowing(!!followData);
       }
-      const { data: stream } = await supabase.from('streams').select('id, title, description, viewer_count, is_live, profiles!inner(id, username, display_name, avatar_url), categories(name)').eq('user_id', profile.id).eq('is_live', true).maybeSingle();
+      const { data: stream } = await supabase.from('streams').select('id, title, description, viewer_count, is_live, source_type, source_url, profiles!inner(id, username, display_name, avatar_url), categories(name)').eq('user_id', profile.id).eq('is_live', true).maybeSingle();
       if (stream) {
         setStreamData(stream as unknown as StreamData);
         const { data: chatData } = await supabase.from('chat_messages').select('id, message, created_at, profiles!inner(username, display_name)').eq('stream_id', stream.id).order('created_at', { ascending: true }).limit(100);
