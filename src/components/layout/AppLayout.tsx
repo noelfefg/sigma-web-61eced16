@@ -25,6 +25,7 @@ const topNav = [
   { icon: Play, label: 'Lil Vids', path: '/shorts' },
   { icon: ImageIcon, label: 'Feed', path: '/feed' },
   { icon: Users, label: 'Following', path: '/following' },
+  { icon: UserCircle, label: 'You', path: '/you' },
 ];
 
 const moreNav = [
