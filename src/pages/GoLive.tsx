@@ -42,10 +42,10 @@ export default function GoLivePage() {
     async function init() {
       const [{ data: cats }, { data: stream }] = await Promise.all([
         supabase.from('categories').select('id, name, slug').order('name'),
-        user ? supabase.from('streams').select('id, title, description, category_id, is_live').eq('user_id', user.id).eq('is_live', true).maybeSingle() : Promise.resolve({ data: null }),
+        user ? supabase.from('streams').select('id, title, description, category_id, is_live, source_type, source_url').eq('user_id', user.id).eq('is_live', true).maybeSingle() : Promise.resolve({ data: null }),
       ]);
       if (cats) setCategories(cats);
-      if (stream) { setCurrentStream({ id: stream.id }); setTitle(stream.title); setDescription(stream.description || ''); setCategoryId(stream.category_id || ''); setIsLive(true); }
+      if (stream) { setCurrentStream({ id: stream.id }); setTitle(stream.title); setDescription(stream.description || ''); setCategoryId(stream.category_id || ''); setSourceType((stream.source_type as 'youtube' | 'hls') || 'hls'); setSourceUrl(stream.source_url || ''); setIsLive(true); }
     }
     init();
   }, [user]);
