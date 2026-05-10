@@ -13,6 +13,7 @@ import { LiveReactions } from '@/components/stream/LiveReactions';
 import { StreamGiftPanel } from '@/components/stream/StreamGiftPanel';
 import { StreamPoll } from '@/components/stream/StreamPoll';
 import { AIStreamAssistant, filterToxicMessage } from '@/components/stream/AIStreamAssistant';
+import { StreamPlayer } from '@/components/stream/StreamPlayer';
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
