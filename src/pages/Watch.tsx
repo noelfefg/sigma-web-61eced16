@@ -279,10 +279,13 @@ export default function WatchPage() {
               </div>
             )}
 
-            {/* Reactions & Poll */}
-            <div className="space-y-3">
-              <LiveReactions />
-              <StreamPoll streamId={streamData.id} isOwner={isOwnStream} />
+            {/* Reactions, Poll & Top Fans */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="lg:col-span-2 space-y-3">
+                <LiveReactions />
+                <StreamPoll streamId={streamData.id} isOwner={isOwnStream} />
+              </div>
+              <TopFansPanel contextType="stream" contextId={streamData.id} />
             </div>
           </div>
         </div>
