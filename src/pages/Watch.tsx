@@ -14,6 +14,8 @@ import { StreamGiftPanel } from '@/components/stream/StreamGiftPanel';
 import { StreamPoll } from '@/components/stream/StreamPoll';
 import { AIStreamAssistant, filterToxicMessage } from '@/components/stream/AIStreamAssistant';
 import { StreamPlayer } from '@/components/stream/StreamPlayer';
+import { TopFansPanel } from '@/components/stream/TopFansPanel';
+import { ReportButton } from '@/components/shared/ReportButton';
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
@@ -256,8 +258,12 @@ export default function WatchPage() {
 
                 <StreamGiftPanel
                   senderName={user?.email?.split('@')[0] || 'Anonymous'}
+                  recipientId={streamData.profiles.id}
+                  contextType="stream"
+                  contextId={streamData.id}
                   onSendGift={(n) => setGiftNotifications(prev => [...prev, n])}
                 />
+                <ReportButton targetType="stream" targetId={streamData.id} variant="inline" className="rounded-full h-9" />
 
                 <Button variant="secondary" size="icon" className="rounded-full h-9 w-9">
                   <MoreHorizontal className="w-4 h-4" />
@@ -273,10 +279,13 @@ export default function WatchPage() {
               </div>
             )}
 
-            {/* Reactions & Poll */}
-            <div className="space-y-3">
-              <LiveReactions />
-              <StreamPoll streamId={streamData.id} isOwner={isOwnStream} />
+            {/* Reactions, Poll & Top Fans */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="lg:col-span-2 space-y-3">
+                <LiveReactions />
+                <StreamPoll streamId={streamData.id} isOwner={isOwnStream} />
+              </div>
+              <TopFansPanel contextType="stream" contextId={streamData.id} />
             </div>
           </div>
         </div>

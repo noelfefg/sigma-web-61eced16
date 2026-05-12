@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Heart, MessageSquare, Share2, Plus, Upload, X, Eye, Music, User } from 'lucide-react';
+import { Play, Heart, MessageSquare, Share2, Plus, Upload, X, Eye, Music, User, Flag } from 'lucide-react';
+import { ReportButton } from '@/components/shared/ReportButton';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -226,6 +227,14 @@ export default function ShortsPage() {
                     </div>
                     <span className="text-white text-[10px] mt-1 font-medium">{currentShort?.view_count || 0}</span>
                   </div>
+                  {currentShort && (
+                    <div className="flex flex-col items-center">
+                      <div className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                        <ReportButton targetType="short" targetId={currentShort.id} variant="icon" className="text-white hover:bg-transparent h-6 w-6" />
+                      </div>
+                      <span className="text-white text-[10px] mt-1 font-medium">Report</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Progress dots */}
