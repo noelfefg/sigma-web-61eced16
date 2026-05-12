@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Heart, MessageSquare, Share2, Plus, Upload, X, Eye, Music, User } from 'lucide-react';
+import { Play, Heart, MessageSquare, Share2, Plus, Upload, X, Eye, Music, User, Flag } from 'lucide-react';
+import { ReportButton } from '@/components/shared/ReportButton';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
