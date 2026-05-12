@@ -1,79 +1,78 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gift, Heart, Star, Sparkles, Flame, Zap, Diamond, Crown, Trophy, DollarSign, X } from 'lucide-react';
+import { Gift, X, Coins, LogIn } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { GiftNotification } from './GiftOverlay';
-import roseImg from '@/assets/gifts/rose.png';
-import flameHeartImg from '@/assets/gifts/flame-heart.png';
-import ggImg from '@/assets/gifts/gg.png';
-import awesomeCatImg from '@/assets/gifts/awesome-cat.png';
 
-interface GiftItem {
+interface CatalogGift {
+  id: string;
   name: string;
   icon: string;
-  price: number;
-  color: string;
-  image?: string;
-  IconComp?: React.ComponentType<any>;
+  coin_cost: number;
+  rarity: string;
 }
-
-const gifts: GiftItem[] = [
-  { name: 'Rose', icon: 'rose', price: 1, color: '#ec4899', image: roseImg },
-  { name: 'Flame Heart', icon: 'flame-heart', price: 5, color: '#f97316', image: flameHeartImg },
-  { name: 'GG', icon: 'gg', price: 10, color: '#a855f7', image: ggImg },
-  { name: 'Awesome', icon: 'awesome', price: 25, color: '#facc15', image: awesomeCatImg },
-  { name: 'Zap', icon: 'zap', price: 50, color: '#facc15', IconComp: Zap },
-  { name: 'Diamond', icon: 'diamond', price: 100, color: '#06b6d4', IconComp: Diamond },
-  { name: 'Crown', icon: 'crown', price: 250, color: '#f59e0b', IconComp: Crown },
-  { name: 'Trophy', icon: 'trophy', price: 500, color: '#eab308', IconComp: Trophy },
-];
 
 interface StreamGiftPanelProps {
   senderName: string;
+  recipientId: string;
+  contextType?: 'stream' | 'post' | 'short' | 'clan_war';
+  contextId?: string;
   onSendGift: (notification: GiftNotification) => void;
 }
 
-export function StreamGiftPanel({ senderName, onSendGift }: StreamGiftPanelProps) {
+const RARITY_GLOW: Record<string, string> = {
+  common: 'ring-border',
+  rare: 'ring-primary/40',
+  epic: 'ring-fuchsia-400/50',
+  legendary: 'ring-amber-400/60',
+};
+
+export function StreamGiftPanel({ senderName, recipientId, contextType = 'stream', contextId, onSendGift }: StreamGiftPanelProps) {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [donationAmount, setDonationAmount] = useState('');
-  const [donationMsg, setDonationMsg] = useState('');
+  const [catalog, setCatalog] = useState<CatalogGift[]>([]);
+  const [coins, setCoins] = useState<number>(0);
+  const [sendingId, setSendingId] = useState<string | null>(null);
 
-  const sendGift = (gift: typeof gifts[0]) => {
-    onSendGift({
-      id: Date.now().toString(),
-      type: 'gift',
-      senderName,
-      giftName: gift.name,
-      giftIcon: gift.icon,
-    });
-  };
+  useEffect(() => {
+    supabase.from('gifts_catalog').select('id,name,icon,coin_cost,rarity').order('coin_cost')
+      .then(({ data }) => setCatalog((data as CatalogGift[]) || []));
+  }, []);
 
-  const sendDonation = () => {
-    const amount = parseFloat(donationAmount);
-    if (!amount || amount <= 0) return;
-    onSendGift({
-      id: Date.now().toString(),
-      type: 'donation',
-      senderName,
-      amount,
-      message: donationMsg || undefined,
+  useEffect(() => {
+    if (!user || !open) return;
+    supabase.from('wallets' as any).select('coins').eq('user_id', user.id).maybeSingle()
+      .then(({ data }: any) => setCoins(data?.coins ?? 0));
+  }, [user, open]);
+
+  const send = async (gift: CatalogGift) => {
+    if (!user) { toast({ title: 'Sign in required' }); return; }
+    if (coins < gift.coin_cost) {
+      toast({ title: 'Not enough coins', description: `Need ${gift.coin_cost}c — you have ${coins}c.`, variant: 'destructive' });
+      return;
+    }
+    setSendingId(gift.id);
+    const { error } = await supabase.rpc('send_gift', {
+      _recipient: recipientId, _gift_id: gift.id,
+      _context_type: contextType, _context_id: contextId ?? null,
     });
-    setDonationAmount('');
-    setDonationMsg('');
+    setSendingId(null);
+    if (error) { toast({ title: 'Could not send gift', description: error.message, variant: 'destructive' }); return; }
+    setCoins(c => c - gift.coin_cost);
+    onSendGift({ id: Date.now().toString(), type: 'gift', senderName, giftName: gift.name, giftIcon: gift.icon });
+    toast({ title: `Sent ${gift.name}`, description: `${gift.coin_cost}c spent` });
   };
 
   return (
     <div className="relative">
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => setOpen(!open)}
-          className="gap-1.5"
-        >
-          <Gift className="w-4 h-4 text-pink-500" />
-          Send Gift
+        <Button variant="secondary" size="sm" onClick={() => setOpen(o => !o)} className="gap-1.5 rounded-full h-9">
+          <Gift className="w-4 h-4 text-pink-500" /> Send Gift
         </Button>
       </motion.div>
 
@@ -83,60 +82,53 @@ export function StreamGiftPanel({ senderName, onSendGift }: StreamGiftPanelProps
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute bottom-full mb-2 right-0 w-72 bg-card border border-border rounded-2xl shadow-xl p-4 z-50"
+            className="absolute bottom-full mb-2 right-0 w-80 bg-card border border-border rounded-2xl shadow-2xl p-4 z-50"
           >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-foreground">Send a Gift</h3>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setOpen(false)}>
+              <h3 className="text-sm font-bold text-foreground">Send a gift</h3>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-1 rounded-full">
+                <Coins className="w-3.5 h-3.5" /> {coins.toLocaleString()}
+              </div>
+              <Button variant="ghost" size="icon" className="h-6 w-6 ml-1" onClick={() => setOpen(false)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
-            {/* Gift Grid */}
-            <div className="grid grid-cols-4 gap-2 mb-4">
-              {gifts.map((gift, i) => (
-                <motion.button
-                  key={gift.name}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.04 }}
-                  whileHover={{ scale: 1.15, rotate: 5 }}
-                  whileTap={{ scale: 0.85 }}
-                  onClick={() => sendGift(gift)}
-                  className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-accent transition-colors"
-                >
-                  {gift.image ? (
-                    <img src={gift.image} alt={gift.name} className="w-8 h-8 object-contain" />
-                  ) : gift.IconComp ? (
-                    <gift.IconComp className="w-6 h-6" style={{ color: gift.color }} fill={gift.color} />
-                  ) : null}
-                  <span className="text-[10px] text-muted-foreground">{gift.price}c</span>
-                </motion.button>
-              ))}
-            </div>
-
-            {/* Donation */}
-            <div className="border-t border-border pt-3 space-y-2">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                  <Input
-                    placeholder="Amount"
-                    type="number"
-                    value={donationAmount}
-                    onChange={(e) => setDonationAmount(e.target.value)}
-                    className="pl-7 h-8 text-sm"
-                  />
+            {!user ? (
+              <Link to="/auth" className="block">
+                <Button className="w-full gap-2"><LogIn className="w-4 h-4" />Sign in to send gifts</Button>
+              </Link>
+            ) : (
+              <>
+                <div className="grid grid-cols-3 gap-2">
+                  {catalog.map((g, i) => {
+                    const affordable = coins >= g.coin_cost;
+                    return (
+                      <motion.button
+                        key={g.id}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.04 }}
+                        whileHover={{ scale: 1.06 }}
+                        whileTap={{ scale: 0.9 }}
+                        disabled={!affordable || sendingId === g.id}
+                        onClick={() => send(g)}
+                        className={`flex flex-col items-center gap-1 p-2.5 rounded-xl bg-secondary/40 ring-1 ${RARITY_GLOW[g.rarity] || 'ring-border'} hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed`}
+                      >
+                        <span className="text-2xl leading-none">{g.icon}</span>
+                        <span className="text-[10px] font-semibold text-foreground truncate w-full text-center">{g.name}</span>
+                        <span className="text-[10px] flex items-center gap-0.5 text-amber-400 font-bold">
+                          <Coins className="w-2.5 h-2.5" />{g.coin_cost}
+                        </span>
+                      </motion.button>
+                    );
+                  })}
                 </div>
-                <Button size="sm" className="h-8" onClick={sendDonation}>Donate</Button>
-              </div>
-              <Input
-                placeholder="Add a message (optional)"
-                value={donationMsg}
-                onChange={(e) => setDonationMsg(e.target.value)}
-                className="h-8 text-sm"
-              />
-            </div>
+                <p className="text-[10px] text-muted-foreground text-center mt-3">
+                  Gifts spend coins from your wallet. Top-up coming soon.
+                </p>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
