@@ -1,88 +1,76 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @custom-variant dark (&:is(.dark *));
 
-/* SIGMA - Cosmic / Deep Space design system */
+/* SIGMA - Modern streaming platform design system */
 :root {
   --font-size: 16px;
 
-  /* Light cosmic - dawn nebula */
-  --background: hsl(240 30% 96%);
-  --foreground: hsl(250 40% 10%);
+  /* Light theme - Clean & modern */
+  --background: hsl(220 14% 96%);
+  --foreground: hsl(222 47% 11%);
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(250 40% 10%);
+  --card-foreground: hsl(222 47% 11%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(250 40% 10%);
-  --primary: hsl(258 90% 58%);
+  --popover-foreground: hsl(222 47% 11%);
+  --primary: hsl(220 9% 25%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(245 25% 92%);
-  --secondary-foreground: hsl(250 40% 10%);
-  --muted: hsl(245 25% 92%);
-  --muted-foreground: hsl(245 15% 42%);
-  --accent: hsl(190 95% 50%);
-  --accent-foreground: hsl(250 40% 10%);
+  --secondary: hsl(220 14% 92%);
+  --secondary-foreground: hsl(222 47% 11%);
+  --muted: hsl(220 14% 92%);
+  --muted-foreground: hsl(220 9% 46%);
+  --accent: hsl(220 14% 88%);
+  --accent-foreground: hsl(220 9% 20%);
   --destructive: hsl(0 84% 60%);
   --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(245 25% 86%);
-  --input: hsl(245 25% 90%);
-  --input-background: hsl(240 30% 96%);
-  --switch-background: hsl(245 15% 70%);
+  --border: hsl(220 13% 85%);
+  --input: hsl(220 13% 91%);
+  --input-background: hsl(220 14% 96%);
+  --switch-background: hsl(220 9% 74%);
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: hsl(258 90% 58%);
+  --ring: hsl(220 9% 40%);
 
-  /* SIGMA cosmic brand */
-  --sigma-primary: hsl(258 90% 58%);
-  --sigma-primary-hover: hsl(258 90% 50%);
-  --sigma-accent: hsl(190 95% 50%);
-  --sigma-accent-hover: hsl(190 95% 42%);
-  --sigma-dark: hsl(240 30% 96%);
+  /* SIGMA brand colors - greyscale */
+  --sigma-primary: hsl(220 9% 25%);
+  --sigma-primary-hover: hsl(220 9% 15%);
+  --sigma-accent: hsl(220 9% 35%);
+  --sigma-accent-hover: hsl(220 9% 25%);
+  --sigma-dark: hsl(220 14% 96%);
   --sigma-card: hsl(0 0% 100%);
-  --sigma-border: hsl(245 25% 86%);
-  --sigma-live: hsl(340 90% 60%);
-  --sigma-gift: hsl(280 90% 65%);
-  --sigma-donation: hsl(45 95% 55%);
-  --sigma-neon: hsl(168 86% 55%);
-  --sigma-success: hsl(150 75% 50%);
+  --sigma-border: hsl(220 13% 88%);
+  --sigma-live: hsl(0 84% 60%);
+  --sigma-gift: hsl(270 76% 58%);
+  --sigma-donation: hsl(45 93% 47%);
+  --sigma-neon: hsl(168 76% 50%);
+  --sigma-success: hsl(142 71% 45%);
 
-  /* Cosmic gradients & glows */
-  --nebula-purple: hsl(265 85% 25%);
-  --nebula-pink: hsl(315 80% 30%);
-  --nebula-blue: hsl(220 90% 25%);
-  --nebula-cyan: hsl(190 95% 50%);
-  --star-glow: hsl(258 100% 75%);
-  --gradient-cosmic: linear-gradient(135deg, hsl(258 90% 58%) 0%, hsl(290 85% 55%) 50%, hsl(190 95% 50%) 100%);
-  --gradient-nebula: radial-gradient(ellipse at top, hsl(265 85% 25% / 0.6), transparent 60%), radial-gradient(ellipse at bottom right, hsl(315 80% 30% / 0.5), transparent 60%), radial-gradient(ellipse at bottom left, hsl(220 90% 25% / 0.6), transparent 60%);
-  --shadow-glow: 0 0 40px hsl(258 90% 58% / 0.4);
-  --shadow-cosmic: 0 10px 40px -10px hsl(258 90% 58% / 0.5), 0 0 20px hsl(190 95% 50% / 0.2);
-
-  --radius: 0.875rem;
+  --radius: 0.75rem;
 }
 
 .dark {
-  /* Deep space — cosmos.so flat */
-  --background: hsl(240 10% 6%);
-  --foreground: hsl(40 20% 96%);
-  --card: hsl(240 8% 10%);
-  --card-foreground: hsl(240 30% 98%);
-  --popover: hsl(245 40% 6%);
-  --popover-foreground: hsl(240 30% 98%);
-  --primary: hsl(258 90% 66%);
-  --primary-foreground: hsl(245 40% 6%);
-  --secondary: hsl(245 30% 12%);
-  --secondary-foreground: hsl(240 30% 98%);
-  --muted: hsl(245 30% 12%);
-  --muted-foreground: hsl(245 15% 65%);
-  --accent: hsl(190 95% 60%);
-  --accent-foreground: hsl(245 40% 6%);
+  --background: hsl(220 30% 5%);
+  --foreground: hsl(210 40% 98%);
+  --card: hsl(220 25% 8%);
+  --card-foreground: hsl(210 40% 98%);
+  --popover: hsl(220 25% 9%);
+  --popover-foreground: hsl(210 40% 98%);
+  --primary: hsl(220 9% 80%);
+  --primary-foreground: hsl(220 30% 8%);
+  --secondary: hsl(220 15% 14%);
+  --secondary-foreground: hsl(210 40% 98%);
+  --muted: hsl(220 15% 14%);
+  --muted-foreground: hsl(215 10% 60%);
+  --accent: hsl(220 15% 18%);
+  --accent-foreground: hsl(210 20% 90%);
   --destructive: hsl(0 84% 60%);
   --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(245 30% 16%);
-  --input: hsl(245 30% 11%);
-  --ring: hsl(258 90% 66%);
+  --border: hsl(220 12% 16%);
+  --input: hsl(220 15% 12%);
+  --ring: hsl(220 9% 60%);
 }
 
 @theme inline {
@@ -129,10 +117,6 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     width: 100%;
     max-width: 100vw;
-    background-color: hsl(240 10% 6%);
-    background-image:
-      radial-gradient(ellipse 90% 50% at 50% -10%, hsl(258 70% 14% / 0.5), transparent 60%);
-    background-attachment: fixed;
   }
 
   * {
@@ -148,49 +132,6 @@
   /* Font utility classes */
   .font-bagel {
     font-family: 'Bagel Fat One', cursive;
-  }
-
-  .font-cosmic {
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-    letter-spacing: -0.01em;
-  }
-
-  /* Cosmic surface utilities */
-  .cosmic-card {
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(245 40% 9%) 100%);
-    border: 1px solid hsl(var(--border));
-    box-shadow: 0 1px 0 hsl(0 0% 100% / 0.04) inset, 0 10px 30px -15px hsl(245 90% 5% / 0.8);
-  }
-
-  .cosmic-glow {
-    box-shadow: 0 0 30px hsl(258 90% 66% / 0.35), 0 0 60px hsl(190 95% 60% / 0.15);
-  }
-
-  .cosmic-gradient {
-    background: linear-gradient(135deg, hsl(258 90% 66%) 0%, hsl(290 85% 60%) 50%, hsl(190 95% 60%) 100%);
-  }
-
-  .cosmic-text {
-    background: linear-gradient(135deg, hsl(258 90% 78%) 0%, hsl(190 95% 70%) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .cosmic-border {
-    position: relative;
-  }
-  .cosmic-border::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, hsl(258 90% 66% / 0.6), hsl(190 95% 60% / 0.3), transparent 70%);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
-    pointer-events: none;
   }
 
   /* Vertical text for sidebar nav */

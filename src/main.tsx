@@ -32,8 +32,6 @@ import VidRoomPage from "./pages/VidRoom";
 import TagPage from "./pages/Tag";
 import ClansPage from "./pages/Clans";
 import NotFound from "./pages/NotFound";
-import AuthTestPage from "./pages/AuthTest";
-import SearchTestPage from "./pages/SearchTest";
 import "./index.css";
 
 function App() {
@@ -66,8 +64,6 @@ function App() {
         <Route path="/room/:roomId" element={<VidRoomPage />} />
         <Route path="/tag/:tag" element={<TagPage />} />
         <Route path="/clans" element={<ClansPage />} />
-        <Route path="/auth-test" element={<AuthTestPage />} />
-        <Route path="/search-test" element={<SearchTestPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
