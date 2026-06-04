@@ -53,80 +53,82 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Facebook-style top navbar */}
-      <header className="sticky top-0 z-40 bg-card border-b border-border h-14 flex items-center px-2 md:px-4 gap-2">
-        {/* Left: Logo + search */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={sigmaLogo} alt="SIGMA" className="w-9 h-9 rounded-full object-cover" />
-            <span className="hidden sm:inline text-lg font-extrabold tracking-tight">SIGMA</span>
-          </Link>
-          <div className="hidden md:flex relative ml-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search SIGMA"
-              className="pl-9 h-9 w-56 bg-secondary border-0 rounded-full text-sm"
-            />
+      {/* Cosmos-style floating pill chrome */}
+      <header className="sticky top-0 z-40 px-3 md:px-6 pt-3 md:pt-4 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
+        <div className="flex items-center gap-2 md:gap-3">
+          {/* Left pill: logo + segmented nav */}
+          <div className="flex items-center gap-1 bg-card/70 backdrop-blur-xl border border-border rounded-full pl-1.5 pr-1 py-1 shadow-sm">
+            <Link to="/" aria-label="SIGMA home" className="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden">
+              <img src={sigmaLogo} alt="SIGMA" className="w-8 h-8 object-cover" />
+            </Link>
+            <nav className="hidden md:flex items-center gap-0.5 ml-1">
+              {topNav.slice(0, 4).map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => feedback('tap', 6)}
+                    className={`relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="cosmosPill"
+                        className="absolute inset-0 bg-secondary rounded-full"
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
           </div>
-        </div>
 
-        {/* Center: Main nav */}
-        <nav className="hidden md:flex flex-1 items-center justify-center gap-1">
-          {topNav.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                aria-label={item.label}
-                onClick={() => feedback('tap', 6)}
-                className={`group relative flex items-center justify-center h-12 w-24 rounded-lg transition-all active:scale-95 ${
-                  isActive ? 'text-foreground bg-accent/40' : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                }`}
-              >
-                <item.icon className={`w-6 h-6 transition-transform group-hover:scale-110 group-active:scale-90 ${isActive ? 'stroke-[2.5]' : ''}`} />
-                {isActive && (
-                  <motion.span
-                    layoutId="navIndicator"
-                    className="absolute bottom-0 left-2 right-2 h-1 bg-primary rounded-full"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+          {/* Center: search pill */}
+          <div className="flex-1 max-w-2xl mx-auto hidden md:block">
+            <div className="relative">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Try 'live music streams'"
+                className="pl-12 pr-4 h-11 w-full bg-card/70 backdrop-blur-xl border border-border rounded-full text-sm focus-visible:ring-1 focus-visible:ring-primary"
+              />
+            </div>
+          </div>
 
-        {/* Right: Actions */}
-        <div className="ml-auto flex items-center gap-1">
-          <div className="hidden sm:block"><CreateMenu /></div>
-          <ThemeToggle />
-          {user ? (
-            <>
-              <Link to="/messages" className="hidden sm:block">
-                <Button variant="ghost" size="icon" className="rounded-full bg-secondary hover:bg-accent h-9 w-9">
-                  <MessageSquare className="w-5 h-5" />
+          {/* Right pill: actions */}
+          <div className="ml-auto flex items-center gap-1 bg-card/70 backdrop-blur-xl border border-border rounded-full pl-1 pr-1 py-1 shadow-sm">
+            <div className="hidden sm:block"><CreateMenu /></div>
+            <ThemeToggle />
+            {user ? (
+              <>
+                <Link to="/messages" className="hidden sm:block">
+                  <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary h-8 w-8">
+                    <MessageSquare className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <NotificationBell onClick={() => { feedback('pop', 8); setNotifOpen(o => !o); }} count={unreadCount} />
+                <UserDropdownMenu user={user} signOut={signOut} avatarUrl={avatarUrl} />
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button size="sm" className="rounded-full font-semibold h-8 px-4">
+                  <LogIn className="w-4 h-4 mr-1" />Sign In
                 </Button>
               </Link>
-              <NotificationBell onClick={() => { feedback('pop', 8); setNotifOpen(o => !o); }} count={unreadCount} />
-              <UserDropdownMenu user={user} signOut={signOut} avatarUrl={avatarUrl} />
-            </>
-          ) : (
-            <Link to="/auth">
-              <Button size="sm" className="rounded-full font-bold">
-                <LogIn className="w-4 h-4 mr-1" />Sign In
-              </Button>
-            </Link>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden h-9 w-9"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open menu"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-8 w-8 rounded-full"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </header>
 
