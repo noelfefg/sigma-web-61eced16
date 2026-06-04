@@ -63,10 +63,10 @@
 }
 
 .dark {
-  /* Deep space */
-  --background: hsl(245 40% 4%);
-  --foreground: hsl(240 30% 98%);
-  --card: hsl(245 38% 7%);
+  /* Deep space — cosmos.so flat */
+  --background: hsl(240 10% 6%);
+  --foreground: hsl(40 20% 96%);
+  --card: hsl(240 8% 10%);
   --card-foreground: hsl(240 30% 98%);
   --popover: hsl(245 40% 6%);
   --popover-foreground: hsl(240 30% 98%);
