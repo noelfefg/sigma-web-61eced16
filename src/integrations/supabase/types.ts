@@ -144,6 +144,79 @@ export type Database = {
         }
         Relationships: []
       }
+      clan_announcements: {
+        Row: {
+          author_id: string
+          body: string
+          clan_id: string
+          created_at: string
+          id: string
+          pinned: boolean
+        }
+        Insert: {
+          author_id: string
+          body: string
+          clan_id: string
+          created_at?: string
+          id?: string
+          pinned?: boolean
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          clan_id?: string
+          created_at?: string
+          id?: string
+          pinned?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_announcements_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clan_invites: {
+        Row: {
+          clan_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          invitee_id: string
+          inviter_id: string
+          status: string
+        }
+        Insert: {
+          clan_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitee_id: string
+          inviter_id: string
+          status?: string
+        }
+        Update: {
+          clan_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitee_id?: string
+          inviter_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_invites_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clan_members: {
         Row: {
           clan_id: string
@@ -195,6 +268,38 @@ export type Database = {
         }
         Relationships: []
       }
+      clan_war_rounds: {
+        Row: {
+          ends_at: string
+          id: string
+          round_no: number
+          war_id: string
+          winner_clan_id: string | null
+        }
+        Insert: {
+          ends_at: string
+          id?: string
+          round_no: number
+          war_id: string
+          winner_clan_id?: string | null
+        }
+        Update: {
+          ends_at?: string
+          id?: string
+          round_no?: number
+          war_id?: string
+          winner_clan_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_war_rounds_war_id_fkey"
+            columns: ["war_id"]
+            isOneToOne: false
+            referencedRelation: "clan_wars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clan_wars: {
         Row: {
           clan_a: string
@@ -243,39 +348,51 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          level: number
           losses: number
           member_count: number
           name: string
           owner_id: string
           slug: string
+          tag: string | null
+          treasury_coins: number
           visibility: string
           wins: number
+          xp: number
         }
         Insert: {
           banner_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          level?: number
           losses?: number
           member_count?: number
           name: string
           owner_id: string
           slug: string
+          tag?: string | null
+          treasury_coins?: number
           visibility?: string
           wins?: number
+          xp?: number
         }
         Update: {
           banner_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          level?: number
           losses?: number
           member_count?: number
           name?: string
           owner_id?: string
           slug?: string
+          tag?: string | null
+          treasury_coins?: number
           visibility?: string
           wins?: number
+          xp?: number
         }
         Relationships: []
       }

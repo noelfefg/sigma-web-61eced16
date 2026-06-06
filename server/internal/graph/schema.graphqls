@@ -1,0 +1,107 @@
+scalar Time
+
+type User {
+  id: ID!
+  username: String!
+  displayName: String
+  avatarUrl: String
+}
+
+type Clan {
+  id: ID!
+  slug: String!
+  name: String!
+  tag: String
+  description: String
+  bannerUrl: String
+  memberCount: Int!
+  xp: Int!
+  level: Int!
+  treasuryCoins: Int!
+  visibility: String!
+  owner: User
+}
+
+type ClanMember {
+  user: User!
+  role: String!
+  joinedAt: Time!
+}
+
+type ClanWar {
+  id: ID!
+  clanA: Clan!
+  clanB: Clan!
+  status: String!
+  startedAt: Time
+  endsAt: Time
+  scoreA: Int!
+  scoreB: Int!
+  winner: Clan
+}
+
+type Message {
+  id: ID!
+  roomId: ID!
+  sender: User!
+  content: String!
+  createdAt: Time!
+  reactions: [Reaction!]!
+}
+
+type Reaction {
+  emoji: String!
+  count: Int!
+}
+
+type Notification {
+  id: ID!
+  type: String!
+  title: String!
+  body: String
+  link: String
+  imageUrl: String
+  isRead: Boolean!
+  createdAt: Time!
+}
+
+type Query {
+  me: User
+  clan(slug: String!): Clan
+  myClans: [Clan!]!
+  clanMembers(clanId: ID!, limit: Int = 50): [ClanMember!]!
+  clanWar(id: ID!): ClanWar
+  messages(roomId: ID!, before: Time, limit: Int = 50): [Message!]!
+  notifications(limit: Int = 30, unreadOnly: Boolean = false): [Notification!]!
+}
+
+input CreateClanInput {
+  name: String!
+  slug: String!
+  tag: String
+  description: String
+  visibility: String = "public"
+}
+
+input SendMessageInput {
+  roomId: ID!
+  content: String!
+}
+
+type Mutation {
+  createClan(input: CreateClanInput!): Clan!
+  joinClan(clanId: ID!): Boolean!
+  leaveClan(clanId: ID!): Boolean!
+  inviteToClan(clanId: ID!, userId: ID!): Boolean!
+  challengeClan(challengerId: ID!, opponentId: ID!, durationSec: Int = 300): ClanWar!
+  sendMessage(input: SendMessageInput!): Message!
+  reactToMessage(messageId: ID!, emoji: String!): Boolean!
+  markNotificationRead(id: ID!): Boolean!
+  markAllNotificationsRead: Boolean!
+}
+
+type Subscription {
+  messageAdded(roomId: ID!): Message!
+  notificationAdded: Notification!
+  warScoreUpdated(warId: ID!): ClanWar!
+}
