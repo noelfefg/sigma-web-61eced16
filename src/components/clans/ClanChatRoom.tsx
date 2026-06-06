@@ -62,8 +62,8 @@ export function ClanChatRoom({ clanId }: { clanId: string }) {
         <Icon icon={SIGMA_ICONS.clan} size={20} className="text-primary" />
         <span className="font-cosmic">Clan chat</span>
       </header>
-      <ScrollArea className="flex-1" viewportRef={scrollRef as unknown as React.RefObject<HTMLDivElement>}>
-        <div className="px-4 py-3 space-y-2">
+      <ScrollArea className="flex-1">
+        <div ref={scrollRef} className="px-4 py-3 space-y-2">
           {messages.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-8">
               No messages yet — say hi.
