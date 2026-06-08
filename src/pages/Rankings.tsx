@@ -62,8 +62,8 @@ export default function RankingsPage() {
             <LottieIcon name="trophy" size={36} loop autoplay />
           </div>
           <div>
-            <h1 className="text-xl font-black" style={{ color:'#fff' }}>Rankings</h1>
-            <p className="text-xs" style={{ color:'#555' }}>Top creators on SIGMA</p>
+            <h1 className="text-xl font-black text-foreground">Rankings</h1>
+            <p className="text-xs text-muted-foreground">Top creators on SIGMA</p>
           </div>
           <div className="ml-auto">
             <LottieIcon name="stars" size={40} loop autoplay />
@@ -74,8 +74,9 @@ export default function RankingsPage() {
         <div className="flex gap-1.5 mb-6 overflow-x-auto no-scrollbar">
           {tabs.map(([t,l]) => (
             <button key={t} onClick={() => setTab(t)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all"
-              style={{ background: tab===t?'#6b7280':'#1a1a1a', color: tab===t?'#000':'#888' }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all ${
+                tab===t ? 'bg-muted-foreground text-background' : 'bg-card text-muted-foreground'
+              }`}
             >
               <LottieIcon name={TAB_ICONS[t]} size={16} loop autoplay />
               {l}
@@ -86,7 +87,7 @@ export default function RankingsPage() {
         {loading ? (
           <div className="flex flex-col items-center py-12">
             <LottieIcon name="loadingDots" size={80} loop autoplay />
-            <p className="text-sm mt-2" style={{ color:'#555' }}>Loading rankings…</p>
+            <p className="text-sm mt-2 text-muted-foreground">Loading rankings…</p>
           </div>
         ) : data.length === 0 ? (
           <LottieEmptyState name="trophy" title="No rankings yet" description="Start streaming to appear here!" />
@@ -105,21 +106,17 @@ export default function RankingsPage() {
                       {/* Crown/Medal/Star animation above top 3 */}
                       <LottieIcon name={PODIUM_ICONS[i]} size={isFirst ? 40 : 28} loop autoplay />
                       <div className="relative">
-                        <Avatar className={`${isFirst?'w-16 h-16':'w-12 h-12'} rounded-full ring-2`}
-                          style={{ '--tw-ring-color': isFirst?'#6b7280':'#333' } as any}>
+                        <Avatar className={`${isFirst?'w-16 h-16':'w-12 h-12'} rounded-full ring-2 ${isFirst ? 'ring-muted-foreground' : 'ring-border'}`}>
                           <AvatarImage src={u.avatar_url||''}/>
-                          <AvatarFallback style={{background:'#1a1a1a',color:'#6b7280',fontWeight:800}}>{u.display_name[0]?.toUpperCase()}</AvatarFallback>
+                          <AvatarFallback className="bg-card text-muted-foreground font-extrabold">{u.display_name[0]?.toUpperCase()}</AvatarFallback>
                         </Avatar>
                         {u.is_live && (
-                          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#0a0a0a]" style={{background:'#e91916'}}>
-                          </span>
+                          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background bg-red-500" />
                         )}
                       </div>
-                      <p className="text-xs font-bold text-center max-w-[70px] truncate" style={{color:'#e8e8e8'}}>{u.display_name}</p>
-                      <div className={`w-14 ${podiumH} rounded-t-lg flex flex-col items-center justify-end pb-2`}
-                        style={{ background: isFirst?'rgba(180,180,180,0.12)':'#1a1a1a', border:`1px solid ${isFirst?'rgba(180,180,180,0.3)':'#222'}` }}
-                      >
-                        <p className="text-xs font-bold" style={{ color:isFirst?'#6b7280':'#888' }}>{u.score.toLocaleString()}</p>
+                      <p className="text-xs font-bold text-center max-w-[70px] truncate text-foreground">{u.display_name}</p>
+                      <div className={`w-14 ${podiumH} rounded-t-lg flex flex-col items-center justify-end pb-2 ${isFirst ? 'bg-muted-foreground/10 border border-muted-foreground/30' : 'bg-card border border-border'}`}>
+                        <p className="text-xs font-bold text-muted-foreground">{u.score.toLocaleString()}</p>
                       </div>
                     </motion.div>
                   );
@@ -131,28 +128,27 @@ export default function RankingsPage() {
             <div className="space-y-1.5">
               {rest.map((u,i) => (
                 <motion.div key={u.id} initial={{opacity:0,x:-10}} animate={{opacity:1,x:0}} transition={{delay:i*0.03}}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#161616] transition-colors"
-                  style={{ background:'#111' }}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-card hover:bg-accent transition-colors"
                 >
-                  <span className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shrink-0" style={{background:'#1a1a1a',color:'#555'}}>#{u.rank}</span>
+                  <span className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shrink-0 bg-secondary text-muted-foreground">#{u.rank}</span>
                   <Avatar className="w-9 h-9 rounded-full shrink-0">
                     <AvatarImage src={u.avatar_url||''}/>
-                    <AvatarFallback style={{background:'#1a1a1a',color:'#6b7280',fontWeight:800}}>{u.display_name[0]?.toUpperCase()}</AvatarFallback>
+                    <AvatarFallback className="bg-card text-muted-foreground font-extrabold">{u.display_name[0]?.toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <Link to={`/channel/${u.username}`}>
-                      <p className="text-sm font-semibold truncate" style={{color:'#e8e8e8'}}>{u.display_name}</p>
-                      <p className="text-xs" style={{color:'#555'}}>@{u.username}</p>
+                      <p className="text-sm font-semibold truncate text-foreground">{u.display_name}</p>
+                      <p className="text-xs text-muted-foreground">@{u.username}</p>
                     </Link>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <LottieIcon name={TAB_ICONS[tab]} size={20} loop autoplay />
                     <div className="text-right">
-                      <p className="text-sm font-bold" style={{color:'#6b7280'}}>{u.score.toLocaleString()}</p>
-                      <p className="text-[10px]" style={{color:'#555'}}>{u.label}</p>
+                      <p className="text-sm font-bold text-muted-foreground">{u.score.toLocaleString()}</p>
+                      <p className="text-[10px] text-muted-foreground">{u.label}</p>
                     </div>
                   </div>
-                  {u.is_live && <span className="text-[9px] font-black px-1.5 py-0.5 rounded" style={{background:'#ef4444',color:'#fff'}}>LIVE</span>}
+                  {u.is_live && <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-destructive text-destructive-foreground">LIVE</span>}
                 </motion.div>
               ))}
             </div>

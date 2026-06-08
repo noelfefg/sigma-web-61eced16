@@ -48,6 +48,7 @@ export default {
   			]
   		},
   		colors: {
+  			black: '#282828',
   			border: 'var(--border)',
   			input: 'var(--input)',
   			ring: 'var(--ring)',
