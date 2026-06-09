@@ -501,6 +501,70 @@
   }
   .spotlight-card:hover::before { opacity: 1; }
 
+  /* Shine sweep — diagonal light streak across cards on hover */
+  .shine-sweep { position: relative; overflow: hidden; }
+  .shine-sweep::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -150%;
+    width: 80%; height: 100%;
+    background: linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(255,255,255,0) 30%,
+      rgba(255,255,255,0.18) 50%,
+      rgba(255,255,255,0) 70%,
+      transparent 100%
+    );
+    transform: skewX(-20deg);
+    transition: left 0.8s cubic-bezier(0.22,1,0.36,1);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .shine-sweep:hover::after { left: 150%; }
+
+  /* 3D tilt lift */
+  .tilt-3d {
+    transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.45s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .tilt-3d:hover {
+    transform: perspective(900px) rotateX(4deg) rotateY(-4deg) translateY(-6px) scale(1.03);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+  }
+
+  /* Aurora text gradient */
+  @keyframes aurora-flow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .text-aurora {
+    background: linear-gradient(120deg, #a78bfa, #f0abfc, #67e8f9, #a78bfa);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: aurora-flow 6s ease-in-out infinite;
+  }
+
+  /* Live dot ripple */
+  @keyframes live-ripple {
+    0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+    100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+  }
+  .live-ripple { animation: live-ripple 1.6s ease-out infinite; }
+
+  /* Bookmark heartbeat */
+  @keyframes pop-in {
+    0% { transform: scale(0.8); opacity: 0; }
+    60% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .pop-in { animation: pop-in 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+
+
   /* Global animation slowdowns */
   .animate-pulse {
     animation-duration: 8s !important;
