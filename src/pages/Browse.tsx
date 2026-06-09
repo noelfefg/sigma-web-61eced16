@@ -71,10 +71,10 @@ export default function BrowsePage() {
       <div className="max-w-[1400px] mx-auto px-3 md:px-6 py-4 space-y-5">
         {/* Back arrow + title */}
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
-          <Link to="/" className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center hover:bg-accent transition-colors">
+          <Link to="/" className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center hover:bg-accent transition-all hover:-translate-x-0.5 hover:scale-110">
             <ChevronDown className="w-4 h-4 rotate-90 text-foreground" />
           </Link>
-          <h1 className="text-xl font-black text-foreground tracking-tight">Discover</h1>
+          <h1 className="text-xl font-black tracking-tight text-aurora">Discover</h1>
         </motion.div>
 
         {/* Search Bar - VidBox full width */}
