@@ -151,46 +151,46 @@ export default function BrowsePage() {
                 {filteredStreams.map((stream, i) => (
                   <motion.div
                     key={stream.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 30, scale: 0.92, filter: 'blur(8px)' }}
+                    animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ delay: i * 0.03, duration: 0.25 }}
+                    transition={{ delay: i * 0.04, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                     layout
                   >
                     <Link to={`/watch/${stream.profiles.username}`} className="group block">
-                      <div className="rounded-xl overflow-hidden bg-card border border-border/30 hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5">
+                      <div className="tilt-3d shine-sweep rounded-xl overflow-hidden bg-card border border-border/30 hover:border-primary/50">
                         <div className="relative aspect-[2/3] overflow-hidden">
                           {stream.thumbnail_url ? (
-                            <img src={stream.thumbnail_url} alt={stream.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <img src={stream.thumbnail_url} alt={stream.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary to-accent/5 flex items-center justify-center">
-                              <Video className="w-8 h-8 text-muted-foreground/20" />
+                              <Video className="w-8 h-8 text-muted-foreground/20 float-gentle" />
                             </div>
                           )}
 
                           {/* Viewer count badge */}
                           {stream.viewer_count > 0 && (
-                            <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 bg-black/70 backdrop-blur-sm text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
+                            <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 bg-black/70 backdrop-blur-sm text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                               {formatViewerCount(stream.viewer_count)} viewers
                             </div>
                           )}
 
                           {/* Bookmark - top left */}
-                          <button className="absolute top-1.5 left-1.5 w-6 h-6 rounded bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/60 hover:text-white transition-colors">
+                          <button className="absolute top-1.5 left-1.5 w-6 h-6 rounded bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/60 hover:text-white hover:scale-125 active:scale-90 transition-all duration-200">
                             <Bookmark className="w-3 h-3" />
                           </button>
 
                           {/* LIVE badge */}
                           <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1">
                             <span className="bg-destructive text-destructive-foreground text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                              <span className="w-1 h-1 bg-white rounded-full animate-pulse" /> LIVE
+                              <span className="w-1 h-1 bg-white rounded-full live-ripple" /> LIVE
                             </span>
                             <span className="bg-black/60 backdrop-blur-sm text-white text-[9px] px-1.5 py-0.5 rounded flex items-center gap-0.5">
                               <Eye className="w-2.5 h-2.5" /> {formatViewerCount(stream.viewer_count)}
                             </span>
                           </div>
 
-                          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
+                          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
                         </div>
                         <div className="p-2">
                           <h3 className="font-semibold text-[11px] text-foreground truncate group-hover:text-primary transition-colors">{stream.title}</h3>
