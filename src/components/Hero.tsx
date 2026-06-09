@@ -346,19 +346,40 @@ export function Hero() {
 
 
 
+      {/* Floating orbs for depth */}
+      <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+        <div className="float-orb absolute top-1/4 left-1/3 w-72 h-72 rounded-full bg-white/5 blur-3xl" />
+        <div className="float-orb absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-red-500/10 blur-3xl" style={{ animationDelay: '-7s' }} />
+      </div>
+
       {/* Big Studio Title - Lower Left */}
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1, delay: 1.5 }}
+        transition={{ duration: 1, delay: 0.8 }}
         className="absolute bottom-12 left-6 sm:left-8 lg:left-12 z-40"
       >
         <div className="max-w-2xl">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight text-white">
-            <span className="block">AI FILM</span>
-            <span className="block">PRODUCTION</span>
-            <span className="block">WITHOUT LIMITS</span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight">
+            {['AI FILM', 'PRODUCTION', 'WITHOUT LIMITS'].map((line, lineIdx) => (
+              <span key={line} className="block overflow-hidden">
+                <motion.span
+                  className={`block ${lineIdx === 2 ? 'text-aurora' : 'text-white'}`}
+                  initial={{ y: '110%', filter: 'blur(12px)' }}
+                  animate={{ y: '0%', filter: 'blur(0px)' }}
+                  transition={{ duration: 1, delay: 1 + lineIdx * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {line}
+                </motion.span>
+              </span>
+            ))}
           </h1>
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 1.2, delay: 1.8, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 h-px w-32 bg-gradient-to-r from-white via-white/50 to-transparent origin-left"
+          />
         </div>
       </motion.div>
 

@@ -6,6 +6,7 @@ import { Services } from './components/Services'
 import { Team } from './components/Team'
 import { Contact } from './components/Contact'
 import { Footer } from './components/Footer'
+import { Reveal } from './components/animations/Reveal'
 
 export default function App() {
   return (
@@ -15,22 +16,22 @@ export default function App() {
           <Hero />
         </section>
         <section id="portfolio" aria-label="Portfolio section">
-          <Portfolio />
+          <Reveal direction="blur"><Portfolio /></Reveal>
         </section>
         <section id="awards" aria-label="Awards section">
-          <Awards />
+          <Reveal direction="up" delay={0.05}><Awards /></Reveal>
         </section>
         <section id="about" aria-label="About section">
-          <About />
+          <Reveal direction="blur"><About /></Reveal>
         </section>
         <section id="services" aria-label="Services section">
-          <Services />
+          <Reveal direction="up"><Services /></Reveal>
         </section>
         <section id="team" aria-label="Team section" style={{ overflow: 'visible', height: 'auto', minHeight: '0', maxHeight: 'none' }}>
-          <Team />
+          <Reveal direction="scale"><Team /></Reveal>
         </section>
         <section id="contact" aria-label="Contact section">
-          <Contact />
+          <Reveal direction="blur"><Contact /></Reveal>
         </section>
       </main>
       <Footer />
