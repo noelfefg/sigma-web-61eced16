@@ -31,7 +31,6 @@ import ProfilePage from "./pages/Profile";
 import VidRoomPage from "./pages/VidRoom";
 import TagPage from "./pages/Tag";
 import ClansPage from "./pages/Clans";
-import ClansPage from "./pages/Clans";
 import OAuthConsent from "./pages/OAuthConsent";
 import NotFound from "./pages/NotFound";
 import "./index.css";
