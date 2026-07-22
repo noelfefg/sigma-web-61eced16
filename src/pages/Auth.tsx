@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useSearchParams, Link, Navigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,13 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import LineWaves from '@/components/LineWaves';
+
+// Only allow same-origin relative paths as post-auth redirect target.
+function safeNext(raw: string | null): string {
+  if (!raw) return '/you';
+  if (!raw.startsWith('/') || raw.startsWith('//')) return '/you';
+  return raw;
+}
 
 export default function AuthPage() {
   const { user, loading: authLoading, signIn, signUp } = useAuth();
@@ -18,11 +25,13 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const next = safeNext(params.get('next'));
   const { toast } = useToast();
 
-  // If already signed in, bounce to /you immediately (prevents flash + missing You access)
+  // If already signed in, honor `next` (e.g. OAuth consent page) or /you.
   if (!authLoading && user) {
-    return <Navigate to="/you" replace />;
+    return <Navigate to={next} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,16 +42,17 @@ export default function AuthPage() {
         const { error } = await signIn(email, password);
         if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
         toast({ title: 'Welcome back!', description: 'Signed in successfully.' });
-        navigate('/you', { replace: true });
+        navigate(next, { replace: true });
       } else {
         if (!username.trim()) { toast({ title: 'Error', description: 'Username is required', variant: 'destructive' }); return; }
         const { error } = await signUp(email, password, username);
         if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
         toast({ title: 'Account created!', description: 'Welcome to SIGMA!' });
-        navigate('/you', { replace: true });
+        navigate(next, { replace: true });
       }
     } finally { setLoading(false); }
   };
+
 
   return (
     <div className="min-h-screen w-full relative bg-black text-white">
