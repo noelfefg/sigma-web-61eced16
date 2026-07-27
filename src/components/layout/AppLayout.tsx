@@ -1,9 +1,9 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Users, LogIn, User, Bell, Search, ImageIcon, MessageSquare, UserCircle, Play, Mail, Settings, Menu, X } from 'lucide-react';
+import { Home, Compass, Users, LogIn, MessageSquare, UserCircle, Radio, Mail, Settings, MessageSquareHeart, Menu, X } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { UserSearch } from '@/components/layout/UserSearch';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,17 +21,16 @@ interface AppLayoutProps {
 
 const topNav = [
   { icon: Home, label: 'Home', path: '/' },
-  { icon: Compass, label: 'Browse', path: '/browse' },
-  { icon: Play, label: 'Lil Vids', path: '/shorts' },
-  { icon: ImageIcon, label: 'Feed', path: '/feed' },
+  { icon: Compass, label: 'Streams', path: '/browse' },
   { icon: Users, label: 'Following', path: '/following' },
+  { icon: Mail, label: 'Messages', path: '/messages' },
   { icon: UserCircle, label: 'You', path: '/you' },
 ];
 
 const moreNav = [
-  { icon: Mail, label: 'Messages', path: '/messages' },
+  { icon: Radio, label: 'Go Live', path: '/go-live' },
   { icon: Settings, label: 'Settings', path: '/settings' },
-  { icon: UserCircle, label: 'You', path: '/you' },
+  { icon: MessageSquareHeart, label: 'Feedback', path: '/feedback' },
 ];
 
 export function AppLayout({ children }: AppLayoutProps) {
@@ -61,13 +60,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <img src={sigmaLogo} alt="SIGMA" className="w-9 h-9 rounded-full object-cover" />
             <span className="hidden sm:inline text-lg font-extrabold tracking-tight">SIGMA</span>
           </Link>
-          <div className="hidden md:flex relative ml-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search SIGMA"
-              className="pl-9 h-9 w-56 bg-secondary border-0 rounded-full text-sm"
-            />
-          </div>
+          <UserSearch className="hidden md:block w-56 ml-2" />
         </div>
 
         {/* Center: Main nav */}
@@ -137,7 +130,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Mobile bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card border-t border-border flex items-center justify-around h-14">
-        {[...topNav.slice(0, 4), { icon: UserCircle, label: 'You', path: '/you' }].map((item) => {
+        {topNav.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
@@ -167,10 +160,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <X className="w-5 h-5" />
               </Button>
             </div>
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Search" className="pl-9 bg-secondary border-0 rounded-full h-10" />
-            </div>
+            <UserSearch className="mb-4" />
             <nav className="flex flex-col gap-1">
               {[...topNav, ...moreNav].map((item) => {
                 const isActive = location.pathname === item.path;
@@ -194,7 +184,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary">
                   <Avatar className="w-10 h-10">
                     <AvatarImage src={avatarUrl || ''} />
-                    <AvatarFallback><User className="w-5 h-5" /></AvatarFallback>
+                    <AvatarFallback><UserCircle className="w-5 h-5" /></AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate">{user.email?.split('@')[0]}</p>

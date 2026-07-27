@@ -73,44 +73,23 @@ export function UserDropdownMenu({ user, signOut, avatarUrl }: UserDropdownMenuP
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/gifts" className="flex items-center gap-2.5 px-3 py-2 cursor-pointer">
-            <Gift className="w-4 h-4 text-muted-foreground" />
-            <span>Drops & Rewards</span>
-          </Link>
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator className="bg-border/50" />
-        
-        <DropdownMenuItem asChild>
-          <Link to="/profile" className="flex items-center gap-2.5 px-3 py-2 cursor-pointer">
+          <Link to="/you" className="flex items-center gap-2.5 px-3 py-2 cursor-pointer">
             <Crown className="w-4 h-4 text-muted-foreground" />
-            <span>Subscriptions</span>
+            <span>Your page</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/profile" className="flex items-center gap-2.5 px-3 py-2 cursor-pointer">
-            <Wallet className="w-4 h-4 text-muted-foreground" />
-            <span>Wallet</span>
-          </Link>
-        </DropdownMenuItem>
-        
+
         <DropdownMenuSeparator className="bg-border/50" />
-        
+
         <DropdownMenuItem asChild>
-          <Link to="/profile" className="flex items-center gap-2.5 px-3 py-2 cursor-pointer">
+          <Link to="/settings" className="flex items-center gap-2.5 px-3 py-2 cursor-pointer">
             <Settings className="w-4 h-4 text-muted-foreground" />
             <span>Settings</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/profile" className="flex items-center gap-2.5 px-3 py-2 cursor-pointer">
-            <Shield className="w-4 h-4 text-muted-foreground" />
-            <span>Privacy Center</span>
-          </Link>
-        </DropdownMenuItem>
-        
+
         <DropdownMenuSeparator className="bg-border/50" />
-        
+
         <div className="flex items-center justify-between px-3 py-2">
           <div className="flex items-center gap-2.5">
             {theme === 'dark' ? <Moon className="w-4 h-4 text-muted-foreground" /> : <Sun className="w-4 h-4 text-muted-foreground" />}

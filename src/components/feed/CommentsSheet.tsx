@@ -7,7 +7,6 @@ import { User, Send, MessageCircle, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
-import { ReportButton } from '@/components/shared/ReportButton';
 
 interface CommentsSheetProps { postId: string | null; open: boolean; onClose: () => void; }
 interface Comment {
@@ -79,7 +78,6 @@ export function CommentsSheet({ postId, open, onClose }: CommentsSheetProps) {
                 </button>
               )}
               <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <ReportButton targetType="comment" targetId={c.id} variant="inline" className="h-6 px-1 text-xs" />
               </span>
             </div>
           </div>

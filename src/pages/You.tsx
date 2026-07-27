@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Video, Heart, Clock, Settings, Eye, LogIn, ImagePlus, Trash2, Upload, X, Pencil, Camera, BarChart3 } from 'lucide-react';
+import { Video, Users, Settings, Eye, LogIn, ImagePlus, Trash2, Upload, X, Pencil, Camera, Mail } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +11,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { CreatorAnalytics } from '@/components/analytics/CreatorAnalytics';
 
 interface ProfileData {
   id: string;
@@ -37,8 +36,6 @@ interface GalleryImage {
   created_at: string;
 }
 
-type YouTab = 'overview' | 'analytics';
-
 export default function YouPage() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -61,7 +58,6 @@ export default function YouPage() {
   const [editUsername, setEditUsername] = useState('');
   const [editBio, setEditBio] = useState('');
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<YouTab>('overview');
 
   useEffect(() => {
     async function fetchData() {
@@ -164,7 +160,7 @@ export default function YouPage() {
 
   if (!user) return (
     <AppLayout><div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
-      <User className="w-16 h-16 text-muted-foreground mb-4" />
+      <Video className="w-16 h-16 text-muted-foreground mb-4" />
       <h1 className="text-2xl font-bold text-foreground mb-2">Your Channel</h1>
       <p className="text-muted-foreground text-center max-w-md mb-6">Sign in to manage your channel and see your content</p>
       <Link to="/auth"><Button><LogIn className="w-4 h-4 mr-2" />Sign In</Button></Link>
@@ -172,14 +168,9 @@ export default function YouPage() {
   );
 
   const sections = [
-    { icon: Video, label: 'Your videos', count: streams.length, link: `/channel/${profile?.username}` },
-    { icon: Heart, label: 'Liked videos', count: 0, link: '/feed' },
-    { icon: Clock, label: 'Watch history', count: 0, link: '/browse' },
-  ];
-
-  const youTabs = [
-    { id: 'overview' as const, label: 'Overview', icon: User },
-    { id: 'analytics' as const, label: 'Analytics', icon: BarChart3 },
+    { icon: Video, label: 'Your streams', count: streams.length, link: `/channel/${profile?.username}` },
+    { icon: Users, label: 'Following', count: followingCount, link: '/following' },
+    { icon: Mail, label: 'Messages', count: 0, link: '/messages' },
   ];
 
   return (
@@ -256,20 +247,7 @@ export default function YouPage() {
             </DialogContent>
           </Dialog>
 
-          {/* Tab Navigation */}
-          <div className="flex bg-secondary/50 rounded-2xl p-1">
-            {youTabs.map(t => (
-              <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-xl transition-all ${activeTab === t.id ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}>
-                <t.icon className="w-4 h-4" />{t.label}
-              </button>
-            ))}
-          </div>
-
-          {activeTab === 'analytics' ? (
-            <CreatorAnalytics />
-          ) : (
-            <>
+          <>
               {/* Quick Sections */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {sections.map((s, i) => (
@@ -278,7 +256,7 @@ export default function YouPage() {
                       className="bg-card rounded-xl p-4 hover:bg-accent/30 transition-colors cursor-pointer group">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors"><s.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" /></div>
-                        <div><p className="text-sm font-medium text-foreground">{s.label}</p><p className="text-xs text-muted-foreground">{s.count} items</p></div>
+                        <div><p className="text-sm font-medium text-foreground">{s.label}</p><p className="text-xs text-muted-foreground">{s.count}</p></div>
                       </div>
                     </motion.div>
                   </Link>
@@ -323,8 +301,7 @@ export default function YouPage() {
                   </div>
                 )}
               </section>
-            </>
-          )}
+          </>
         </div>
       </div>
     </AppLayout>

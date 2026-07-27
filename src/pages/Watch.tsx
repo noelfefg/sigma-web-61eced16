@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Heart, Share2, Users, Send, Maximize2, Volume2, VolumeX, Play, Pause, MessageSquare, Loader2, Camera, UsersRound, X, ThumbsUp, ThumbsDown, Download, Bookmark, MoreHorizontal, ChevronDown } from 'lucide-react';
+import { Share2, Users, Send, Maximize2, Volume2, VolumeX, Play, Pause, MessageSquare, Loader2, Camera, X, MoreHorizontal, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -8,14 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { GiftOverlay, GiftNotification } from '@/components/stream/GiftOverlay';
 import { LiveReactions } from '@/components/stream/LiveReactions';
-import { StreamGiftPanel } from '@/components/stream/StreamGiftPanel';
-import { StreamPoll } from '@/components/stream/StreamPoll';
-import { AIStreamAssistant, filterToxicMessage } from '@/components/stream/AIStreamAssistant';
 import { StreamPlayer } from '@/components/stream/StreamPlayer';
-import { TopFansPanel } from '@/components/stream/TopFansPanel';
-import { ReportButton } from '@/components/shared/ReportButton';
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
@@ -47,13 +41,8 @@ export default function WatchPage() {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [chatOpen, setChatOpen] = useState(true);
-  const [giftNotifications, setGiftNotifications] = useState<GiftNotification[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [isOwnStream, setIsOwnStream] = useState(false);
-  const [moderationEnabled, setModerationEnabled] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [disliked, setDisliked] = useState(false);
-  const [saved, setSaved] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -95,17 +84,27 @@ export default function WatchPage() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-  const handleRemoveNotification = useCallback((id: string) => {
-    setGiftNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
+  // Realtime stream chat
+  useEffect(() => {
+    if (!streamData) return;
+    const channel = supabase
+      .channel(`stream-chat-${streamData.id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `stream_id=eq.${streamData.id}` }, async (payload) => {
+        const row: any = payload.new;
+        const { data: prof } = await supabase.from('profiles').select('username, display_name, avatar_url').eq('id', row.user_id).maybeSingle();
+        setMessages((prev) => prev.some((m) => m.id === row.id) ? prev : [...prev, {
+          id: row.id, message: row.message, created_at: row.created_at,
+          profiles: { username: prof?.username || 'user', display_name: prof?.display_name || 'user', avatar_url: prof?.avatar_url ?? null },
+        }]);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [streamData]);
 
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || !user || !streamData) return;
     const { error } = await supabase.from('chat_messages').insert({ stream_id: streamData.id, user_id: user.id, message: chatMessage.trim() });
-    if (!error) {
-      setMessages((prev) => [...prev, { id: Date.now().toString(), message: chatMessage.trim(), created_at: new Date().toISOString(), profiles: { username: user.email?.split('@')[0] || 'user', display_name: user.email?.split('@')[0] || 'user' } }]);
-      setChatMessage('');
-    }
+    if (!error) setChatMessage('');
   };
 
   const handleFollow = async () => {
@@ -150,8 +149,6 @@ export default function WatchPage() {
                 </div>
               </div>
             )}
-
-            <GiftOverlay notifications={giftNotifications} onRemove={handleRemoveNotification} />
 
             {/* Live badge + viewers overlay */}
             <div className="absolute top-3 left-3 flex items-center gap-2">
@@ -215,58 +212,17 @@ export default function WatchPage() {
                 </Button>
               </div>
 
-              {/* Right: action buttons row */}
+              {/* Right: action buttons */}
               <div className="flex items-center gap-2 flex-wrap">
-                {/* Like / Dislike pill */}
-                <div className="flex items-center bg-secondary rounded-full overflow-hidden">
-                  <button
-                    onClick={() => { setLiked(!liked); if (disliked) setDisliked(false); }}
-                    className={`flex items-center gap-1.5 px-4 h-9 text-sm font-medium hover:bg-accent transition-colors ${liked ? 'text-primary' : 'text-foreground'}`}
-                  >
-                    <ThumbsUp className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
-                    {streamData.viewer_count > 0 ? formatViewerCount(streamData.viewer_count) : ''}
-                  </button>
-                  <div className="w-px h-5 bg-border" />
-                  <button
-                    onClick={() => { setDisliked(!disliked); if (liked) setLiked(false); }}
-                    className={`flex items-center px-3 h-9 hover:bg-accent transition-colors ${disliked ? 'text-primary' : 'text-foreground'}`}
-                  >
-                    <ThumbsDown className={`w-4 h-4 ${disliked ? 'fill-current' : ''}`} />
-                  </button>
-                </div>
-
-                <Button variant="secondary" size="sm" className="rounded-full gap-1.5 h-9">
-                  <Share2 className="w-4 h-4" />Share
-                </Button>
-                <Button variant="secondary" size="sm" className="rounded-full gap-1.5 h-9">
-                  <Download className="w-4 h-4" />Download
-                </Button>
                 <Button
                   variant="secondary"
                   size="sm"
-                  className={`rounded-full gap-1.5 h-9 ${saved ? 'text-primary' : ''}`}
-                  onClick={() => setSaved(!saved)}
+                  className="rounded-full gap-1.5 h-9"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                  }}
                 >
-                  <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />Save
-                </Button>
-
-                <Link to={`/room/${streamData.id}`}>
-                  <Button variant="secondary" size="sm" className="rounded-full gap-1.5 h-9">
-                    <UsersRound className="w-4 h-4" />Watch Together
-                  </Button>
-                </Link>
-
-                <StreamGiftPanel
-                  senderName={user?.email?.split('@')[0] || 'Anonymous'}
-                  recipientId={streamData.profiles.id}
-                  contextType="stream"
-                  contextId={streamData.id}
-                  onSendGift={(n) => setGiftNotifications(prev => [...prev, n])}
-                />
-                <ReportButton targetType="stream" targetId={streamData.id} variant="inline" className="rounded-full h-9" />
-
-                <Button variant="secondary" size="icon" className="rounded-full h-9 w-9">
-                  <MoreHorizontal className="w-4 h-4" />
+                  <Share2 className="w-4 h-4" />Share
                 </Button>
               </div>
             </div>
@@ -279,14 +235,7 @@ export default function WatchPage() {
               </div>
             )}
 
-            {/* Reactions, Poll & Top Fans */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <div className="lg:col-span-2 space-y-3">
-                <LiveReactions />
-                <StreamPoll streamId={streamData.id} isOwner={isOwnStream} />
-              </div>
-              <TopFansPanel contextType="stream" contextId={streamData.id} />
-            </div>
+            <LiveReactions />
           </div>
         </div>
 
@@ -312,7 +261,7 @@ export default function WatchPage() {
             {/* Chat messages */}
             <ScrollArea className="flex-1">
               <div className="px-4 py-2 space-y-3">
-                {messages.filter(msg => !moderationEnabled || !filterToxicMessage(msg.message)).map((msg) => (
+                {messages.map((msg) => (
                   <div key={msg.id} className="flex items-start gap-2 group">
                     <Avatar className="h-6 w-6 mt-0.5 shrink-0">
                       <AvatarFallback className="text-[10px] bg-secondary">
@@ -370,7 +319,6 @@ export default function WatchPage() {
           </Button>
         )}
 
-        <AIStreamAssistant onToggleModeration={setModerationEnabled} />
       </div>
     </AppLayout>
   );
