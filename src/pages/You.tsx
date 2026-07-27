@@ -160,7 +160,7 @@ export default function YouPage() {
 
   if (!user) return (
     <AppLayout><div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
-      <User className="w-16 h-16 text-muted-foreground mb-4" />
+      <Video className="w-16 h-16 text-muted-foreground mb-4" />
       <h1 className="text-2xl font-bold text-foreground mb-2">Your Channel</h1>
       <p className="text-muted-foreground text-center max-w-md mb-6">Sign in to manage your channel and see your content</p>
       <Link to="/auth"><Button><LogIn className="w-4 h-4 mr-2" />Sign In</Button></Link>

@@ -8,7 +8,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
-import { ReportButton } from '@/components/shared/ReportButton';
 
 interface PostCardProps {
   post: {
@@ -70,7 +69,6 @@ export function PostCard({ post, likeCount, commentCount, isLiked: initialLiked,
               {formatDistanceToNow(new Date(post.created_at), { addSuffix: false })}
             </span>
             <div className="ml-auto flex items-center">
-              <ReportButton targetType="post" targetId={post.id} variant="icon" className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary" />
               <Button variant="ghost" size="icon" className="text-muted-foreground h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary">
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
