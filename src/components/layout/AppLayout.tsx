@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Users, LogIn, User, Bell, Search, ImageIcon, MessageSquare, UserCircle, Play, Mail, Settings, Menu, X } from 'lucide-react';
+import { Home, Compass, Users, LogIn, Search, MessageSquare, UserCircle, Radio, Mail, Settings, MessageSquareHeart, Menu, X } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,17 +21,16 @@ interface AppLayoutProps {
 
 const topNav = [
   { icon: Home, label: 'Home', path: '/' },
-  { icon: Compass, label: 'Browse', path: '/browse' },
-  { icon: Play, label: 'Lil Vids', path: '/shorts' },
-  { icon: ImageIcon, label: 'Feed', path: '/feed' },
+  { icon: Compass, label: 'Streams', path: '/browse' },
   { icon: Users, label: 'Following', path: '/following' },
+  { icon: Mail, label: 'Messages', path: '/messages' },
   { icon: UserCircle, label: 'You', path: '/you' },
 ];
 
 const moreNav = [
-  { icon: Mail, label: 'Messages', path: '/messages' },
+  { icon: Radio, label: 'Go Live', path: '/go-live' },
   { icon: Settings, label: 'Settings', path: '/settings' },
-  { icon: UserCircle, label: 'You', path: '/you' },
+  { icon: MessageSquareHeart, label: 'Feedback', path: '/feedback' },
 ];
 
 export function AppLayout({ children }: AppLayoutProps) {
@@ -137,7 +136,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Mobile bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card border-t border-border flex items-center justify-around h-14">
-        {[...topNav.slice(0, 4), { icon: UserCircle, label: 'You', path: '/you' }].map((item) => {
+        {topNav.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
