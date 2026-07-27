@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Heart, Share2, Users, Send, Maximize2, Volume2, VolumeX, Play, Pause, MessageSquare, Loader2, Camera, UsersRound, X, ThumbsUp, ThumbsDown, Download, Bookmark, MoreHorizontal, ChevronDown } from 'lucide-react';
+import { Share2, Users, Send, Maximize2, Volume2, VolumeX, Play, Pause, MessageSquare, Loader2, Camera, X, MoreHorizontal, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -84,13 +84,27 @@ export default function WatchPage() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
+  // Realtime stream chat
+  useEffect(() => {
+    if (!streamData) return;
+    const channel = supabase
+      .channel(`stream-chat-${streamData.id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `stream_id=eq.${streamData.id}` }, async (payload) => {
+        const row: any = payload.new;
+        const { data: prof } = await supabase.from('profiles').select('username, display_name, avatar_url').eq('id', row.user_id).maybeSingle();
+        setMessages((prev) => prev.some((m) => m.id === row.id) ? prev : [...prev, {
+          id: row.id, message: row.message, created_at: row.created_at,
+          profiles: { username: prof?.username || 'user', display_name: prof?.display_name || 'user', avatar_url: prof?.avatar_url ?? null },
+        }]);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [streamData]);
+
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || !user || !streamData) return;
     const { error } = await supabase.from('chat_messages').insert({ stream_id: streamData.id, user_id: user.id, message: chatMessage.trim() });
-    if (!error) {
-      setMessages((prev) => [...prev, { id: Date.now().toString(), message: chatMessage.trim(), created_at: new Date().toISOString(), profiles: { username: user.email?.split('@')[0] || 'user', display_name: user.email?.split('@')[0] || 'user' } }]);
-      setChatMessage('');
-    }
+    if (!error) setChatMessage('');
   };
 
   const handleFollow = async () => {
