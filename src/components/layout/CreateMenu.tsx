@@ -1,27 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ImageIcon, Video, Play, Radio, UsersRound, Hash, UserPlus, Camera, Gift, Trophy, ShoppingBag, Tv, MessageSquareHeart, Flag, Feather } from 'lucide-react';
+import { Plus, ImageIcon, Radio, Mail, Settings, MessageSquareHeart, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const createOptions = [
-  { icon: ImageIcon, label: 'Post', description: 'Share a photo or text', path: '/feed' },
-  { icon: Video, label: 'Video', description: 'Upload a video', path: '/feed' },
-  { icon: Play, label: 'Lil Vid', description: 'Create a short clip', path: '/shorts' },
-  { icon: Radio, label: 'Go Live', description: 'Start streaming', path: '/go-live' },
+  { icon: ImageIcon, label: 'Post', description: 'Share a photo, video or text', path: '/' },
+  { icon: Radio, label: 'Go Live', description: 'Start a livestream', path: '/go-live' },
 ];
 
 const moreOptions = [
-  { icon: UsersRound, label: 'Community', path: '/community' },
-  { icon: Hash, label: 'Chat Rooms', path: '/chat' },
-  { icon: UserPlus, label: 'Friends', path: '/friends' },
-  { icon: Camera, label: 'Sigma Cam', path: '/camera' },
-  { icon: Gift, label: 'Gifts', path: '/gifts' },
-  { icon: Trophy, label: 'Rankings', path: '/rankings' },
-  { icon: ShoppingBag, label: 'Store', path: '/store' },
-  { icon: Tv, label: 'Creator Studio', path: '/studio' },
+  { icon: UserCircle, label: 'Your channel', path: '/you' },
+  { icon: Mail, label: 'Messages', path: '/messages' },
+  { icon: Settings, label: 'Settings', path: '/settings' },
   { icon: MessageSquareHeart, label: 'Feedback', path: '/feedback' },
-  { icon: Flag, label: 'Report', path: '/report' },
 ];
 
 interface CreateMenuProps {
