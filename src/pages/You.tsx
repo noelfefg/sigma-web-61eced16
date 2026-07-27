@@ -301,8 +301,7 @@ export default function YouPage() {
                   </div>
                 )}
               </section>
-            </>
-          )}
+          </>
         </div>
       </div>
     </AppLayout>
