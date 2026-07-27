@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Video, Heart, Clock, Settings, Eye, LogIn, ImagePlus, Trash2, Upload, X, Pencil, Camera, BarChart3 } from 'lucide-react';
+import { Video, Users, Settings, Eye, LogIn, ImagePlus, Trash2, Upload, X, Pencil, Camera, Mail } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +11,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { CreatorAnalytics } from '@/components/analytics/CreatorAnalytics';
 
 interface ProfileData {
   id: string;
@@ -36,8 +35,6 @@ interface GalleryImage {
   caption: string | null;
   created_at: string;
 }
-
-type YouTab = 'overview' | 'analytics';
 
 export default function YouPage() {
   const { user, loading: authLoading } = useAuth();
@@ -172,14 +169,9 @@ export default function YouPage() {
   );
 
   const sections = [
-    { icon: Video, label: 'Your videos', count: streams.length, link: `/channel/${profile?.username}` },
-    { icon: Heart, label: 'Liked videos', count: 0, link: '/feed' },
-    { icon: Clock, label: 'Watch history', count: 0, link: '/browse' },
-  ];
-
-  const youTabs = [
-    { id: 'overview' as const, label: 'Overview', icon: User },
-    { id: 'analytics' as const, label: 'Analytics', icon: BarChart3 },
+    { icon: Video, label: 'Your streams', count: streams.length, link: `/channel/${profile?.username}` },
+    { icon: Users, label: 'Following', count: followingCount, link: '/following' },
+    { icon: Mail, label: 'Messages', count: 0, link: '/messages' },
   ];
 
   return (
@@ -256,20 +248,7 @@ export default function YouPage() {
             </DialogContent>
           </Dialog>
 
-          {/* Tab Navigation */}
-          <div className="flex bg-secondary/50 rounded-2xl p-1">
-            {youTabs.map(t => (
-              <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-xl transition-all ${activeTab === t.id ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}>
-                <t.icon className="w-4 h-4" />{t.label}
-              </button>
-            ))}
-          </div>
-
-          {activeTab === 'analytics' ? (
-            <CreatorAnalytics />
-          ) : (
-            <>
+          <>
               {/* Quick Sections */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {sections.map((s, i) => (
