@@ -58,7 +58,6 @@ export default function YouPage() {
   const [editUsername, setEditUsername] = useState('');
   const [editBio, setEditBio] = useState('');
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<YouTab>('overview');
 
   useEffect(() => {
     async function fetchData() {
@@ -257,7 +256,7 @@ export default function YouPage() {
                       className="bg-card rounded-xl p-4 hover:bg-accent/30 transition-colors cursor-pointer group">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors"><s.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" /></div>
-                        <div><p className="text-sm font-medium text-foreground">{s.label}</p><p className="text-xs text-muted-foreground">{s.count} items</p></div>
+                        <div><p className="text-sm font-medium text-foreground">{s.label}</p><p className="text-xs text-muted-foreground">{s.count}</p></div>
                       </div>
                     </motion.div>
                   </Link>
