@@ -10,7 +10,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
-import { CreateMenu } from '@/components/layout/CreateMenu';
 import { NotificationPanel, NotificationBell } from '@/components/notifications/NotificationPanel';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useSound } from '@/hooks/useSound';
