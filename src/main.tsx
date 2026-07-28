@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CursorProvider } from "@/components/CursorProvider";
 import { RequireAuth } from "@/components/auth/RequireAuth";
-import FeedPage from "./pages/Feed";
 import BrowsePage from "./pages/Browse";
 import FollowingPage from "./pages/Following";
 import WatchPage from "./pages/Watch";
@@ -25,7 +24,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<FeedPage />} />
+        <Route path="/" element={<BrowsePage />} />
         <Route path="/browse" element={<BrowsePage />} />
         <Route path="/following" element={<FollowingPage />} />
         <Route path="/watch/:username" element={<WatchPage />} />
