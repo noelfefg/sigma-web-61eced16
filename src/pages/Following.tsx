@@ -60,8 +60,8 @@ export default function FollowingPage() {
     <AppLayout>
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
         <Heart className="w-16 h-16 text-muted-foreground mb-4" />
-        <h1 className="text-2xl font-bold text-foreground mb-2">Follow your favorite creators</h1>
-        <p className="text-muted-foreground text-center max-w-md mb-6">Sign in to follow channels and see when they go live</p>
+        <h1 className="text-2xl font-bold text-foreground mb-2">Sigmatize your favorite creators</h1>
+        <p className="text-muted-foreground text-center max-w-md mb-6">Sign in to Sigmatize channels and see when they go live</p>
         <Link to="/auth"><Button>Sign In</Button></Link>
       </div>
     </AppLayout>
@@ -74,8 +74,8 @@ export default function FollowingPage() {
     <AppLayout>
       <div className="p-4 md:p-6 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Following</h1>
-          <p className="text-sm text-muted-foreground">Channels you follow</p>
+          <h1 className="text-2xl font-bold text-foreground">Sigmatized</h1>
+          <p className="text-sm text-muted-foreground">Creators you Sigmatized</p>
         </div>
         {loading ? (
           <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
@@ -147,8 +147,8 @@ export default function FollowingPage() {
             {followedChannels.length === 0 && (
               <div className="text-center py-12">
                 <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No channels followed yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">Start following channels to see them here</p>
+                <h3 className="text-lg font-medium text-foreground mb-2">No creators Sigmatized yet</h3>
+                <p className="text-sm text-muted-foreground mb-4">Start Sigmatizing creators to see them here</p>
                 <Link to="/browse"><Button variant="secondary">Browse Channels</Button></Link>
               </div>
             )}

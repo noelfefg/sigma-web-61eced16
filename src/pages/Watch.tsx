@@ -197,7 +197,7 @@ export default function WatchPage() {
                   <Link to={`/channel/${streamData.profiles.username}`} className="text-sm font-semibold text-foreground hover:text-foreground/80 block truncate">
                     {streamData.profiles.display_name}
                   </Link>
-                  <p className="text-xs text-muted-foreground">{formatViewerCount(followerCount)} followers</p>
+                  <p className="text-xs text-muted-foreground">{formatViewerCount(followerCount)} Sigmatizers</p>
                 </div>
                 <Button
                   onClick={handleFollow}
@@ -208,7 +208,7 @@ export default function WatchPage() {
                       : 'bg-foreground text-background hover:bg-foreground/90'
                   }`}
                 >
-                  {isFollowing ? 'Following' : 'Subscribe'}
+                  {isFollowing ? 'Sigmatized' : 'Sigmatize'}
                 </Button>
               </div>
 

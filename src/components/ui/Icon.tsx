@@ -41,7 +41,7 @@ export const SIGMA_ICONS = {
   search: "solar:magnifer-bold-duotone",
   bell: "solar:bell-bing-bold-duotone",
   message: "solar:chat-round-dots-bold-duotone",
-  gift: "solar:gift-bold-duotone",
+
   coin: "solar:dollar-minimalistic-bold-duotone",
   clan: "solar:users-group-rounded-bold-duotone",
   war: "mage:sword-fill",

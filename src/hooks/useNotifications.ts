@@ -6,7 +6,7 @@ export interface Notification {
   id: string;
   user_id: string;
   actor_id: string | null;
-  type: 'follow' | 'stream_live' | 'message' | 'mention' | 'gift' | 'like' | 'comment' | 'clip' | 'system';
+  type: 'follow' | 'stream_live' | 'message' | 'mention' | 'like' | 'comment' | 'clip' | 'system';
   title: string;
   body: string | null;
   image_url: string | null;

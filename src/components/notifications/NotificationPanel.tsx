@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Bell, BellOff, UserPlus, Radio, MessageSquare,
-  Heart, Gift, AtSign, Video, Trash2, CheckCheck, X,
+  Heart, AtSign, Video, Trash2, CheckCheck, X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -21,12 +21,23 @@ const typeConfig: Record<
   stream_live: { icon: Radio,         color: 'text-red-500',    bg: 'bg-red-500/15'  },
   message:     { icon: MessageSquare, color: 'text-primary',    bg: 'bg-primary/15'  },
   mention:     { icon: AtSign,        color: 'text-yellow-400', bg: 'bg-yellow-400/15' },
-  gift:        { icon: Gift,          color: 'text-pink-400',   bg: 'bg-pink-400/15' },
   like:        { icon: Heart,         color: 'text-red-400',    bg: 'bg-red-400/15'  },
   comment:     { icon: MessageSquare, color: 'text-green-400',  bg: 'bg-green-400/15' },
   clip:        { icon: Video,         color: 'text-orange-400', bg: 'bg-orange-400/15' },
   system:      { icon: Bell,          color: 'text-orange-400', bg: 'bg-orange-400/15' },
 };
+
+
+// Display-only wording: follow system is surfaced as "Sigmatize"
+function sigmatizeWording(text: string): string {
+  return text
+    .replace(/\bunfollowed\b/gi, 'removed their Sigmatize on')
+    .replace(/\bfollowed\b/gi, 'Sigmatized')
+    .replace(/\bfollowers\b/gi, 'Sigmatizers')
+    .replace(/\bfollowing\b/gi, 'Sigmatized')
+    .replace(/\bfollows\b/gi, 'Sigmatizes')
+    .replace(/\bfollow\b/gi, 'Sigmatize');
+}
 
 interface Props {
   open: boolean;
@@ -208,10 +219,10 @@ function NotifItem({
       {/* Text */}
       <div className="flex-1 min-w-0">
         <p className={cn('text-xs leading-relaxed', notif.is_read ? 'text-foreground/80' : 'text-foreground font-medium')}>
-          {notif.title}
+          {sigmatizeWording(notif.title)}
         </p>
         {notif.body && (
-          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{notif.body}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{sigmatizeWording(notif.body)}</p>
         )}
         <p className="text-[10px] text-muted-foreground/60 mt-1">
           {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}

@@ -74,7 +74,7 @@ export default function ProfilePage() {
               <AvatarFallback className="text-xl bg-secondary">{profile.display_name.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <Button variant={isFollowing ? 'secondary' : 'default'} size="sm" onClick={handleFollow} disabled={!user || user.id === profile.id}>
-              {isFollowing ? 'Following' : 'Follow'}
+              {isFollowing ? '✓ Sigmatized' : '+ Sigmatize'}
             </Button>
           </div>
           <div className="py-3">
@@ -82,7 +82,7 @@ export default function ProfilePage() {
             <p className="text-sm text-muted-foreground">@{profile.username}</p>
             {profile.bio && <p className="mt-2 text-sm">{profile.bio}</p>}
             <div className="mt-2 flex gap-4 text-sm text-muted-foreground">
-              <span><span className="font-semibold text-foreground">{followerCount}</span> Followers</span>
+              <span><span className="font-semibold text-foreground">{followerCount}</span> Sigmatizers</span>
             </div>
           </div>
         </div>

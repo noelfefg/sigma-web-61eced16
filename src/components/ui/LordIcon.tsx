@@ -110,7 +110,6 @@ export const ICONS = {
   lightning:   'mrdiizbh',
   trending:    'obnfocim',
   // Misc
-  gift:        'qjvhqpli',
   globe:       'lzgmgrnn',
   music:       'xcrjfuzb',
   mic:         'mkrfenbb',
