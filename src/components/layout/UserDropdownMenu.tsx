@@ -9,8 +9,7 @@ import {
   Radio,
   Moon,
   Sun,
-  Crown,
-  Gift
+  Crown
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {

@@ -169,7 +169,7 @@ export default function YouPage() {
 
   const sections = [
     { icon: Video, label: 'Your streams', count: streams.length, link: `/channel/${profile?.username}` },
-    { icon: Users, label: 'Following', count: followingCount, link: '/following' },
+    { icon: Users, label: 'Sigmatized', count: followingCount, link: '/following' },
     { icon: Mail, label: 'Messages', count: 0, link: '/messages' },
   ];
 
@@ -220,8 +220,8 @@ export default function YouPage() {
               </div>
               <p className="text-sm text-muted-foreground">@{profile?.username || user.email?.split('@')[0]}</p>
               <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                <span><span className="font-semibold text-foreground">{followerCount}</span> followers</span>
-                <span><span className="font-semibold text-foreground">{followingCount}</span> following</span>
+                <span><span className="font-semibold text-foreground">{followerCount}</span> Sigmatizers</span>
+                <span><span className="font-semibold text-foreground">{followingCount}</span> Sigmatized</span>
               </div>
             </div>
             <Link to={`/channel/${profile?.username}`}><Button variant="secondary" size="sm" className="rounded-full"><Settings className="w-4 h-4 mr-2" />Manage</Button></Link>

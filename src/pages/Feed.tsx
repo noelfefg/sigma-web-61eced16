@@ -126,7 +126,7 @@ export default function FeedPage() {
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'latest', label: 'Latest' },
-    { id: 'following', label: 'Following' },
+    { id: 'following', label: 'Sigmatized' },
   ];
 
   return (
@@ -186,7 +186,7 @@ export default function FeedPage() {
               <h2 className="text-lg font-bold">{tab === 'following' ? 'Nothing from people you follow' : 'No posts yet'}</h2>
               <p className="text-sm text-muted-foreground">
                 {tab === 'following'
-                  ? 'Follow more people to fill this timeline.'
+                  ? 'Sigmatize more people to fill this timeline.'
                   : user ? 'Be the first to post something.' : 'Sign in to start posting.'}
               </p>
               {!user && <Link to="/auth" className="inline-block text-sm font-semibold text-primary">Sign in</Link>}

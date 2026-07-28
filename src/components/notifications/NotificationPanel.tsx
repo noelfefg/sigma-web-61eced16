@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Bell, BellOff, UserPlus, Radio, MessageSquare,
-  Heart, Gift, AtSign, Video, Trash2, CheckCheck, X,
+  Heart, AtSign, Video, Trash2, CheckCheck, X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -21,7 +21,6 @@ const typeConfig: Record<
   stream_live: { icon: Radio,         color: 'text-red-500',    bg: 'bg-red-500/15'  },
   message:     { icon: MessageSquare, color: 'text-primary',    bg: 'bg-primary/15'  },
   mention:     { icon: AtSign,        color: 'text-yellow-400', bg: 'bg-yellow-400/15' },
-  gift:        { icon: Gift,          color: 'text-pink-400',   bg: 'bg-pink-400/15' },
   like:        { icon: Heart,         color: 'text-red-400',    bg: 'bg-red-400/15'  },
   comment:     { icon: MessageSquare, color: 'text-green-400',  bg: 'bg-green-400/15' },
   clip:        { icon: Video,         color: 'text-orange-400', bg: 'bg-orange-400/15' },

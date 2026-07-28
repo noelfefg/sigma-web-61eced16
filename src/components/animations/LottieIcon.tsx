@@ -16,8 +16,6 @@ export const LOTTIE_URLS = {
   trophy:         'https://assets1.lottiefiles.com/packages/lf20_touohxv0.json',
   medal:          'https://assets3.lottiefiles.com/packages/lf20_nkq3abxv.json',
   crown:          'https://assets9.lottiefiles.com/packages/lf20_zt9fnnls.json',
-  gift:           'https://assets10.lottiefiles.com/packages/lf20_rdgicb1v.json',
-  giftBox:        'https://assets3.lottiefiles.com/packages/lf20_4kx2q32n.json',
   rocket:         'https://assets6.lottiefiles.com/packages/lf20_ZSTH8o.json',
   lightning:      'https://assets2.lottiefiles.com/packages/lf20_syqnfe7c.json',
   // Streaming & Live

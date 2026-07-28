@@ -288,7 +288,7 @@ export default function ChannelPage() {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
-                      {formatCount(followerCount)} followers
+                      {formatCount(followerCount)} Sigmatizers
                     </span>
                     <span className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
@@ -304,7 +304,7 @@ export default function ChannelPage() {
                     className={`rounded-full px-6 ${isFollowing ? '' : 'bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20'}`}
                   >
                     <Heart className={`w-4 h-4 mr-2 ${isFollowing ? 'fill-current text-destructive' : ''}`} />
-                    {isFollowing ? 'Following' : 'Follow'}
+                    {isFollowing ? 'Sigmatized' : 'Sigmatize'}
                   </Button>
                   <Button variant="secondary" className="rounded-full">
                     <Share2 className="w-4 h-4" />
@@ -495,11 +495,11 @@ export default function ChannelPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4 pt-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Followers</p>
+                      <p className="text-sm text-muted-foreground">Sigmatizers</p>
                       <p className="text-xl font-bold text-foreground">{formatCount(followerCount)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Following</p>
+                      <p className="text-sm text-muted-foreground">Sigmatized</p>
                       <p className="text-xl font-bold text-foreground">{formatCount(followingCount)}</p>
                     </div>
                   </div>
