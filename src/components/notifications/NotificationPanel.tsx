@@ -27,6 +27,18 @@ const typeConfig: Record<
   system:      { icon: Bell,          color: 'text-orange-400', bg: 'bg-orange-400/15' },
 };
 
+
+// Display-only wording: follow system is surfaced as "Sigmatize"
+function sigmatizeWording(text: string): string {
+  return text
+    .replace(/\bunfollowed\b/gi, 'removed their Sigmatize on')
+    .replace(/\bfollowed\b/gi, 'Sigmatized')
+    .replace(/\bfollowers\b/gi, 'Sigmatizers')
+    .replace(/\bfollowing\b/gi, 'Sigmatized')
+    .replace(/\bfollows\b/gi, 'Sigmatizes')
+    .replace(/\bfollow\b/gi, 'Sigmatize');
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
