@@ -207,10 +207,10 @@ function NotifItem({
       {/* Text */}
       <div className="flex-1 min-w-0">
         <p className={cn('text-xs leading-relaxed', notif.is_read ? 'text-foreground/80' : 'text-foreground font-medium')}>
-          {notif.title}
+          {sigmatizeWording(notif.title)}
         </p>
         {notif.body && (
-          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{notif.body}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{sigmatizeWording(notif.body)}</p>
         )}
         <p className="text-[10px] text-muted-foreground/60 mt-1">
           {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
