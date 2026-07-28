@@ -82,8 +82,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             </Button>
 
             {/* Create — desktop only, bottom bar handles tablet/mobile */}
-            <div className="hidden lg:block"><CreateMenu /></div>
-
             <ThemeToggle />
 
             {user ? (
@@ -102,7 +100,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden h-9 w-9 rounded-full"
+              className="h-9 w-9 rounded-full"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
             >
@@ -151,7 +149,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
         {/* Slide-in menu */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 z-50">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
             <motion.div
               initial={{ x: 320 }}
