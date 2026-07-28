@@ -69,34 +69,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             <UserSearch className="hidden md:block w-64 ml-3" />
           </div>
 
-          {/* Center: desktop nav */}
-          <nav className="hidden lg:flex flex-1 items-center justify-center gap-1">
-            {mainNav.map((item) => (
-              <Tooltip key={item.path}>
-                <TooltipTrigger asChild>
-                  <Link
-                    to={item.path}
-                    aria-label={item.label}
-                    onClick={() => feedback('tap', 6)}
-                    className={`group relative flex items-center justify-center h-11 w-24 rounded-xl transition-all active:scale-95 ${
-                      isActive(item.path) ? 'text-primary bg-accent/50' : 'text-muted-foreground hover:text-foreground hover:bg-accent/60'
-                    }`}
-                  >
-                    <item.icon className={`w-6 h-6 transition-transform group-hover:scale-110 ${isActive(item.path) ? 'stroke-[2.4]' : ''}`} />
-                    {isActive(item.path) && (
-                      <motion.span
-                        layoutId="navIndicator"
-                        className="absolute bottom-0 left-3 right-3 h-[3px] bg-primary rounded-full"
-                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                      />
-                    )}
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent>{item.label}</TooltipContent>
-              </Tooltip>
-            ))}
-          </nav>
-
           {/* Right: actions */}
           <div className="ml-auto flex items-center gap-1.5">
             <Button
@@ -153,10 +125,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto pb-20 lg:pb-0">{children}</main>
+        <main className="flex-1 overflow-auto pb-24">{children}</main>
 
         {/* Tablet + mobile bottom navigation (TikTok style) */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-card/95 backdrop-blur-xl border-t border-border/60 flex items-center justify-around h-16 px-2">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border/60 flex items-center justify-around h-16 px-2 md:px-8 lg:max-w-2xl lg:mx-auto lg:mb-3 lg:rounded-2xl lg:border lg:shadow-xl">
           {[mainNav[0], mainNav[1]].map((item) => (
             <BottomTab key={item.path} item={item} active={isActive(item.path)} onTap={() => feedback('tap', 8)} />
           ))}
