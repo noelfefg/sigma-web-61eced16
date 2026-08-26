@@ -49,30 +49,54 @@
   --sigma-neon: hsl(168 76% 50%);
   --sigma-success: hsl(142 71% 45%);
 
+  /* Sigma palette (light fallbacks) */
+  --sigma-black: hsl(0 0% 12%);
+  --sigma-bg: hsl(220 14% 96%);
+  --sigma-surface: hsl(0 0% 100%);
+  --sigma-surface-soft: hsla(0 0% 0% / 0.04);
+  --sigma-border-soft: hsla(0 0% 0% / 0.08);
+  --sigma-text: hsl(222 47% 11%);
+  --sigma-muted: hsl(220 9% 46%);
+  --sigma-silver: hsl(220 9% 60%);
+  --sigma-glow: hsla(0 0% 0% / 0.08);
+
   --radius: 0.75rem;
 }
 
+
 .dark {
-  --background: hsl(0 0% 10%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(0 0% 16%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(0 0% 18%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 90%);
-  --primary-foreground: hsl(0 0% 10%);
-  --secondary: hsl(0 0% 20%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(0 0% 20%);
-  --muted-foreground: hsl(0 0% 60%);
-  --accent: hsl(0 0% 24%);
-  --accent-foreground: hsl(0 0% 90%);
+  --background: hsl(0 0% 5%);
+  --foreground: hsl(0 0% 96%);
+  --card: hsl(0 0% 8%);
+  --card-foreground: hsl(0 0% 96%);
+  --popover: hsl(0 0% 9%);
+  --popover-foreground: hsl(0 0% 96%);
+  --primary: hsl(0 0% 92%);
+  --primary-foreground: hsl(0 0% 4%);
+  --secondary: hsl(0 0% 13%);
+  --secondary-foreground: hsl(0 0% 96%);
+  --muted: hsl(0 0% 13%);
+  --muted-foreground: hsl(0 0% 56%);
+  --accent: hsl(0 0% 16%);
+  --accent-foreground: hsl(0 0% 92%);
   --destructive: hsl(0 84% 60%);
   --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(0 0% 28%);
-  --input: hsl(0 0% 14%);
+  --border: hsl(0 0% 18%);
+  --input: hsl(0 0% 11%);
   --ring: hsl(0 0% 55%);
+
+  /* Sigma palette */
+  --sigma-black: hsl(0 0% 3%);
+  --sigma-bg: hsl(0 0% 5%);
+  --sigma-surface: hsl(0 0% 8%);
+  --sigma-surface-soft: hsla(0 0% 100% / 0.06);
+  --sigma-border-soft: hsla(0 0% 100% / 0.10);
+  --sigma-text: hsl(0 0% 96%);
+  --sigma-muted: hsl(0 0% 56%);
+  --sigma-silver: hsl(0 0% 81%);
+  --sigma-glow: hsla(0 0% 100% / 0.18);
 }
+
 
 @theme inline {
   --color-background: var(--background);
@@ -768,4 +792,74 @@ html {
   .video-container video {
     object-position: center center;
   }
+}
+/* ============================================================
+   SIGMA DESIGN SYSTEM — glass, glow, orbital
+   ============================================================ */
+@layer components {
+  .sigma-glass {
+    background: var(--sigma-surface-soft);
+    border: 1px solid var(--sigma-border-soft);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    box-shadow: 0 20px 80px hsla(0 0% 0% / 0.35);
+  }
+
+  .sigma-glass-strong {
+    background: color-mix(in srgb, var(--sigma-surface) 82%, transparent);
+    border: 1px solid var(--sigma-border-soft);
+    backdrop-filter: blur(28px) saturate(150%);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+  }
+
+  .sigma-glow {
+    box-shadow: 0 0 0 1px var(--sigma-border-soft), 0 0 32px -8px var(--sigma-glow);
+  }
+
+  .sigma-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+  .sigma-sheen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, hsla(0 0% 100% / 0.12) 46%, transparent 60%);
+    transform: translateX(-120%);
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .sigma-sheen:hover::after {
+    transform: translateX(120%);
+  }
+
+  .sigma-silver-text {
+    background: linear-gradient(180deg, var(--sigma-text), var(--sigma-silver));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@layer utilities {
+  @keyframes sigma-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-sigma-orbit { animation: sigma-orbit 9s linear infinite; }
+  .animate-sigma-orbit-slow { animation: sigma-orbit 18s linear infinite; }
+
+  @keyframes sigma-pulse-ring {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    70% { transform: scale(1.35); opacity: 0; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+  .animate-sigma-pulse-ring { animation: sigma-pulse-ring 2s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+
+  @keyframes sigma-float-up {
+    0% { transform: translateY(0) scale(0.7); opacity: 0; }
+    15% { opacity: 1; }
+    100% { transform: translateY(-220px) translateX(var(--drift, 20px)) scale(1.15); opacity: 0; }
+  }
+  .animate-sigma-float-up { animation: sigma-float-up 2.6s ease-out forwards; }
 }
