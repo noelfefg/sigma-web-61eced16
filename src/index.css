@@ -793,3 +793,73 @@ html {
     object-position: center center;
   }
 }
+/* ============================================================
+   SIGMA DESIGN SYSTEM — glass, glow, orbital
+   ============================================================ */
+@layer components {
+  .sigma-glass {
+    background: var(--sigma-surface-soft);
+    border: 1px solid var(--sigma-border-soft);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    box-shadow: 0 20px 80px hsla(0 0% 0% / 0.35);
+  }
+
+  .sigma-glass-strong {
+    background: color-mix(in srgb, var(--sigma-surface) 82%, transparent);
+    border: 1px solid var(--sigma-border-soft);
+    backdrop-filter: blur(28px) saturate(150%);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+  }
+
+  .sigma-glow {
+    box-shadow: 0 0 0 1px var(--sigma-border-soft), 0 0 32px -8px var(--sigma-glow);
+  }
+
+  .sigma-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+  .sigma-sheen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, hsla(0 0% 100% / 0.12) 46%, transparent 60%);
+    transform: translateX(-120%);
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .sigma-sheen:hover::after {
+    transform: translateX(120%);
+  }
+
+  .sigma-silver-text {
+    background: linear-gradient(180deg, var(--sigma-text), var(--sigma-silver));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@layer utilities {
+  @keyframes sigma-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-sigma-orbit { animation: sigma-orbit 9s linear infinite; }
+  .animate-sigma-orbit-slow { animation: sigma-orbit 18s linear infinite; }
+
+  @keyframes sigma-pulse-ring {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    70% { transform: scale(1.35); opacity: 0; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+  .animate-sigma-pulse-ring { animation: sigma-pulse-ring 2s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+
+  @keyframes sigma-float-up {
+    0% { transform: translateY(0) scale(0.7); opacity: 0; }
+    15% { opacity: 1; }
+    100% { transform: translateY(-220px) translateX(var(--drift, 20px)) scale(1.15); opacity: 0; }
+  }
+  .animate-sigma-float-up { animation: sigma-float-up 2.6s ease-out forwards; }
+}
