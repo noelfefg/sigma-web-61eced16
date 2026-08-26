@@ -1,45 +1,44 @@
+# Sigma Redesign — Premium Dark Universe
 
-# SIGMA MVP Cleanup
+A redesign layered onto the existing frontend. No new project, no new router, no new API layer. All Supabase/auth/realtime logic stays exactly as-is; only presentation changes.
 
-Goal: cut the frontend down to only what the backend actually supports, and polish what remains.
+## What exists today (confirmed)
 
-Assumption (say the word if wrong): the live data layer stays Lovable Cloud (Postgres + realtime), which already implements every capability in your list. The Go server scaffold stays in `server/` untouched, unused by the UI. Nothing new gets built on the backend.
+- Routes in `src/main.tsx`: `/` and `/browse` (Browse), `/following`, `/watch/:username`, `/channel/:username`, `/profile/:username`, `/auth`, `/go-live`, `/you`, `/messages`, `/settings`, `/feedback`.
+- Layout: `components/layout/AppLayout.tsx` (bottom nav + header), `CreateMenu`, `UserSearch`, `UserDropdownMenu`, `Masthead`, `PopularStreamers`, `RecommendedCategories`, `LiveBackground`.
+- Stream: `components/stream/StreamPlayer.tsx` (hls.js + YouTube embed), `LiveReactions.tsx`.
+- Hooks: `useAuth`, `useWebSocket` (Supabase Realtime broadcast), `usePresence`, `useNotifications`, `useWebRTC`, `useSound`, `use-mobile`.
+- Full shadcn UI set in `components/ui`, framer-motion + gsap already installed.
+- Data access is Supabase client calls inside pages (`supabase.from(...)`), plus `src/lib/api.ts`.
 
-## Remove (pages, routes, components, and their imports)
+## Plan
 
-- Clans + clan wars: `Clans.tsx`, `src/components/clans/*`, clan war live/chat components
-- Store / marketplace / payments: `Store.tsx`, `src/components/payments/*` (MTN MoMo dialog), gifts catalog UI, `Gifts.tsx`
-- Creator economy & analytics: `CreatorStudio.tsx`, `Rankings.tsx`, `src/components/analytics/*`
-- Fake AI / fake recommendations: `AIStreamAssistant.tsx`, algorithmic "For You" ranking UI and the `rank-feed` usage
-- Mock/landing leftovers: `About`, `Awards`, `Contact`, `Portfolio`, `Services`, `Team`, `AnimationShowcase`, `Hero` marketing block, `figma/` folder
-- Other unsupported: `Community.tsx`, `Friends.tsx` (mutual-follow suggestion algorithm), `Tag.tsx`, `SnapCamera.tsx`, `VidRoom.tsx`, `Shorts.tsx` if it has no backing table (verified before deleting)
-- Any nav entries, buttons, and links pointing at the above
+### Phase 1 — Design tokens
+Extend `src/index.css` + `tailwind.config.ts` with Sigma tokens (all HSL, semantic, no hardcoded colors in components):
+black `#080808`, bg `#0d0d0d`, surface `#151515`, surface-soft, border white/10, text `#f5f5f5`, muted `#8f8f8f`, silver `#cfcfcf`. Add utilities: `.sigma-glass`, `.sigma-glow`, `.sigma-sheen`, orbital keyframes. Keeps light-theme fallbacks so the existing theme toggle still works.
 
-## Keep and improve
+### Phase 2 — Sigma component library (`src/components/sigma/`)
+New, reusable, strictly typed: `GlassCard`, `GlassButton` (a shadcn Button variant, not a fork), `OrbitalAvatar` (wraps existing `ui/avatar`), `LiveBadge`, `ViewerCount`, `StreamCard`, `CreatorCard`, `ChatMessage`, `MessageBubble`, `TypingIndicator`, `ReactionButton`, `ReactionOverlay`, `ProfileHeader`, `NotificationItem`, `MediaCard`, `SearchBar` (wraps existing `UserSearch` logic).
 
-| Area | Route | Work |
-| --- | --- | --- |
-| Auth | `/auth` | Keep LineWaves design, tighten sign-in/up/reset states, no flashing |
-| Feed | `/` | Simple chronological feed of posts (no fake ranking), infinite scroll, empty states |
-| Profile | `/profile/:username`, `/you` | Public profile, avatar/banner, edit profile, followers/following lists |
-| Follow | inline | Follow/unfollow button component reused everywhere |
-| Messaging | `/messages` | Conversation list + thread, realtime, media/audio/video attachments |
-| Notifications | bell + panel | Realtime, mark read |
-| Comments | on posts/streams | Threaded, delete own |
-| Streams | `/browse`, `/watch/:username`, `/go-live` | Stream list, player, stream chat, create stream |
-| Feedback | `/feedback` | Keep as-is (backed) |
-| Verification | new small form | Request verification, stored via existing feedback/report style table if present — otherwise marked placeholder |
-| Settings | `/settings` | Profile, appearance/theme, cursor toggle, account |
+### Phase 3 — Shell and navigation
+Restyle `AppLayout` into `AppShell` composition: `TopNav` (logo, search, nav, notifications, messages, avatar, Go Live) on desktop, `BottomNav` (Home, Live, Create, Messages, Profile) on all sizes as currently configured, plus `PageContainer`. Existing nav behaviour, drawer and routes preserved.
 
-## Technical notes
+### Phase 4 — Discovery pages
+- `Browse.tsx` becomes the immersive Home: hero live rail, recommended streams, creators — using `StreamCard`/`CreatorCard`, same queries.
+- Add a `/live` route reusing the same Browse data hooks for a discovery-first grid (or keep Browse as both if you prefer fewer routes).
+- `Following.tsx` restyled with the same cards.
 
-- Rewrite `src/main.tsx` routes to the reduced set; unknown paths → `NotFound`
-- Rework `AppLayout` nav to: Home, Streams, Messages, Notifications, You (desktop top bar + mobile bottom bar)
-- Delete now-orphaned hooks/libs (gift RPC helpers, clan hooks, payment utils, apollo/socket clients if unused after cleanup)
-- Keep React + TS + Tailwind + shadcn + Framer Motion; motion used for page transitions, list stagger, and bottom-nav indicator
-- Any control without a backend capability gets removed rather than stubbed; anything I must keep gets a visible "Coming soon" disabled state
-- Run typecheck + a browser smoke pass over every remaining route at the end
+### Phase 5 — Stream page
+Rework `Watch.tsx` presentation only: full-bleed player, glass overlay (LiveBadge, ViewerCount, creator actions), glass chat panel on desktop, layered chat over video on mobile, `ReactionOverlay` wired to the existing `useWebSocket` broadcast channel. `StreamPlayer` gets premium controls (play/pause, mute, fullscreen, live indicator) while keeping hls.js/YouTube logic untouched.
 
-## Out of scope
+### Phase 6 — Profile, Messages, Notifications, Settings
+`Profile`/`Channel`/`You`: `ProfileHeader` + `OrbitalAvatar` + stats + media grid, existing Sigmatize wording and follow logic intact. `Messages`: conversation list, header, bubbles, composer, typing indicator on the current realtime code. `NotificationPanel`: grouped `NotificationItem` list with orbital indicators.
 
-No database migrations, no new edge functions, no new backend endpoints.
+### Phase 7 — Polish and verification
+Subtle framer-motion only (chat entry, hover, reactions, page transitions). Then `npm run build` and `npm run lint`, fix all TS/lint errors, remove dead code.
+
+## Notes / decisions
+
+- Gift system: gifts were previously removed from this app at your request and there is no gifts table anymore. I will build `GiftAnimation` + gift UI **only** if you want gifts back; otherwise Phase 5 ships reactions only.
+- No `any`; reuse existing types from `src/integrations/supabase/types.ts` and page-level interfaces, adding shared `Stream`/`StreamMessage` types in `src/types/` where they are duplicated today.
+- No new animation or data libraries added.
