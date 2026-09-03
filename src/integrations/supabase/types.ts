@@ -1408,6 +1408,93 @@ export type Database = {
         }
         Relationships: []
       }
+      stream_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          stream_id: string
+          user_id: string | null
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          stream_id: string
+          user_id?: string | null
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          stream_id?: string
+          user_id?: string | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stream_events_stream_id_fkey"
+            columns: ["stream_id"]
+            isOneToOne: false
+            referencedRelation: "streams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stream_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stream_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      stream_metric_samples: {
+        Row: {
+          captured_at: string
+          chat_count: number
+          id: string
+          like_count: number
+          reaction_count: number
+          stream_id: string
+          viewer_count: number
+        }
+        Insert: {
+          captured_at?: string
+          chat_count?: number
+          id?: string
+          like_count?: number
+          reaction_count?: number
+          stream_id: string
+          viewer_count?: number
+        }
+        Update: {
+          captured_at?: string
+          chat_count?: number
+          id?: string
+          like_count?: number
+          reaction_count?: number
+          stream_id?: string
+          viewer_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stream_metric_samples_stream_id_fkey"
+            columns: ["stream_id"]
+            isOneToOne: false
+            referencedRelation: "streams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stream_poll_votes: {
         Row: {
           created_at: string
@@ -1571,6 +1658,45 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_interests: {
+        Row: {
+          created_at: string
+          id: string
+          interest: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interest: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interest?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_interests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_interests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_ranks"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
