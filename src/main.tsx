@@ -6,6 +6,10 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CursorProvider } from "@/components/CursorProvider";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import BrowsePage from "./pages/Browse";
+import LivePage from "./pages/Live";
+import SearchPage from "./pages/Search";
+import OnboardingPage from "./pages/Onboarding";
+import StudioPage from "./pages/Studio";
 import FollowingPage from "./pages/Following";
 import WatchPage from "./pages/Watch";
 import ChannelPage from "./pages/Channel";
@@ -26,16 +30,22 @@ function App() {
       <Routes>
         <Route path="/" element={<BrowsePage />} />
         <Route path="/browse" element={<BrowsePage />} />
+        <Route path="/live" element={<LivePage />} />
+        <Route path="/live/:username" element={<WatchPage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/following" element={<FollowingPage />} />
         <Route path="/watch/:username" element={<WatchPage />} />
         <Route path="/channel/:username" element={<ChannelPage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/onboarding" element={<RequireAuth><OnboardingPage /></RequireAuth>} />
+        <Route path="/studio" element={<RequireAuth><StudioPage /></RequireAuth>} />
         <Route path="/go-live" element={<RequireAuth><GoLivePage /></RequireAuth>} />
         <Route path="/you" element={<RequireAuth><YouPage /></RequireAuth>} />
         <Route path="/messages" element={<RequireAuth><MessagesPage /></RequireAuth>} />
         <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
         <Route path="/feedback" element={<FeedbackPage />} />
+
         <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
