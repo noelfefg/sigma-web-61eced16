@@ -10,6 +10,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { LiveReactions } from '@/components/stream/LiveReactions';
 import { StreamPlayer } from '@/components/stream/StreamPlayer';
+import { Message, MessageAvatar, MessageContent, Bubble, BubbleContent, MessageFooter } from '@/components/messaging/Bubble';
+import { AvatarGroup } from '@/components/common/AvatarGroup';
+import { useStreamEventLogger, useStreamMetricRecorder } from '@/hooks/useStreamMetrics';
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
