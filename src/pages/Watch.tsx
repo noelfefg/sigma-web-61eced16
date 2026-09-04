@@ -104,11 +104,35 @@ export default function WatchPage() {
     return () => { supabase.removeChannel(channel); };
   }, [streamData]);
 
+
+  const logEvent = useStreamEventLogger(streamData?.id);
+  useStreamMetricRecorder({
+    streamId: streamData?.id,
+    isOwner: isOwnStream,
+    active: !!streamData?.is_live,
+    viewerCount: streamData?.viewer_count ?? 0,
+  });
+
+  useEffect(() => {
+    if (streamData?.id && user) logEvent('join');
+  }, [streamData?.id, user, logEvent]);
+
+  /** Unique chatters shown in the chat header. */
+  const chatters = useMemo(() => {
+    const seen = new Map<string, { username: string; display_name: string; avatar_url?: string | null }>();
+    for (const m of messages) if (!seen.has(m.profiles.username)) seen.set(m.profiles.username, m.profiles);
+    return [...seen.values()];
+  }, [messages]);
+
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || !user || !streamData) return;
     const { error } = await supabase.from('chat_messages').insert({ stream_id: streamData.id, user_id: user.id, message: chatMessage.trim() });
-    if (!error) setChatMessage('');
+    if (!error) {
+      setChatMessage('');
+      logEvent('chat');
+    }
   };
+
 
   const handleFollow = async () => {
     if (!user || !streamData) return;
