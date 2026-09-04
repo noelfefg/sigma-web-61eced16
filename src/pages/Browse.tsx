@@ -1,13 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Users, Eye, Video, Gamepad2, Palette, Music, GraduationCap, Camera, MessageCircle, Mic, Trophy, RotateCcw, ChevronDown, Bookmark, Filter } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Search, Compass, Sparkles, Radio, Users } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/common/InputGroup';
+import { StreamRail } from '@/components/sigma/StreamRail';
+import { StreamCard } from '@/components/sigma/StreamCard';
+import { CreatorCard } from '@/components/sigma/CreatorCard';
+import { CreatorHoverCard } from '@/components/sigma/CreatorHoverCard';
+import { GlassCard } from '@/components/sigma/GlassCard';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import type { SigmaStream, SigmaUser } from '@/types/sigma';
 
 import categoryGaming from '@/assets/category-gaming.jpg';
 import categoryCreative from '@/assets/category-creative.jpg';
@@ -19,208 +24,250 @@ import categoryPodcast from '@/assets/category-podcast.jpg';
 import categorySports from '@/assets/category-sports.jpg';
 
 const categoryImages: Record<string, string> = {
-  gaming: categoryGaming, creative: categoryCreative, music: categoryMusic,
-  education: categoryEducation, irl: categoryIrl, 'just-chatting': categoryJustChatting,
-  podcast: categoryPodcast, sports: categorySports,
+  gaming: categoryGaming,
+  creative: categoryCreative,
+  music: categoryMusic,
+  education: categoryEducation,
+  irl: categoryIrl,
+  'just-chatting': categoryJustChatting,
+  podcast: categoryPodcast,
+  sports: categorySports,
 };
 
-interface Stream {
-  id: string; title: string; viewer_count: number; thumbnail_url: string | null;
-  profiles: { username: string; display_name: string; avatar_url: string | null };
-  categories: { name: string; slug: string } | null;
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  image_url: string | null;
 }
-
-interface Category { id: string; name: string; slug: string; description: string | null; }
-
-function formatViewerCount(count: number): string {
-  if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-  return count.toString();
-}
-
 
 export default function BrowsePage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [streams, setStreams] = useState<Stream[]>([]);
+  const { user } = useAuth();
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState<string | null>(null);
+  const [streams, setStreams] = useState<SigmaStream[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [creators, setCreators] = useState<SigmaUser[]>([]);
+  const [sigmatized, setSigmatized] = useState<SigmaStream[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState('popular');
 
   useEffect(() => {
-    async function fetchData() {
+    let cancelled = false;
+    (async () => {
       setLoading(true);
-      const [{ data: catsData }, { data: streamsData }] = await Promise.all([
-        supabase.from('categories').select('id, name, slug, description').order('name'),
-        supabase.from('streams').select('id, title, viewer_count, thumbnail_url, profiles!inner(username, display_name, avatar_url), categories(name, slug)').eq('is_live', true).order('viewer_count', { ascending: false }),
+      const [{ data: cats }, { data: live }, { data: people }] = await Promise.all([
+        supabase.from('categories').select('id, name, slug, image_url').order('name'),
+        supabase
+          .from('streams')
+          .select(
+            'id, title, viewer_count, thumbnail_url, is_live, profiles!inner(id, username, display_name, avatar_url), categories(name, slug)',
+          )
+          .eq('is_live', true)
+          .order('viewer_count', { ascending: false })
+          .limit(60),
+        supabase.from('profiles').select('id, username, display_name, avatar_url').order('created_at', { ascending: false }).limit(16),
       ]);
-      if (catsData) setCategories(catsData);
-      if (streamsData) setStreams(streamsData as unknown as Stream[]);
+      if (cancelled) return;
+      setCategories(cats ?? []);
+      setStreams((live as unknown as SigmaStream[]) ?? []);
+      setCreators((people as SigmaUser[]) ?? []);
       setLoading(false);
-    }
-    fetchData();
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const filteredStreams = streams.filter((stream) => {
-    const matchesSearch = stream.title.toLowerCase().includes(searchQuery.toLowerCase()) || stream.profiles.display_name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || stream.categories?.slug === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  useEffect(() => {
+    if (!user) {
+      setSigmatized([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: follows } = await supabase.from('followers').select('following_id').eq('follower_id', user.id);
+      const ids = (follows ?? []).map((f) => f.following_id);
+      if (!ids.length) {
+        if (!cancelled) setSigmatized([]);
+        return;
+      }
+      const { data } = await supabase
+        .from('streams')
+        .select(
+          'id, title, viewer_count, thumbnail_url, is_live, profiles!inner(id, username, display_name, avatar_url), categories(name, slug)',
+        )
+        .eq('is_live', true)
+        .in('user_id', ids)
+        .order('viewer_count', { ascending: false });
+      if (!cancelled) setSigmatized((data as unknown as SigmaStream[]) ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return streams.filter((s) => {
+      const matchesQuery =
+        !q || s.title.toLowerCase().includes(q) || s.profiles.display_name.toLowerCase().includes(q);
+      const matchesCategory = !selected || s.categories?.slug === selected;
+      return matchesQuery && matchesCategory;
+    });
+  }, [streams, query, selected]);
+
+  const featured = filtered[0];
+  const trending = filtered.slice(1, 13);
 
   return (
     <AppLayout>
-      <div className="max-w-[1400px] mx-auto px-3 md:px-6 py-4 space-y-5">
-        {/* Back arrow + title */}
-        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
-          <Link to="/" className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center hover:bg-accent transition-all hover:-translate-x-0.5 hover:scale-110">
-            <ChevronDown className="w-4 h-4 rotate-90 text-foreground" />
-          </Link>
-          <h1 className="text-xl font-black tracking-tight text-aurora">Discover</h1>
-        </motion.div>
-
-        {/* Search Bar - VidBox full width */}
-        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 h-12 bg-card border-border/60 rounded-xl text-sm font-medium"
-            />
+      <div className="mx-auto max-w-[1400px] space-y-8 px-3 py-5 md:px-6">
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border bg-card">
+              <Compass className="h-5 w-5" />
+            </span>
+            <div>
+              <h1 className="text-xl font-black tracking-tight">Discover</h1>
+              <p className="text-xs text-muted-foreground">Live channels, creators and categories on Sigma.</p>
+            </div>
           </div>
-        </motion.div>
-
-        {/* VidBox-style dropdown filters */}
-        <motion.div
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar"
-        >
-          <Select value={selectedCategory || 'all'} onValueChange={(v) => setSelectedCategory(v === 'all' ? null : v)}>
-            <SelectTrigger className="w-auto min-w-[100px] h-9 bg-card border-border/60 rounded-lg text-xs font-medium">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {categories.map(c => <SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-auto min-w-[100px] h-9 bg-card border-border/60 rounded-lg text-xs font-medium">
-              <SelectValue placeholder="Popular" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="popular">Popular</SelectItem>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="viewers">Most Viewers</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select>
-            <SelectTrigger className="w-auto min-w-[90px] h-9 bg-card border-border/60 rounded-lg text-xs font-medium">
-              <SelectValue placeholder="Ratings" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Ratings</SelectItem>
-              <SelectItem value="8+">8.0+</SelectItem>
-              <SelectItem value="7+">7.0+</SelectItem>
-              <SelectItem value="6+">6.0+</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {selectedCategory && (
-            <Button variant="ghost" size="sm" onClick={() => setSelectedCategory(null)} className="text-destructive hover:text-destructive/80 gap-1 text-xs shrink-0 h-9 rounded-lg bg-destructive/10 hover:bg-destructive/15 px-3">
-              <RotateCcw className="w-3 h-3" /> Reset
+          <Link to="/live">
+            <Button size="sm" variant="secondary" className="h-9 rounded-full text-xs font-semibold">
+              <Radio className="mr-1.5 h-3.5 w-3.5" />
+              All live
             </Button>
-          )}
-        </motion.div>
+          </Link>
+        </header>
 
-        {/* Poster Grid - VidBox style */}
-        <div>
-          {loading ? (
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2.5">
-              {[...Array(14)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[2/3] rounded-xl" />
-              ))}
-            </div>
-          ) : filteredStreams.length > 0 ? (
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2.5">
-              <AnimatePresence mode="popLayout">
-                {filteredStreams.map((stream, i) => (
-                  <motion.div
-                    key={stream.id}
-                    initial={{ opacity: 0, y: 30, scale: 0.92, filter: 'blur(8px)' }}
-                    animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ delay: i * 0.04, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    layout
-                  >
-                    <Link to={`/watch/${stream.profiles.username}`} className="group block">
-                      <div className="tilt-3d shine-sweep rounded-xl overflow-hidden bg-card border border-border/30 hover:border-primary/50">
-                        <div className="relative aspect-[2/3] overflow-hidden">
-                          {stream.thumbnail_url ? (
-                            <img src={stream.thumbnail_url} alt={stream.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary to-accent/5 flex items-center justify-center">
-                              <Video className="w-8 h-8 text-muted-foreground/20 float-gentle" />
-                            </div>
-                          )}
+        <InputGroup className="h-12">
+          <InputGroupAddon>
+            <Search className="h-4 w-4" />
+          </InputGroupAddon>
+          <InputGroupInput
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Filter live channels"
+            aria-label="Filter live channels"
+          />
+        </InputGroup>
 
-                          {/* Viewer count badge */}
-                          {stream.viewer_count > 0 && (
-                            <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 bg-black/70 backdrop-blur-sm text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                              {formatViewerCount(stream.viewer_count)} viewers
-                            </div>
-                          )}
-
-                          {/* Bookmark - top left */}
-                          <button className="absolute top-1.5 left-1.5 w-6 h-6 rounded bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/60 hover:text-white hover:scale-125 active:scale-90 transition-all duration-200">
-                            <Bookmark className="w-3 h-3" />
-                          </button>
-
-                          {/* LIVE badge */}
-                          <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1">
-                            <span className="bg-destructive text-destructive-foreground text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                              <span className="w-1 h-1 bg-white rounded-full live-ripple" /> LIVE
-                            </span>
-                            <span className="bg-black/60 backdrop-blur-sm text-white text-[9px] px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                              <Eye className="w-2.5 h-2.5" /> {formatViewerCount(stream.viewer_count)}
-                            </span>
-                          </div>
-
-                          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                        <div className="p-2">
-                          <h3 className="font-semibold text-[11px] text-foreground truncate group-hover:text-primary transition-colors">{stream.title}</h3>
-                          <p className="text-[10px] text-muted-foreground truncate">{stream.profiles.display_name}</p>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-              <Users className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-foreground mb-1">No streams found</h3>
-              <p className="text-muted-foreground text-sm">{searchQuery || selectedCategory ? 'Try adjusting your filters' : 'No one is live right now'}</p>
-            </motion.div>
-          )}
+        <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+          <Button
+            size="sm"
+            variant={selected === null ? 'default' : 'secondary'}
+            className="h-8 shrink-0 rounded-full text-xs"
+            onClick={() => setSelected(null)}
+          >
+            All
+          </Button>
+          {categories.map((c) => (
+            <Button
+              key={c.id}
+              size="sm"
+              variant={selected === c.slug ? 'default' : 'secondary'}
+              className="h-8 shrink-0 rounded-full text-xs"
+              onClick={() => setSelected(selected === c.slug ? null : c.slug)}
+            >
+              {c.name}
+            </Button>
+          ))}
         </div>
 
-        {/* Masthead */}
-        <div className="border-t border-border/40 mt-12 pt-6 pb-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-            <p>© 2026 NOSHIAN. INC</p>
-            <div className="flex items-center gap-6">
-              <span>CEO. Mifong NOEL (NOSH)</span>
-              <span>CFO. Bekoula Fabrice Joyce</span>
-            </div>
+        {loading ? (
+          <Skeleton className="aspect-video w-full rounded-3xl" />
+        ) : featured ? (
+          <StreamCard stream={featured} featured />
+        ) : (
+          <GlassCard className="px-6 py-14 text-center">
+            <Radio className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
+            <p className="text-sm font-semibold">Nobody is live right now</p>
+            <p className="mt-1 text-xs text-muted-foreground">Follow creators or start your own broadcast.</p>
+          </GlassCard>
+        )}
+
+        {user && (
+          <StreamRail
+            title="From channels you Sigmatize"
+            description="Live right now"
+            items={sigmatized}
+            loading={loading}
+            empty="None of your channels are live yet."
+            renderItem={(s, i) => <StreamCard stream={s} index={i} />}
+            action={
+              <Link to="/following" className="text-xs font-semibold text-muted-foreground hover:text-foreground">
+                See all
+              </Link>
+            }
+          />
+        )}
+
+        <StreamRail
+          title="Trending live"
+          description="Sorted by current viewers"
+          items={trending}
+          loading={loading}
+          empty="No live channels match this filter."
+          renderItem={(s, i) => <StreamCard stream={s} index={i} />}
+        />
+
+        <StreamRail
+          title="Creators on Sigma"
+          description="New and active profiles"
+          items={creators}
+          loading={loading}
+          basis="basis-1/2 sm:basis-1/3 lg:basis-1/5 xl:basis-[14%]"
+          empty="No creators yet."
+          renderItem={(c, i) => (
+            <CreatorHoverCard user={c}>
+              <div>
+                <CreatorCard user={c} index={i} />
+              </div>
+            </CreatorHoverCard>
+          )}
+        />
+
+        <section className="space-y-3" aria-label="Categories">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-base font-bold tracking-tight sm:text-lg">Categories</h2>
           </div>
-        </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {categories.map((c) => {
+              const count = streams.filter((s) => s.categories?.slug === c.slug).length;
+              const image = c.image_url || categoryImages[c.slug];
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setSelected(selected === c.slug ? null : c.slug)}
+                  className="group relative overflow-hidden rounded-3xl border border-border bg-card text-left transition-transform duration-300 hover:-translate-y-0.5"
+                >
+                  <div className="relative aspect-[16/9]">
+                    {image ? (
+                      <img
+                        src={image}
+                        alt={c.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-secondary" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                    <div className="absolute inset-x-3 bottom-3">
+                      <p className="text-sm font-semibold text-white">{c.name}</p>
+                      <p className="flex items-center gap-1 text-[11px] text-white/70">
+                        <Users className="h-3 w-3" />
+                        {count} live
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </AppLayout>
   );
