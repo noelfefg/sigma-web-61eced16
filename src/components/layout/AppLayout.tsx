@@ -86,11 +86,64 @@ export function AppLayout({ children }: AppLayoutProps) {
               <img src={sigmaLogo} alt="SIGMA" className="w-9 h-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/40 transition-all" />
               <span className="hidden sm:inline text-lg font-extrabold tracking-tight">SIGMA</span>
             </Link>
-            <UserSearch className="hidden md:block w-64 ml-3" />
+            <UserSearch className="hidden md:block w-56 ml-3" />
           </div>
+
+          {/* Center: desktop navigation */}
+          <NavigationMenu className="hidden lg:flex mx-auto">
+            <NavigationMenuList>
+              {desktopNav.map((item) => (
+                <NavigationMenuItem key={item.path}>
+                  <NavigationMenuLink asChild active={isActive(item.path)}>
+                    <Link
+                      to={item.path}
+                      onClick={() => feedback('tap', 6)}
+                      className={cn(navigationMenuTriggerStyle(), 'rounded-full bg-transparent text-sm font-semibold')}
+                    >
+                      {item.label}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="rounded-full bg-transparent text-sm font-semibold">More</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[380px] gap-1 p-2 sm:grid-cols-2">
+                    {moreNav.map((item) => (
+                      <li key={item.path}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to={item.path}
+                            className="flex select-none items-start gap-2 rounded-xl p-2.5 leading-none transition-colors hover:bg-accent focus:bg-accent"
+                          >
+                            <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                            <span className="min-w-0">
+                              <span className="block text-sm font-semibold">{item.label}</span>
+                              <span className="block truncate text-xs text-muted-foreground">{item.hint}</span>
+                            </span>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
 
           {/* Right: actions */}
           <div className="ml-auto flex items-center gap-1.5">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/search" className="hidden md:inline-flex">
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full" aria-label="Open search page">
+                    <Search className="w-5 h-5" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>Search Sigma</TooltipContent>
+            </Tooltip>
+
             <Button
               variant="ghost"
               size="icon"
@@ -100,6 +153,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             >
               <Search className="w-5 h-5" />
             </Button>
+
 
             {/* Create — desktop only, bottom bar handles tablet/mobile */}
             <ThemeToggle />
