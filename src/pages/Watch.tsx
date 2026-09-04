@@ -271,15 +271,12 @@ export default function WatchPage() {
           <div className="hidden lg:flex flex-col fixed right-0 top-14 bottom-0 w-[340px] border-l border-border bg-card">
             {/* Chat header */}
             <div className="h-12 px-4 flex items-center justify-between border-b border-border">
-              <div className="flex items-center gap-1">
-                <span className="text-sm font-semibold text-foreground">Top chat</span>
-                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-sm font-semibold text-foreground">Live chat</span>
+                {chatters.length > 0 && <AvatarGroup people={chatters} size="xs" max={3} />}
               </div>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setChatOpen(false)}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setChatOpen(false)} aria-label="Close chat">
                   <X className="w-4 h-4" />
                 </Button>
               </div>
@@ -287,23 +284,37 @@ export default function WatchPage() {
 
             {/* Chat messages */}
             <ScrollArea className="flex-1">
-              <div className="px-4 py-2 space-y-3">
-                {messages.map((msg) => (
-                  <div key={msg.id} className="flex items-start gap-2 group">
-                    <Avatar className="h-6 w-6 mt-0.5 shrink-0">
-                      <AvatarFallback className="text-[10px] bg-secondary">
-                        {msg.profiles.display_name[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 text-[13px] leading-snug">
-                      <span className="font-medium text-muted-foreground mr-1.5">@{msg.profiles.username}</span>
-                      <span className="text-foreground">{msg.message}</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="px-3 py-2">
+                {messages.length === 0 && (
+                  <p className="py-10 text-center text-xs text-muted-foreground">No messages yet. Say hello.</p>
+                )}
+                {messages.map((msg, i) => {
+                  const mine = msg.profiles.username === user?.email?.split('@')[0];
+                  const grouped = i > 0 && messages[i - 1].profiles.username === msg.profiles.username;
+                  return (
+                    <Message key={msg.id} variant={mine ? 'outgoing' : 'incoming'} grouped={grouped}>
+                      <MessageAvatar src={msg.profiles.avatar_url} name={msg.profiles.display_name} hidden={grouped} />
+                      <MessageContent>
+                        {!grouped && (
+                          <span className={`px-1 text-[11px] font-medium text-muted-foreground ${mine ? 'text-right' : ''}`}>
+                            @{msg.profiles.username}
+                          </span>
+                        )}
+                        <Bubble variant={mine ? 'outgoing' : 'incoming'} grouped={grouped} className="max-w-[240px]">
+                          <BubbleContent>{msg.message}</BubbleContent>
+                        </Bubble>
+                        <MessageFooter
+                          variant={mine ? 'outgoing' : 'incoming'}
+                          timestamp={new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        />
+                      </MessageContent>
+                    </Message>
+                  );
+                })}
                 <div ref={chatEndRef} />
               </div>
             </ScrollArea>
+
 
             {/* Chat input */}
             <div className="p-3 border-t border-border">
