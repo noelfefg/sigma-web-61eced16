@@ -235,7 +235,7 @@ export default function BrowsePage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {categories.map((c) => {
               const count = streams.filter((s) => s.categories?.slug === c.slug).length;
-              const image = c.image_url || categoryImages[c.slug];
+               const image = categoryImages[c.slug] || c.image_url;
               return (
                 <button
                   key={c.id}
