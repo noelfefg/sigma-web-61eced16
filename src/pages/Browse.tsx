@@ -14,24 +14,24 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { SigmaStream, SigmaUser } from '@/types/sigma';
 
-import categoryGaming from '@/assets/category-gaming.jpg';
-import categoryCreative from '@/assets/category-creative.jpg';
-import categoryMusic from '@/assets/category-music.jpg';
-import categoryEducation from '@/assets/category-education.jpg';
-import categoryIrl from '@/assets/category-irl.jpg';
-import categoryJustChatting from '@/assets/category-just-chatting.jpg';
-import categoryPodcast from '@/assets/category-podcast.jpg';
-import categorySports from '@/assets/category-sports.jpg';
+import categoryGaming from '@/assets/category-gaming.jpg.asset.json';
+import categoryCreative from '@/assets/category-creative.jpg.asset.json';
+import categoryMusic from '@/assets/category-music.jpg.asset.json';
+import categoryEducation from '@/assets/category-education.jpg.asset.json';
+import categoryIrl from '@/assets/category-irl.jpg.asset.json';
+import categoryJustChatting from '@/assets/category-just-chatting.jpg.asset.json';
+import categoryPodcast from '@/assets/category-podcast.jpg.asset.json';
+import categorySports from '@/assets/category-sports.jpg.asset.json';
 
 const categoryImages: Record<string, string> = {
-  gaming: categoryGaming,
-  creative: categoryCreative,
-  music: categoryMusic,
-  education: categoryEducation,
-  irl: categoryIrl,
-  'just-chatting': categoryJustChatting,
-  podcast: categoryPodcast,
-  sports: categorySports,
+  gaming: categoryGaming.url,
+  creative: categoryCreative.url,
+  music: categoryMusic.url,
+  education: categoryEducation.url,
+  irl: categoryIrl.url,
+  'just-chatting': categoryJustChatting.url,
+  podcast: categoryPodcast.url,
+  sports: categorySports.url,
 };
 
 interface Category {
@@ -235,7 +235,7 @@ export default function BrowsePage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {categories.map((c) => {
               const count = streams.filter((s) => s.categories?.slug === c.slug).length;
-              const image = c.image_url || categoryImages[c.slug];
+               const image = categoryImages[c.slug] || c.image_url;
               return (
                 <button
                   key={c.id}
