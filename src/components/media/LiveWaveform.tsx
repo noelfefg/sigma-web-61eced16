@@ -37,7 +37,7 @@ export function LiveWaveform({
       analyser = ctx.createAnalyser();
       analyser.fftSize = 512;
       ctx.createMediaStreamSource(stream).connect(analyser);
-      data = new Uint8Array(analyser.frequencyBinCount);
+      data = new Uint8Array(new ArrayBuffer(analyser.frequencyBinCount));
     }
 
     const tick = () => {
