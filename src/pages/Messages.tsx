@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
 import { format, isToday, isYesterday } from 'date-fns';
+import { Message, MessageAvatar, MessageContent, Bubble, BubbleContent, MessageFooter } from '@/components/messaging/Bubble';
 
 interface Conversation {
   id: string;
