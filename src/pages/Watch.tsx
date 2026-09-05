@@ -46,6 +46,8 @@ export default function WatchPage() {
   const [chatOpen, setChatOpen] = useState(true);
   const [followerCount, setFollowerCount] = useState(0);
   const [isOwnStream, setIsOwnStream] = useState(false);
+  const [myUsername, setMyUsername] = useState<string | null>(null);
+
   const chatEndRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
