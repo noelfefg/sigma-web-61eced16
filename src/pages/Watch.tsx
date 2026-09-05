@@ -107,6 +107,12 @@ export default function WatchPage() {
   }, [streamData]);
 
 
+  useEffect(() => {
+    if (!user) { setMyUsername(null); return; }
+    supabase.from('profiles').select('username').eq('id', user.id).maybeSingle()
+      .then(({ data }) => setMyUsername(data?.username ?? null));
+  }, [user]);
+
   const logEvent = useStreamEventLogger(streamData?.id);
   useStreamMetricRecorder({
     streamId: streamData?.id,
@@ -291,7 +297,7 @@ export default function WatchPage() {
                   <p className="py-10 text-center text-xs text-muted-foreground">No messages yet. Say hello.</p>
                 )}
                 {messages.map((msg, i) => {
-                  const mine = msg.profiles.username === user?.email?.split('@')[0];
+                  const mine = !!myUsername && msg.profiles.username === myUsername;
                   const grouped = i > 0 && messages[i - 1].profiles.username === msg.profiles.username;
                   return (
                     <Message key={msg.id} variant={mine ? 'outgoing' : 'incoming'} grouped={grouped}>
