@@ -30,7 +30,7 @@ export function LiveWaveform({
 
     let ctx: AudioContext | undefined;
     let analyser: AnalyserNode | undefined;
-    let data: Uint8Array | undefined;
+    let data: Uint8Array<ArrayBuffer> | undefined;
 
     if (stream) {
       ctx = new AudioContext();
