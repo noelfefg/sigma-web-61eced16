@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
 import { format, isToday, isYesterday } from 'date-fns';
+import { Message, MessageAvatar, MessageContent, Bubble, BubbleContent, MessageFooter } from '@/components/messaging/Bubble';
 
 interface Conversation {
   id: string;
@@ -538,39 +539,29 @@ export default function MessagesPage() {
                   <AnimatePresence>
                     {messages.map((msg, i) => {
                       const isMe = msg.sender_id === user.id;
+                      const grouped = i > 0 && messages[i - 1].sender_id === msg.sender_id;
                       return (
-                        <motion.div
-                          key={msg.id}
-                          initial={{ opacity: 0, y: 8, scale: 0.97 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          transition={{ delay: i * 0.02 }}
-                          className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div className={`max-w-[75%] group`}>
-                            <div
-                              className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                                isMe
-                                  ? 'bg-primary text-primary-foreground rounded-br-md'
-                                  : 'bg-secondary/80 text-foreground rounded-bl-md'
-                              }`}
-                            >
-                              {msg.content}
-                            </div>
-                            <div className={`flex items-center gap-1 mt-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
-                              <span className="text-[10px] text-muted-foreground">
-                                {format(new Date(msg.created_at), 'h:mm a')}
-                              </span>
-                              {isMe && (
-                                msg.read_at
-                                  ? <CheckCheck className="w-3 h-3 text-primary" />
-                                  : <Check className="w-3 h-3 text-muted-foreground" />
-                              )}
-                            </div>
-                          </div>
-                        </motion.div>
+                        <Message key={msg.id} variant={isMe ? 'outgoing' : 'incoming'} grouped={grouped}>
+                          <MessageAvatar
+                            src={isMe ? null : otherParticipant.avatar_url}
+                            name={isMe ? 'You' : otherParticipant.display_name}
+                            hidden={grouped}
+                          />
+                          <MessageContent>
+                            <Bubble variant={isMe ? 'outgoing' : 'incoming'} grouped={grouped}>
+                              <BubbleContent>{msg.content}</BubbleContent>
+                            </Bubble>
+                            <MessageFooter
+                              variant={isMe ? 'outgoing' : 'incoming'}
+                              timestamp={format(new Date(msg.created_at), 'h:mm a')}
+                              state={isMe ? (msg.read_at ? 'read' : 'sent') : undefined}
+                            />
+                          </MessageContent>
+                        </Message>
                       );
                     })}
                   </AnimatePresence>
+
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>

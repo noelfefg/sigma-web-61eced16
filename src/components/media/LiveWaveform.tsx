@@ -30,14 +30,14 @@ export function LiveWaveform({
 
     let ctx: AudioContext | undefined;
     let analyser: AnalyserNode | undefined;
-    let data: Uint8Array | undefined;
+    let data: Uint8Array<ArrayBuffer> | undefined;
 
     if (stream) {
       ctx = new AudioContext();
       analyser = ctx.createAnalyser();
       analyser.fftSize = 512;
       ctx.createMediaStreamSource(stream).connect(analyser);
-      data = new Uint8Array(analyser.frequencyBinCount);
+      data = new Uint8Array(new ArrayBuffer(analyser.frequencyBinCount));
     }
 
     const tick = () => {

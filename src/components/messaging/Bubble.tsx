@@ -32,7 +32,7 @@ export const Message = forwardRef<HTMLDivElement, MessageProps>(
         grouped ? 'mt-0.5' : 'mt-3',
         className,
       )}
-      {...(props as never)}
+      {...(props as Record<string, unknown>)}
     />
   ),
 );
