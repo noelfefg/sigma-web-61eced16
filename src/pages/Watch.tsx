@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Share2, Users, Send, Maximize2, Volume2, VolumeX, Play, Pause, MessageSquare, Loader2, Camera, X, MoreHorizontal, ChevronDown } from 'lucide-react';
+import { Share2, Users, Send, Maximize2, Play, MessageSquare, Loader2, Camera, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -13,6 +13,7 @@ import { StreamPlayer } from '@/components/stream/StreamPlayer';
 import { Message, MessageAvatar, MessageContent, Bubble, BubbleContent, MessageFooter } from '@/components/messaging/Bubble';
 import { AvatarGroup } from '@/components/common/AvatarGroup';
 import { useStreamEventLogger, useStreamMetricRecorder } from '@/hooks/useStreamMetrics';
+import { useToast } from '@/hooks/use-toast';
 
 interface StreamData {
   id: string; title: string; description: string | null; viewer_count: number; is_live: boolean;
@@ -36,19 +37,19 @@ export default function WatchPage() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [streamData, setStreamData] = useState<StreamData | null>(null);
   const [loading, setLoading] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(true);
   const [chatOpen, setChatOpen] = useState(true);
   const [followerCount, setFollowerCount] = useState(0);
   const [isOwnStream, setIsOwnStream] = useState(false);
   const [myUsername, setMyUsername] = useState<string | null>(null);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -143,13 +144,41 @@ export default function WatchPage() {
 
 
   const handleFollow = async () => {
-    if (!user || !streamData) return;
+    if (!streamData) return;
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
     if (isFollowing) {
       await supabase.from('followers').delete().eq('follower_id', user.id).eq('following_id', streamData.profiles.id);
       setIsFollowing(false); setFollowerCount((p) => p - 1);
     } else {
       await supabase.from('followers').insert({ follower_id: user.id, following_id: streamData.profiles.id });
       setIsFollowing(true); setFollowerCount((p) => p + 1);
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = { title: streamData?.title ?? 'Sigma live stream', url: window.location.href };
+    try {
+      if (navigator.share) await navigator.share(shareData);
+      else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({ title: 'Link copied', description: 'The stream link is ready to share.' });
+      }
+      logEvent('share');
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      toast({ title: 'Could not share', description: 'Please copy the address from your browser.', variant: 'destructive' });
+    }
+  };
+
+  const handleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await playerContainerRef.current?.requestFullscreen();
+    } catch {
+      toast({ title: 'Fullscreen unavailable', description: 'Your browser blocked fullscreen mode.' });
     }
   };
 
@@ -169,11 +198,11 @@ export default function WatchPage() {
         {/* Main content area */}
         <div className={`flex-1 flex flex-col min-w-0 ${chatOpen ? 'lg:mr-[340px]' : ''}`}>
           {/* Video Player */}
-          <div className="relative bg-black w-full" style={{ aspectRatio: '16/9' }}>
+          <div ref={playerContainerRef} className="relative bg-black w-full" style={{ aspectRatio: '16/9' }}>
             {isOwnStream && !streamData.source_url ? (
               <video ref={videoRef} autoPlay muted playsInline className="absolute inset-0 w-full h-full object-cover" />
             ) : streamData.source_url ? (
-              <StreamPlayer sourceType={streamData.source_type} sourceUrl={streamData.source_url} muted={isMuted} />
+              <StreamPlayer sourceType={streamData.source_type} sourceUrl={streamData.source_url} muted />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
                 <div className="text-center">
@@ -196,15 +225,8 @@ export default function WatchPage() {
             {/* Bottom controls bar */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8" onClick={() => setIsPlaying(!isPlaying)}>
-                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                  </Button>
-                  <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8" onClick={() => setIsMuted(!isMuted)}>
-                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                  </Button>
-                </div>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8">
+                <span className="text-xs font-semibold text-white">Live</span>
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8" onClick={handleFullscreen} aria-label="Toggle fullscreen">
                   <Maximize2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -236,7 +258,6 @@ export default function WatchPage() {
                 </div>
                 <Button
                   onClick={handleFollow}
-                  disabled={!user}
                   className={`rounded-full px-4 h-9 text-sm font-semibold ml-2 ${
                     isFollowing
                       ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
@@ -253,9 +274,7 @@ export default function WatchPage() {
                   variant="secondary"
                   size="sm"
                   className="rounded-full gap-1.5 h-9"
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                  }}
+                   onClick={handleShare}
                 >
                   <Share2 className="w-4 h-4" />Share
                 </Button>
@@ -276,7 +295,7 @@ export default function WatchPage() {
 
         {/* Chat Panel – YouTube style */}
         {chatOpen && (
-          <div className="hidden lg:flex flex-col fixed right-0 top-14 bottom-0 w-[340px] border-l border-border bg-card">
+          <div className="fixed inset-x-0 bottom-16 top-[46vh] z-30 flex flex-col border-t border-border bg-card shadow-2xl lg:inset-x-auto lg:right-0 lg:top-14 lg:bottom-0 lg:w-[340px] lg:border-l lg:border-t-0 lg:shadow-none">
             {/* Chat header */}
             <div className="h-12 px-4 flex items-center justify-between border-b border-border">
               <div className="flex items-center gap-2 min-w-0">

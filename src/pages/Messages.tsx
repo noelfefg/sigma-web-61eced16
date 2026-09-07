@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare, Search, Send, Plus, ArrowLeft, Users, UserPlus,
-  Check, CheckCheck, Smile, MoreVertical, Phone, Video, ImageIcon
+  Smile, UserCircle
 } from 'lucide-react';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
@@ -18,6 +18,9 @@ import {
 import { Link } from 'react-router-dom';
 import { format, isToday, isYesterday } from 'date-fns';
 import { Message, MessageAvatar, MessageContent, Bubble, BubbleContent, MessageFooter } from '@/components/messaging/Bubble';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+const quickEmoji = ['😀', '😂', '❤️', '👏', '🔥', '🎉', '👍', '✨'];
 
 interface Conversation {
   id: string;
@@ -508,17 +511,11 @@ export default function MessagesPage() {
                     <p className="text-[11px] text-muted-foreground">@{otherParticipant.username}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground">
-                    <Phone className="w-4 h-4" />
+                <Link to={`/channel/${otherParticipant.username}`}>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground" aria-label="View profile">
+                    <UserCircle className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground">
-                    <Video className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground">
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </div>
+                </Link>
               </motion.div>
 
               {/* Messages */}
@@ -569,9 +566,6 @@ export default function MessagesPage() {
               {/* Input */}
               <div className="p-3 bg-card/40 backdrop-blur-xl border-t border-border/20">
                 <form onSubmit={sendMessage} className="max-w-3xl mx-auto flex items-center gap-2">
-                  <Button type="button" variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground flex-shrink-0">
-                    <ImageIcon className="w-5 h-5" />
-                  </Button>
                   <div className="flex-1 relative">
                     <Input
                       ref={inputRef}
@@ -580,14 +574,39 @@ export default function MessagesPage() {
                       placeholder="Type a message..."
                       className="bg-secondary/50 rounded-full border-0 h-11 pr-12 text-sm"
                     />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full text-muted-foreground"
-                    >
-                      <Smile className="w-5 h-5" />
-                    </Button>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Choose emoji"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full text-muted-foreground"
+                        >
+                          <Smile className="w-5 h-5" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" side="top" className="w-auto p-2">
+                        <div className="grid grid-cols-4 gap-1" aria-label="Emoji choices">
+                          {quickEmoji.map((emoji) => (
+                            <Button
+                              key={emoji}
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 text-lg"
+                              onClick={() => {
+                                setNewMessage((current) => `${current}${emoji}`);
+                                inputRef.current?.focus();
+                              }}
+                              aria-label={`Add ${emoji}`}
+                            >
+                              {emoji}
+                            </Button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <Button
                     type="submit"

@@ -205,13 +205,15 @@ export function AppLayout({ children }: AppLayoutProps) {
             <BottomTab key={item.path} item={item} active={isActive(item.path)} onTap={() => feedback('tap', 8)} />
           ))}
 
-          <button
+          <Button
+            type="button"
             onClick={() => { feedback('pop', 10); navigate('/go-live'); }}
-            aria-label="Create"
+            aria-label="Go live"
+            title="Go live"
             className="relative -mt-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-transform active:scale-90 hover:scale-105"
           >
-            <Plus className="w-7 h-7" strokeWidth={2.5} />
-          </button>
+            <Radio className="w-7 h-7" strokeWidth={2.5} />
+          </Button>
 
           <BottomTab item={mainNav[2]} active={isActive(mainNav[2].path)} onTap={() => feedback('tap', 8)} />
           <BottomTab
