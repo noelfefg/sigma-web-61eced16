@@ -177,22 +177,30 @@ export default function SearchPage() {
               ) : (
                 <ItemGroup>
                   {tags.map((t) => (
-                    <Item key={t.id} interactive>
-                      <ItemMedia>
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-                          <Hash className="h-4 w-4" />
-                        </span>
-                      </ItemMedia>
-                      <ItemContent>
-                        <ItemTitle>#{t.tag}</ItemTitle>
-                        <ItemDescription>
-                          {t.use_count} post{t.use_count === 1 ? '' : 's'}
-                        </ItemDescription>
-                      </ItemContent>
-                      <ItemActions>
-                        <SigmaBadge kind="category" label="Tag" />
-                      </ItemActions>
-                    </Item>
+                    <button
+                      key={t.id}
+                      type="button"
+                      className="w-full text-left"
+                      onClick={() => setQuery(`#${t.tag}`)}
+                      aria-label={`Search for hashtag ${t.tag}`}
+                    >
+                      <Item interactive>
+                        <ItemMedia>
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+                            <Hash className="h-4 w-4" />
+                          </span>
+                        </ItemMedia>
+                        <ItemContent>
+                          <ItemTitle>#{t.tag}</ItemTitle>
+                          <ItemDescription>
+                            {t.use_count} post{t.use_count === 1 ? '' : 's'}
+                          </ItemDescription>
+                        </ItemContent>
+                        <ItemActions>
+                          <SigmaBadge kind="category" label="Search" />
+                        </ItemActions>
+                      </Item>
+                    </button>
                   ))}
                 </ItemGroup>
               )}

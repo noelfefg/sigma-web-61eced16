@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ImageIcon, Radio, Mail, Settings, MessageSquareHeart, UserCircle } from 'lucide-react';
+import { Plus, Radio, Mail, Settings, MessageSquareHeart, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const createOptions = [
-  { icon: ImageIcon, label: 'Post', description: 'Share a photo, video or text', path: '/' },
   { icon: Radio, label: 'Go Live', description: 'Start a livestream', path: '/go-live' },
 ];
 
