@@ -1,20 +1,12 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { House, Compass, MessageCircle, Plus, LogIn, UserCircle, Search, Menu, X, Radio, Settings, MessageSquareHeart, Users, BarChart3 } from 'lucide-react';
+import { Compass, House, Menu, MessageCircle, Radio, Search, Settings, Users, UserCircle, BarChart3, MessageSquareHeart, LogIn, X } from 'lucide-react';
 import sigmaLogo from '@/assets/sigma-logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { UserSearch } from '@/components/layout/UserSearch';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -22,43 +14,36 @@ import { UserDropdownMenu } from '@/components/layout/UserDropdownMenu';
 import { NotificationPanel, NotificationBell } from '@/components/notifications/NotificationPanel';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useSound } from '@/hooks/useSound';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-interface AppLayoutProps {
-  children: ReactNode;
-}
+interface AppLayoutProps { children: ReactNode }
 
-const mainNav = [
+const tabs = [
   { icon: House, label: 'Home', path: '/' },
   { icon: Compass, label: 'Discover', path: '/browse' },
+  { icon: Radio, label: 'Live', path: '/live' },
   { icon: MessageCircle, label: 'Messages', path: '/messages' },
 ];
 
-const desktopNav = [
-  { label: 'Home', path: '/' },
-  { label: 'Discover', path: '/browse' },
-  { label: 'Live', path: '/live' },
-  { label: 'Messages', path: '/messages' },
+const explore = [
+  { icon: Search, label: 'Search', path: '/search' },
+  { icon: Users, label: 'Sigmatized', path: '/following' },
 ];
-
-const moreNav = [
-  { icon: Users, label: 'Sigmatized', path: '/following', hint: 'Channels you Sigmatize' },
-  { icon: UserCircle, label: 'You', path: '/you', hint: 'Your profile and activity' },
-  { icon: BarChart3, label: 'Studio', path: '/studio', hint: 'Real analytics for your broadcasts' },
-  { icon: Radio, label: 'Go Live', path: '/go-live', hint: 'Start a broadcast' },
-  { icon: Settings, label: 'Settings', path: '/settings', hint: 'Appearance, cursor and account' },
-  { icon: MessageSquareHeart, label: 'Feedback', path: '/feedback', hint: 'Tell us what to improve' },
+const creator = [
+  { icon: UserCircle, label: 'You', path: '/you' },
+  { icon: Radio, label: 'Go Live', path: '/go-live' },
+  { icon: BarChart3, label: 'Studio', path: '/studio' },
 ];
-
-const drawerNav = moreNav;
-
+const account = [
+  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: MessageSquareHeart, label: 'Feedback', path: '/feedback' },
+];
 
 export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const { user, signOut } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -66,249 +51,101 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { unreadCount, requestPushPermission } = useNotifications();
 
   useEffect(() => { if (user) requestPushPermission(); }, [user, requestPushPermission]);
-
   useEffect(() => {
     if (!user) { setAvatarUrl(null); return; }
     supabase.from('profiles').select('avatar_url').eq('id', user.id).single()
       .then(({ data }) => setAvatarUrl(data?.avatar_url || null));
   }, [user]);
+  useEffect(() => { setMenuOpen(false); setSearchOpen(false); setNotifOpen(false); }, [location.pathname]);
 
-  const isActive = (path: string) => location.pathname === path;
+  const active = (path: string) => path === '/' ? location.pathname === '/' : location.pathname === path || location.pathname.startsWith(`${path}/`);
+  const isMoreActive = [...explore, ...creator, ...account].some((item) => active(item.path));
+  const menuLink = (item: typeof explore[number]) => (
+    <Link
+      key={item.path}
+      to={item.path}
+      onClick={() => { feedback('tap'); setMenuOpen(false); }}
+      aria-current={active(item.path) ? 'page' : undefined}
+      className={cn('flex h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', active(item.path) ? 'bg-accent text-foreground' : 'text-muted-foreground')}
+    >
+      <item.icon className="h-5 w-5 shrink-0" aria-hidden="true" />{item.label}
+    </Link>
+  );
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="min-h-screen bg-background flex flex-col">
-        {/* Top header */}
-        <header className="sticky top-0 z-40 bg-card/90 backdrop-blur-xl border-b border-border/60 h-14 flex items-center px-3 md:px-5 gap-2">
-          {/* Left: brand */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Link to="/" className="flex items-center gap-2 group">
-              <img src={sigmaLogo} alt="SIGMA" className="w-9 h-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/40 transition-all" />
-              <span className="hidden sm:inline text-lg font-extrabold tracking-tight">SIGMA</span>
-            </Link>
-            <UserSearch className="hidden md:block w-56 ml-3" />
-          </div>
-
-          {/* Center: desktop navigation */}
-          <NavigationMenu className="hidden lg:flex mx-auto">
-            <NavigationMenuList>
-              {desktopNav.map((item) => (
-                <NavigationMenuItem key={item.path}>
-                  <NavigationMenuLink asChild active={isActive(item.path)}>
-                    <Link
-                      to={item.path}
-                      onClick={() => feedback('tap', 6)}
-                      className={cn(navigationMenuTriggerStyle(), 'rounded-full bg-transparent text-sm font-semibold')}
-                    >
-                      {item.label}
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="rounded-full bg-transparent text-sm font-semibold">More</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[380px] gap-1 p-2 sm:grid-cols-2">
-                    {moreNav.map((item) => (
-                      <li key={item.path}>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to={item.path}
-                            className="flex select-none items-start gap-2 rounded-xl p-2.5 leading-none transition-colors hover:bg-accent focus:bg-accent"
-                          >
-                            <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                            <span className="min-w-0">
-                              <span className="block text-sm font-semibold">{item.label}</span>
-                              <span className="block truncate text-xs text-muted-foreground">{item.hint}</span>
-                            </span>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-
-          {/* Right: actions */}
-          <div className="ml-auto flex items-center gap-1.5">
+      <div className="flex min-h-screen flex-col bg-background">
+        <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-3 border-b border-border/70 bg-card/95 px-4 backdrop-blur-xl sm:px-6 lg:px-10">
+          <Link to="/" aria-label="Sigma home" className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <img src={sigmaLogo} alt="" className="h-9 w-9 rounded-full object-cover" />
+            <span className="hidden text-lg font-bold sm:inline">SIGMA</span>
+          </Link>
+          <div className="mx-auto hidden w-full max-w-md md:block"><UserSearch /></div>
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 md:ml-0">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link to="/search" className="hidden md:inline-flex">
-                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full" aria-label="Open search page">
-                    <Search className="w-5 h-5" />
-                  </Button>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>Search Sigma</TooltipContent>
+                <Button variant="ghost" size="icon" onClick={() => { setSearchOpen((v) => !v); feedback('tap'); }} aria-label={searchOpen ? 'Close search' : 'Open search'} aria-expanded={searchOpen} className="md:hidden">
+                  {searchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+                </Button>
+              </TooltipTrigger><TooltipContent>Search</TooltipContent>
             </Tooltip>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden h-9 w-9 rounded-full"
-              aria-label="Search"
-              onClick={() => setMobileSearchOpen((o) => !o)}
-            >
-              <Search className="w-5 h-5" />
-            </Button>
-
-
-            {/* Create — desktop only, bottom bar handles tablet/mobile */}
             <ThemeToggle />
-
             {user ? (
               <>
-                <NotificationBell onClick={() => { feedback('pop', 8); setNotifOpen((o) => !o); }} count={unreadCount} />
+                <NotificationBell onClick={() => { feedback('pop'); setNotifOpen((v) => !v); }} count={unreadCount} />
                 <UserDropdownMenu user={user} signOut={signOut} avatarUrl={avatarUrl} />
               </>
             ) : (
-              <Link to="/auth">
-                <Button size="sm" className="rounded-full font-bold">
-                  <LogIn className="w-4 h-4 mr-1" />Sign In
-                </Button>
-              </Link>
+              <Button size="sm" variant="secondary" onClick={() => navigate('/auth')}><LogIn className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">Sign in</span></Button>
             )}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-full"
-              onClick={() => setMobileMenuOpen(true)}
-              aria-label="Open menu"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => { setMenuOpen(true); feedback('tap'); }} aria-label="Open menu" aria-expanded={menuOpen}><Menu className="h-5 w-5" /></Button>
+              </TooltipTrigger><TooltipContent>Menu</TooltipContent>
+            </Tooltip>
           </div>
         </header>
-
-        {/* Mobile search drawer */}
-        {mobileSearchOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="md:hidden sticky top-14 z-30 bg-card/95 backdrop-blur-xl border-b border-border/60 px-3 py-2"
-          >
-            <UserSearch />
-          </motion.div>
-        )}
-
+        {searchOpen && <div className="sticky top-16 z-30 border-b border-border bg-card p-3 md:hidden"><UserSearch /></div>}
         <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
-
-        {/* Main content */}
-        <main className="flex-1 overflow-auto pb-24">{children}</main>
-
-        {/* Tablet + mobile bottom navigation (TikTok style) */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border/60 flex items-center justify-around h-16 px-2 md:px-8 lg:max-w-2xl lg:mx-auto lg:mb-3 lg:rounded-2xl lg:border lg:shadow-xl">
-          {[mainNav[0], mainNav[1]].map((item) => (
-            <BottomTab key={item.path} item={item} active={isActive(item.path)} onTap={() => feedback('tap', 8)} />
-          ))}
-
-          <Button
-            type="button"
-            onClick={() => { feedback('pop', 10); navigate('/go-live'); }}
-            aria-label="Go live"
-            title="Go live"
-            className="relative -mt-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-transform active:scale-90 hover:scale-105"
-          >
-            <Radio className="w-7 h-7" strokeWidth={2.5} />
-          </Button>
-
-          <BottomTab item={mainNav[2]} active={isActive(mainNav[2].path)} onTap={() => feedback('tap', 8)} />
-          <BottomTab
-            item={{ icon: UserCircle, label: 'You', path: user ? '/you' : '/auth' }}
-            active={isActive('/you')}
-            onTap={() => feedback('tap', 8)}
-          />
-        </nav>
-
-        {/* Slide-in menu */}
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-            <motion.div
-              initial={{ x: 320 }}
-              animate={{ x: 0 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 34 }}
-              className="absolute top-0 right-0 h-full w-72 bg-card border-l border-border p-4 flex flex-col"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-extrabold text-lg">Menu</span>
-                <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
-              <UserSearch className="mb-4" />
-              <nav className="flex flex-col gap-1">
-                {[...mainNav, ...drawerNav].map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors hover:bg-accent ${
-                      isActive(item.path) ? 'bg-accent text-foreground font-semibold' : 'text-foreground/80'
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
-              </nav>
-              <div className="mt-auto">
-                {user ? (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={avatarUrl || ''} />
-                      <AvatarFallback><UserCircle className="w-5 h-5" /></AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold truncate">{user.email?.split('@')[0]}</p>
-                      <button onClick={signOut} className="text-xs text-muted-foreground hover:text-foreground">Sign out</button>
-                    </div>
-                  </div>
-                ) : (
-                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full rounded-full font-bold">
-                      <LogIn className="w-4 h-4 mr-2" />Sign In
-                    </Button>
-                  </Link>
-                )}
-              </div>
-            </motion.div>
+        <main className="min-w-0 flex-1 pb-24">{children}</main>
+        <nav aria-label="Primary navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
+          <div className="mx-auto flex h-16 max-w-3xl items-stretch justify-between px-2 sm:px-6">
+            {tabs.map((item) => (
+              <Link key={item.path} to={item.path} onClick={() => feedback('tap')} aria-current={active(item.path) ? 'page' : undefined}
+                className={cn('relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring', active(item.path) && 'text-foreground')}>
+                {active(item.path) && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-primary" />}
+                <item.icon aria-hidden="true" className="h-5 w-5" strokeWidth={active(item.path) ? 2.5 : 1.8} />
+                <span className="text-[11px] font-medium sm:text-xs">{item.label}</span>
+              </Link>
+            ))}
+            <Button type="button" variant="ghost" onClick={() => { setMenuOpen(true); feedback('tap'); }} aria-label="More destinations" aria-expanded={menuOpen}
+              className={cn('relative flex h-full min-w-0 flex-1 flex-col gap-1 rounded-none px-0 text-muted-foreground hover:text-foreground', isMoreActive && 'text-foreground')}>
+              {isMoreActive && <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-primary" />}
+              <Menu aria-hidden="true" className="h-5 w-5" /><span className="text-[11px] font-medium sm:text-xs">More</span>
+            </Button>
           </div>
-        )}
+        </nav>
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+          <SheetContent side="right" className="flex w-[min(22rem,90vw)] flex-col border-border bg-card p-0">
+            <SheetHeader className="border-b border-border px-5 py-5 text-left">
+              <SheetTitle className="text-xl font-bold">Explore Sigma</SheetTitle>
+              <SheetDescription>Everything in one place</SheetDescription>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto px-4 py-4">
+              <div className="mb-5"><p className="mb-2 px-3 text-xs font-semibold uppercase text-muted-foreground">Explore</p>{explore.map(menuLink)}</div>
+              <div className="mb-5"><p className="mb-2 px-3 text-xs font-semibold uppercase text-muted-foreground">Create & manage</p>{creator.map(menuLink)}</div>
+              <div><p className="mb-2 px-3 text-xs font-semibold uppercase text-muted-foreground">Account</p>{account.map(menuLink)}</div>
+            </div>
+            <div className="border-t border-border p-4">
+              {user ? <div className="flex items-center gap-3">
+                <Avatar className="h-9 w-9"><AvatarImage src={avatarUrl || ''} /><AvatarFallback><UserCircle className="h-5 w-5" /></AvatarFallback></Avatar>
+                <span className="min-w-0 flex-1 truncate text-sm font-medium">{user.email}</span>
+                <Button variant="ghost" size="sm" onClick={() => { setMenuOpen(false); signOut(); }}>Sign out</Button>
+              </div> : <Button className="w-full" onClick={() => { setMenuOpen(false); navigate('/auth'); }}>Sign in</Button>}
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </TooltipProvider>
-  );
-}
-
-function BottomTab({
-  item,
-  active,
-  onTap,
-}: {
-  item: { icon: React.ElementType; label: string; path: string };
-  active: boolean;
-  onTap: () => void;
-}) {
-  return (
-    <Link
-      to={item.path}
-      onClick={onTap}
-      className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors active:scale-95 ${
-        active ? 'text-primary' : 'text-muted-foreground'
-      }`}
-    >
-      <item.icon className={`w-6 h-6 transition-transform ${active ? 'stroke-[2.5] scale-110' : ''}`} />
-      <span className="text-[10px] font-medium">{item.label}</span>
-      {active && (
-        <motion.span
-          layoutId="mobNavIndicator"
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full"
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-        />
-      )}
-    </Link>
   );
 }
