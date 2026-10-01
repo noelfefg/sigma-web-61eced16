@@ -2,9 +2,22 @@
  * useSound — lightweight WebAudio-based UI sound + haptic feedback.
  * No external assets; synthesised tones for click, tap, success, error.
  */
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type SoundType = 'tap' | 'click' | 'success' | 'error' | 'pop';
+
+const SOUND_KEY = 'sigma-interface-sounds';
+const SOUND_EVENT = 'sigma-interface-sounds-change';
+
+export function getSoundEnabled() {
+  try { return window.localStorage.getItem(SOUND_KEY) === 'true'; }
+  catch { return false; }
+}
+
+export function setSoundEnabled(value: boolean) {
+  try { window.localStorage.setItem(SOUND_KEY, String(value)); } catch { /* unavailable storage */ }
+  window.dispatchEvent(new Event(SOUND_EVENT));
+}
 
 let sharedCtx: AudioContext | null = null;
 function getCtx() {
@@ -27,9 +40,17 @@ const PRESETS: Record<SoundType, { freq: number; dur: number; type: OscillatorTy
 
 export function useSound(enabled = true) {
   const lastRef = useRef(0);
+  const [preferred, setPreferred] = useState(getSoundEnabled);
+
+  useEffect(() => {
+    const sync = () => setPreferred(getSoundEnabled());
+    window.addEventListener(SOUND_EVENT, sync);
+    window.addEventListener('storage', sync);
+    return () => { window.removeEventListener(SOUND_EVENT, sync); window.removeEventListener('storage', sync); };
+  }, []);
 
   const play = useCallback((type: SoundType = 'tap') => {
-    if (!enabled) return;
+    if (!enabled || !preferred) return;
     const now = performance.now();
     if (now - lastRef.current < 40) return; // throttle
     lastRef.current = now;
@@ -47,7 +68,7 @@ export function useSound(enabled = true) {
     osc.connect(gain).connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + p.dur + 0.02);
-  }, [enabled]);
+  }, [enabled, preferred]);
 
   const haptic = useCallback((ms = 10) => {
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {

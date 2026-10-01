@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, User, CheckCircle2, Sparkles, MousePointer2, LogOut } from 'lucide-react';
+import { Shield, User, CheckCircle2, Sparkles, MousePointer2, LogOut, Volume2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getCursorEnabled, setCursorEnabled } from '@/components/CursorProvider';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getSoundEnabled, setSoundEnabled, useSound } from '@/hooks/useSound';
 
 type Tab = 'account' | 'appearance' | 'verification';
 
@@ -123,6 +124,8 @@ export default function SettingsPage() {
 
 function AppearanceSection() {
   const [cursor, setCursor] = useState(getCursorEnabled());
+  const [sounds, setSounds] = useState(getSoundEnabled);
+  const { play } = useSound();
   const isTouch = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
 
   return (
@@ -150,6 +153,16 @@ function AppearanceSection() {
         <Switch checked={cursor} disabled={isTouch} onCheckedChange={(v) => { setCursor(v); setCursorEnabled(v); }} />
       </div>
       {isTouch && <p className="text-xs text-amber-500">Custom cursor is disabled on touch devices.</p>}
+      <div className="flex items-start justify-between gap-4 border-t border-border pt-5">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <Volume2 className="w-4 h-4 text-primary" />
+            <p className="font-semibold text-sm">Interface sounds</p>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Play subtle sounds when using navigation and controls. Off by default.</p>
+        </div>
+        <Switch aria-label="Interface sounds" checked={sounds} onCheckedChange={(value) => { setSounds(value); setSoundEnabled(value); if (value) window.setTimeout(() => play('tap'), 0); }} />
+      </div>
     </div>
   );
 }
