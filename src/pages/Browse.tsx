@@ -91,7 +91,7 @@ export default function BrowsePage() {
       const matchesQuery =
         !q || s.title.toLowerCase().includes(q) || s.profiles.display_name.toLowerCase().includes(q);
       return matchesQuery;
-    }).sort((a, b) => Number(interests.includes(b.categories?.slug ?? '')) - Number(interests.includes(a.categories?.slug ?? '')) || b.viewerCount - a.viewerCount);
+    }).sort((a, b) => Number(interests.includes(b.categories?.slug ?? '')) - Number(interests.includes(a.categories?.slug ?? '')) || b.viewer_count - a.viewer_count);
   }, [streams, query, interests]);
 
   const featured = filtered[0];
