@@ -43,6 +43,7 @@ export function useAuth() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
+        data: { onboarding_pending: true },
       },
     });
 

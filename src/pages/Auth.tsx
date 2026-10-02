@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import LineWaves from '@/components/LineWaves';
+import { supabase } from '@/integrations/supabase/client';
 
 // Only allow same-origin relative paths as post-auth redirect target.
 function safeNext(raw: string | null): string {
@@ -31,7 +32,7 @@ export default function AuthPage() {
 
   // If already signed in, honor `next` (e.g. OAuth consent page) or /you.
   if (!authLoading && user) {
-    return <Navigate to={next} replace />;
+    return <Navigate to={user.user_metadata?.onboarding_pending ? '/onboarding' : next} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,13 +43,19 @@ export default function AuthPage() {
         const { error } = await signIn(email, password);
         if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
         toast({ title: 'Welcome back!', description: 'Signed in successfully.' });
-        navigate(next, { replace: true });
+        const { data: { user: signedInUser } } = await supabase.auth.getUser();
+        navigate(signedInUser?.user_metadata?.onboarding_pending ? '/onboarding' : next, { replace: true });
       } else {
         if (!username.trim()) { toast({ title: 'Error', description: 'Username is required', variant: 'destructive' }); return; }
         const { error } = await signUp(email, password, username);
         if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
-        toast({ title: 'Account created!', description: 'Welcome to SIGMA!' });
-        navigate(next, { replace: true });
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          navigate('/onboarding', { replace: true });
+        } else {
+          toast({ title: 'Check your email', description: 'Confirm your account, then sign in to choose your interests.' });
+          setIsLogin(true);
+        }
       }
     } finally { setLoading(false); }
   };

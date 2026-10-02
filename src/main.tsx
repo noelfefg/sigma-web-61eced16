@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CursorProvider } from "@/components/CursorProvider";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { InterestSetupRedirect } from "@/components/auth/InterestSetupRedirect";
 import BrowsePage from "./pages/Browse";
 import LivePage from "./pages/Live";
 import SearchPage from "./pages/Search";
@@ -27,7 +28,7 @@ import "./index.css";
 function App() {
   return (
     <>
-      <Routes>
+      <InterestSetupRedirect><Routes>
         <Route path="/" element={<BrowsePage />} />
         <Route path="/browse" element={<BrowsePage />} />
         <Route path="/live" element={<LivePage />} />
@@ -48,7 +49,7 @@ function App() {
 
         <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
         <Route path="*" element={<NotFound />} />
-      </Routes>
+      </Routes></InterestSetupRedirect>
       <Toaster />
       <CursorProvider />
     </>

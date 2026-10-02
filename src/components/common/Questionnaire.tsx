@@ -10,6 +10,7 @@ export interface QuestionnaireOption {
   label: string;
   description?: string;
   icon?: ReactNode;
+  image?: string;
 }
 
 export interface QuestionnaireStepConfig {
@@ -92,28 +93,31 @@ export function Questionnaire({
             {step.options.map((opt) => {
               const active = selected.includes(opt.value);
               return (
-                <button
+                <Button
                   key={opt.value}
                   type="button"
+                  variant="outline"
                   role={step.multi ? 'checkbox' : 'radio'}
                   aria-checked={active}
                   onClick={() => onToggle(step.id, opt.value, !!step.multi)}
                   className={cn(
-                    'group relative flex flex-col items-start gap-1 rounded-2xl border p-3 text-left transition-all duration-200',
+                    'group relative h-auto min-h-20 flex-col items-start gap-1 overflow-hidden rounded-md border p-3 text-left transition-all duration-200',
+                    opt.image && 'p-0',
                     active
                       ? 'border-foreground/40 bg-foreground/10 text-foreground'
                       : 'border-border bg-card/60 text-muted-foreground hover:border-foreground/20 hover:bg-secondary/60 hover:text-foreground',
                   )}
                 >
+                  {opt.image && <img src={opt.image} alt="" className="aspect-[4/3] w-full object-cover" />}
                   {opt.icon && <span className="text-foreground/80">{opt.icon}</span>}
-                  <span className="text-sm font-semibold">{opt.label}</span>
+                  <span className={cn('text-sm font-semibold', opt.image && 'px-3 py-2')}>{opt.label}</span>
                   {opt.description && <span className="text-[11px] leading-snug">{opt.description}</span>}
                   {active && (
                     <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-background">
                       <Check className="h-2.5 w-2.5" strokeWidth={3} />
                     </span>
                   )}
-                </button>
+                </Button>
               );
             })}
           </div>
