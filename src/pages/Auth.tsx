@@ -42,13 +42,19 @@ export default function AuthPage() {
         const { error } = await signIn(email, password);
         if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
         toast({ title: 'Welcome back!', description: 'Signed in successfully.' });
-        navigate(next, { replace: true });
+        const { data: { user: signedInUser } } = await (await import('@/integrations/supabase/client')).supabase.auth.getUser();
+        navigate(signedInUser?.user_metadata?.onboarding_pending ? '/onboarding' : next, { replace: true });
       } else {
         if (!username.trim()) { toast({ title: 'Error', description: 'Username is required', variant: 'destructive' }); return; }
         const { error } = await signUp(email, password, username);
         if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
-        toast({ title: 'Account created!', description: 'Welcome to SIGMA!' });
-        navigate(next, { replace: true });
+        const { data: { session } } = await (await import('@/integrations/supabase/client')).supabase.auth.getSession();
+        if (session) {
+          navigate('/onboarding', { replace: true });
+        } else {
+          toast({ title: 'Check your email', description: 'Confirm your account, then sign in to choose your interests.' });
+          setIsLogin(true);
+        }
       }
     } finally { setLoading(false); }
   };
