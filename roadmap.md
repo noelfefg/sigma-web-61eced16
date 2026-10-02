@@ -3,3 +3,4 @@
 - [ ] Reorganize navigation into a clean header, responsive bottom bar, and complete menu without removing destinations.
 - [ ] Make interface sounds optional and off by default in Settings.
 - [ ] Verify navigation and sound preference in the running preview; note any backend limitations.
+- [ ] Move category photos into one-time post-signup interest selection and rank Discover by saved interests.
