@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Compass, Sparkles, Radio, Users } from 'lucide-react';
+import { Search, Compass, Radio } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/common/InputGroup';
 import { StreamRail } from '@/components/sigma/StreamRail';
@@ -14,39 +14,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { SigmaStream, SigmaUser } from '@/types/sigma';
 
-import categoryGaming from '@/assets/category-gaming.jpg.asset.json';
-import categoryCreative from '@/assets/category-creative.jpg.asset.json';
-import categoryMusic from '@/assets/category-music.jpg.asset.json';
-import categoryEducation from '@/assets/category-education.jpg.asset.json';
-import categoryIrl from '@/assets/category-irl.jpg.asset.json';
-import categoryJustChatting from '@/assets/category-just-chatting.jpg.asset.json';
-import categoryPodcast from '@/assets/category-podcast.jpg.asset.json';
-import categorySports from '@/assets/category-sports.jpg.asset.json';
-
-const categoryImages: Record<string, string> = {
-  gaming: categoryGaming.url,
-  creative: categoryCreative.url,
-  music: categoryMusic.url,
-  education: categoryEducation.url,
-  irl: categoryIrl.url,
-  'just-chatting': categoryJustChatting.url,
-  podcast: categoryPodcast.url,
-  sports: categorySports.url,
-};
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  image_url: string | null;
-}
-
 export default function BrowsePage() {
   const { user } = useAuth();
   const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<string | null>(null);
   const [streams, setStreams] = useState<SigmaStream[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [interests, setInterests] = useState<string[]>([]);
   const [creators, setCreators] = useState<SigmaUser[]>([]);
   const [sigmatized, setSigmatized] = useState<SigmaStream[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,8 +27,7 @@ export default function BrowsePage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: cats }, { data: live }, { data: people }] = await Promise.all([
-        supabase.from('categories').select('id, name, slug, image_url').order('name'),
+      const [{ data: live }, { data: people }] = await Promise.all([
         supabase
           .from('streams')
           .select(
@@ -68,7 +39,6 @@ export default function BrowsePage() {
         supabase.from('profiles').select('id, username, display_name, avatar_url').order('created_at', { ascending: false }).limit(16),
       ]);
       if (cancelled) return;
-      setCategories(cats ?? []);
       setStreams((live as unknown as SigmaStream[]) ?? []);
       setCreators((people as SigmaUser[]) ?? []);
       setLoading(false);
@@ -77,6 +47,15 @@ export default function BrowsePage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!user) { setInterests([]); return; }
+    let cancelled = false;
+    supabase.from('user_interests').select('interest').eq('user_id', user.id).then(({ data }) => {
+      if (!cancelled) setInterests((data ?? []).filter((row) => row.interest.startsWith('interests:')).map((row) => row.interest.slice('interests:'.length)));
+    });
+    return () => { cancelled = true; };
+  }, [user]);
 
   useEffect(() => {
     if (!user) {
@@ -111,10 +90,9 @@ export default function BrowsePage() {
     return streams.filter((s) => {
       const matchesQuery =
         !q || s.title.toLowerCase().includes(q) || s.profiles.display_name.toLowerCase().includes(q);
-      const matchesCategory = !selected || s.categories?.slug === selected;
-      return matchesQuery && matchesCategory;
-    });
-  }, [streams, query, selected]);
+      return matchesQuery;
+    }).sort((a, b) => Number(interests.includes(b.categories?.slug ?? '')) - Number(interests.includes(a.categories?.slug ?? '')) || b.viewerCount - a.viewerCount);
+  }, [streams, query, interests]);
 
   const featured = filtered[0];
   const trending = filtered.slice(1, 13);
@@ -129,7 +107,7 @@ export default function BrowsePage() {
             </span>
             <div>
               <h1 className="text-xl font-black tracking-tight">Discover</h1>
-              <p className="text-xs text-muted-foreground">Live channels, creators and categories on Sigma.</p>
+              <p className="text-xs text-muted-foreground">Live channels and creators on Sigma.</p>
             </div>
           </div>
           <Link to="/live">
@@ -151,28 +129,6 @@ export default function BrowsePage() {
             aria-label="Filter live channels"
           />
         </InputGroup>
-
-        <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
-          <Button
-            size="sm"
-            variant={selected === null ? 'default' : 'secondary'}
-            className="h-8 shrink-0 rounded-full text-xs"
-            onClick={() => setSelected(null)}
-          >
-            All
-          </Button>
-          {categories.map((c) => (
-            <Button
-              key={c.id}
-              size="sm"
-              variant={selected === c.slug ? 'default' : 'secondary'}
-              className="h-8 shrink-0 rounded-full text-xs"
-              onClick={() => setSelected(selected === c.slug ? null : c.slug)}
-            >
-              {c.name}
-            </Button>
-          ))}
-        </div>
 
         {loading ? (
           <Skeleton className="aspect-video w-full rounded-3xl" />
@@ -227,47 +183,6 @@ export default function BrowsePage() {
           )}
         />
 
-        <section className="space-y-3" aria-label="Categories">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-base font-bold tracking-tight sm:text-lg">Categories</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {categories.map((c) => {
-              const count = streams.filter((s) => s.categories?.slug === c.slug).length;
-               const image = categoryImages[c.slug] || c.image_url;
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setSelected(selected === c.slug ? null : c.slug)}
-                  className="group relative overflow-hidden rounded-3xl border border-border bg-card text-left transition-transform duration-300 hover:-translate-y-0.5"
-                >
-                  <div className="relative aspect-[16/9]">
-                    {image ? (
-                      <img
-                        src={image}
-                        alt={c.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-secondary" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                    <div className="absolute inset-x-3 bottom-3">
-                      <p className="text-sm font-semibold text-white">{c.name}</p>
-                      <p className="flex items-center gap-1 text-[11px] text-white/70">
-                        <Users className="h-3 w-3" />
-                        {count} live
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
       </div>
     </AppLayout>
   );
