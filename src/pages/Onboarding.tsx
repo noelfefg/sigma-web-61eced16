@@ -18,10 +18,6 @@ export default function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate('/auth', { replace: true });
-  }, [authLoading, user, navigate]);
-
-  useEffect(() => {
     let cancelled = false;
     (async () => {
       if (!user) {
@@ -32,13 +28,23 @@ export default function OnboardingPage() {
         navigate('/', { replace: true });
         return;
       }
-      const [{ data: saved }, { data: cats, error }] = await Promise.all([
+      const [{ data: saved, error: savedError }, { data: cats, error }] = await Promise.all([
         supabase.from('user_interests').select('id').eq('user_id', user.id).eq('source', 'onboarding').limit(1),
         supabase.from('categories').select('id, name, slug').order('name'),
       ]);
       if (cancelled) return;
+      if (savedError) {
+        toast({ title: 'Could not load interests', description: savedError.message, variant: 'destructive' });
+        setLoading(false);
+        return;
+      }
       if (saved?.length) {
-        await supabase.auth.updateUser({ data: { onboarding_pending: false } });
+        const { error: completionError } = await supabase.auth.updateUser({ data: { onboarding_pending: false } });
+        if (completionError) {
+          toast({ title: 'Could not finish setup', description: completionError.message, variant: 'destructive' });
+          setLoading(false);
+          return;
+        }
         navigate('/', { replace: true });
         return;
       }
@@ -98,7 +104,7 @@ export default function OnboardingPage() {
       }
     }
     const rows = (answers.interests ?? []).map((v) => ({ user_id: user.id, interest: `interests:${v}`, source: 'onboarding' }));
-    const { error } = await supabase.from('user_interests').upsert(rows, { onConflict: 'user_id,interest' });
+    const { error } = await supabase.from('user_interests').insert(rows);
     if (error) {
       setSubmitting(false);
       toast({ title: 'Could not save your picks', description: error.message, variant: 'destructive' });

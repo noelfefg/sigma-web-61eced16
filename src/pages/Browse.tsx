@@ -159,8 +159,8 @@ export default function BrowsePage() {
         )}
 
         <StreamRail
-          title="Trending live"
-          description="Sorted by current viewers"
+          title={interests.length ? 'For you' : 'Trending live'}
+          description={interests.length ? 'Live channels matching your interests' : 'Sorted by current viewers'}
           items={trending}
           loading={loading}
           empty="No live channels match this filter."
