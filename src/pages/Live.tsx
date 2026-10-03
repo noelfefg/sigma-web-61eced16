@@ -3,38 +3,25 @@ import { Radio } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StreamCard } from '@/components/sigma/StreamCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import type { SigmaStream } from '@/types/sigma';
 
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
 export default function LivePage() {
   const [streams, setStreams] = useState<SigmaStream[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [active, setActive] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: cats }, { data: live }] = await Promise.all([
-        supabase.from('categories').select('id, name, slug').order('name'),
-        supabase
+      const { data: live } = await supabase
           .from('streams')
           .select(
             'id, title, viewer_count, thumbnail_url, is_live, profiles!inner(id, username, display_name, avatar_url), categories(name, slug)',
           )
           .eq('is_live', true)
-          .order('viewer_count', { ascending: false }),
-      ]);
+          .order('viewer_count', { ascending: false });
       if (cancelled) return;
-      setCategories(cats ?? []);
       setStreams((live as unknown as SigmaStream[]) ?? []);
       setLoading(false);
     })();
@@ -42,8 +29,6 @@ export default function LivePage() {
       cancelled = true;
     };
   }, []);
-
-  const filtered = active ? streams.filter((s) => s.categories?.slug === active) : streams;
 
   return (
     <AppLayout>
@@ -60,35 +45,13 @@ export default function LivePage() {
           </div>
         </header>
 
-        <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
-          <Button
-            size="sm"
-            variant={active === null ? 'default' : 'secondary'}
-            className="h-8 shrink-0 rounded-full text-xs"
-            onClick={() => setActive(null)}
-          >
-            All
-          </Button>
-          {categories.map((c) => (
-            <Button
-              key={c.id}
-              size="sm"
-              variant={active === c.slug ? 'default' : 'secondary'}
-              className="h-8 shrink-0 rounded-full text-xs"
-              onClick={() => setActive(c.slug)}
-            >
-              {c.name}
-            </Button>
-          ))}
-        </div>
-
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[...Array(8)].map((_, i) => (
               <Skeleton key={i} className="aspect-[16/10] rounded-3xl" />
             ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : streams.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center">
             <Radio className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
             <p className="text-sm font-semibold text-foreground">No live channels right now</p>
@@ -96,7 +59,7 @@ export default function LivePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((s, i) => (
+            {streams.map((s, i) => (
               <StreamCard key={s.id} stream={s} index={i} />
             ))}
           </div>

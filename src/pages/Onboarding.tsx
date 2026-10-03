@@ -18,28 +18,40 @@ export default function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate('/auth', { replace: true });
-  }, [authLoading, user, navigate]);
-
-  useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!user?.user_metadata?.onboarding_pending) {
+      if (!user) {
+        if (!authLoading) navigate('/auth', { replace: true });
+        return;
+      }
+      if (!user.user_metadata?.onboarding_pending) {
         navigate('/', { replace: true });
         return;
       }
-      const [{ data: saved }, { data: cats, error }] = await Promise.all([
+      const [{ data: saved, error: savedError }, { data: cats, error }] = await Promise.all([
         supabase.from('user_interests').select('id').eq('user_id', user.id).eq('source', 'onboarding').limit(1),
         supabase.from('categories').select('id, name, slug').order('name'),
       ]);
       if (cancelled) return;
+      if (savedError) {
+        toast({ title: 'Could not load interests', description: savedError.message, variant: 'destructive' });
+        setLoading(false);
+        return;
+      }
       if (saved?.length) {
-        await supabase.auth.updateUser({ data: { onboarding_pending: false } });
+        const { error: completionError } = await supabase.auth.updateUser({ data: { onboarding_pending: false } });
+        if (completionError) {
+          toast({ title: 'Could not finish setup', description: completionError.message, variant: 'destructive' });
+          setLoading(false);
+          return;
+        }
         navigate('/', { replace: true });
         return;
       }
-      if (error) {
-        toast({ title: 'Could not load interests', description: error.message, variant: 'destructive' });
+      if (error || !cats || cats.length < 2) {
+        toast({ title: 'Could not load interests', description: error?.message ?? 'Please try again in a moment.', variant: 'destructive' });
+        setLoading(false);
+        return;
       }
       const interestStep: QuestionnaireStepConfig = {
         id: 'interests',
@@ -55,7 +67,7 @@ export default function OnboardingPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, navigate]);
+  }, [user?.id, user?.user_metadata?.onboarding_pending, authLoading, navigate]);
 
   const toggle = (stepId: string, value: string, multi: boolean) => {
     setAnswers((prev) => {
@@ -71,8 +83,28 @@ export default function OnboardingPage() {
   const handleNext = async () => {
     if (!user) return;
     setSubmitting(true);
+    const { data: profile, error: profileLookupError } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle();
+    if (profileLookupError) {
+      setSubmitting(false);
+      toast({ title: 'Could not save your picks', description: profileLookupError.message, variant: 'destructive' });
+      return;
+    }
+    if (!profile) {
+      const username = user.user_metadata?.username;
+      if (typeof username !== 'string' || !username.trim()) {
+        setSubmitting(false);
+        toast({ title: 'Could not finish setup', description: 'Your account needs a username before saving interests.', variant: 'destructive' });
+        return;
+      }
+      const { error: profileError } = await supabase.from('profiles').insert({ id: user.id, username: username.trim(), display_name: username.trim() });
+      if (profileError) {
+        setSubmitting(false);
+        toast({ title: 'Could not finish setup', description: profileError.message, variant: 'destructive' });
+        return;
+      }
+    }
     const rows = (answers.interests ?? []).map((v) => ({ user_id: user.id, interest: `interests:${v}`, source: 'onboarding' }));
-    const { error } = await supabase.from('user_interests').upsert(rows, { onConflict: 'user_id,interest' });
+    const { error } = await supabase.from('user_interests').insert(rows);
     if (error) {
       setSubmitting(false);
       toast({ title: 'Could not save your picks', description: error.message, variant: 'destructive' });
