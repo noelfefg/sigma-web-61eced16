@@ -77,6 +77,26 @@ export default function OnboardingPage() {
   const handleNext = async () => {
     if (!user) return;
     setSubmitting(true);
+    const { data: profile, error: profileLookupError } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle();
+    if (profileLookupError) {
+      setSubmitting(false);
+      toast({ title: 'Could not save your picks', description: profileLookupError.message, variant: 'destructive' });
+      return;
+    }
+    if (!profile) {
+      const username = user.user_metadata?.username;
+      if (typeof username !== 'string' || !username.trim()) {
+        setSubmitting(false);
+        toast({ title: 'Could not finish setup', description: 'Your account needs a username before saving interests.', variant: 'destructive' });
+        return;
+      }
+      const { error: profileError } = await supabase.from('profiles').insert({ id: user.id, username: username.trim(), display_name: username.trim() });
+      if (profileError) {
+        setSubmitting(false);
+        toast({ title: 'Could not finish setup', description: profileError.message, variant: 'destructive' });
+        return;
+      }
+    }
     const rows = (answers.interests ?? []).map((v) => ({ user_id: user.id, interest: `interests:${v}`, source: 'onboarding' }));
     const { error } = await supabase.from('user_interests').upsert(rows, { onConflict: 'user_id,interest' });
     if (error) {

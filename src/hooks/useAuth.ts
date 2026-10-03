@@ -43,14 +43,14 @@ export function useAuth() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { onboarding_pending: true },
+        data: { onboarding_pending: true, username: username.trim() },
       },
     });
 
     if (error) return { error };
 
     // Create profile after signup
-    if (data.user) {
+    if (data.user && data.session) {
       const { error: profileError } = await supabase.from('profiles').insert({
         id: data.user.id,
         username,
