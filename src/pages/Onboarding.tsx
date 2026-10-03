@@ -24,7 +24,11 @@ export default function OnboardingPage() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!user?.user_metadata?.onboarding_pending) {
+      if (!user) {
+        if (!authLoading) navigate('/auth', { replace: true });
+        return;
+      }
+      if (!user.user_metadata?.onboarding_pending) {
         navigate('/', { replace: true });
         return;
       }
@@ -38,8 +42,10 @@ export default function OnboardingPage() {
         navigate('/', { replace: true });
         return;
       }
-      if (error) {
-        toast({ title: 'Could not load interests', description: error.message, variant: 'destructive' });
+      if (error || !cats || cats.length < 2) {
+        toast({ title: 'Could not load interests', description: error?.message ?? 'Please try again in a moment.', variant: 'destructive' });
+        setLoading(false);
+        return;
       }
       const interestStep: QuestionnaireStepConfig = {
         id: 'interests',
@@ -55,7 +61,7 @@ export default function OnboardingPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, navigate]);
+  }, [user?.id, user?.user_metadata?.onboarding_pending, authLoading, navigate]);
 
   const toggle = (stepId: string, value: string, multi: boolean) => {
     setAnswers((prev) => {
